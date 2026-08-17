@@ -17,176 +17,125 @@ import {
   waitFor,
 } from '@motion-canvas/core';
 
-// Episode-local visual system. Keep it here until EP.001 is approved.
+// EP.001 V3 — vertical-first, single-stage composition.
+// Keep these decisions episode-local until the first video is visually approved.
 const C = {
-  bg: '#10110F',
+  bg: '#0F100E',
   surface: '#191A17',
-  raised: '#20221D',
-  border: '#363930',
+  raised: '#22231F',
+  border: '#383B33',
   text: '#F4F1E8',
-  muted: '#9B9E94',
+  muted: '#969A90',
   accent: '#D8FF68',
-  accentDark: '#1C2410',
-  paper: '#F7F7F2',
+  accentDark: '#1D2411',
+  paper: '#F7F7F3',
   ink: '#1D1E1B',
-  softInk: '#74776F',
+  softInk: '#777B72',
   baiduBlue: '#4E6EF2',
+  success: '#5BA76B',
 };
 
 const FONT = 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif';
 const MONO = '"JetBrains Mono", Consolas, monospace';
-const SAFE_W = 912;
+const SAFE_W = 900;
 
 export default makeScene2D(function* (view) {
   view.fill(C.bg);
 
-  const kicker = createRef<Txt>();
-  const headline = createRef<Txt>();
-  const subhead = createRef<Txt>();
-  const stepPill = createRef<Rect>();
-  const stepText = createRef<Txt>();
+  const caption = createRef<Txt>();
+  const detail = createRef<Txt>();
 
   const browser = createRef<Rect>();
-  const browserToolbar = createRef<Rect>();
-  const addressBar = createRef<Rect>();
   const addressText = createRef<Txt>();
-  const caret = createRef<Rect>();
-  const browserStatus = createRef<Txt>();
-  const pageBody = createRef<Rect>();
-  const logoSkeleton = createRef<Rect>();
+  const pageWaiting = createRef<Txt>();
+  const pageLogoGhost = createRef<Rect>();
   const pageLogo = createRef<Txt>();
   const pageSearch = createRef<Rect>();
   const pageButton = createRef<Rect>();
-  const pageButtonText = createRef<Txt>();
   const pageLine1 = createRef<Rect>();
   const pageLine2 = createRef<Rect>();
   const pageLine3 = createRef<Rect>();
-  const pageReady = createRef<Rect>();
-  const pageReadyText = createRef<Txt>();
+  const pageInteractive = createRef<Rect>();
+  const pageImage = createRef<Rect>();
 
+  const link = createRef<Line>();
   const dnsCard = createRef<Rect>();
-  const dnsLine = createRef<Line>();
   const serverCard = createRef<Rect>();
-  const serverLine = createRef<Line>();
-  const securePill = createRef<Rect>();
+  const secureChip = createRef<Rect>();
   const secureText = createRef<Txt>();
+  const resultChip = createRef<Rect>();
+  const resultText = createRef<Txt>();
 
   const packet = createRef<Rect>();
   const packetIcon = createRef<Icon>();
   const packetLabel = createRef<Txt>();
   const packetMeta = createRef<Txt>();
 
-  const resultPill = createRef<Rect>();
-  const resultText = createRef<Txt>();
-  const footer = createRef<Txt>();
-
   const summary = createRef<Layout>();
   const outro = createRef<Layout>();
 
   view.add(
     <>
-      {/* Fixed title system. All copy stays inside a 912px safe width. */}
+      {/* Only one concise narrative label. No episode tag, no step number, no duplicate chrome. */}
       <Txt
-        ref={kicker}
-        x={-SAFE_W / 2}
-        y={-822}
-        offset={[-1, 0]}
-        text={'7BYTE  /  INTERNET 001'}
-        fill={C.accent}
-        fontFamily={MONO}
-        fontSize={25}
-        fontWeight={700}
-        letterSpacing={1.5}
-        opacity={0}
-      />
-      <Txt
-        ref={headline}
-        x={-SAFE_W / 2}
-        y={-700}
-        offset={[-1, 0]}
-        width={SAFE_W}
-        text={'输入 baidu.com 后，\n电脑到底做了什么？'}
+        ref={caption}
+        y={-790}
+        width={860}
+        text={'在浏览器输入 baidu.com，然后回车。'}
         fill={C.text}
         fontFamily={FONT}
-        fontSize={72}
-        lineHeight={93}
-        fontWeight={760}
-        textAlign={'left'}
+        fontSize={48}
+        lineHeight={64}
+        fontWeight={720}
+        textAlign={'center'}
         opacity={0}
       />
       <Txt
-        ref={subhead}
-        x={-SAFE_W / 2}
-        y={-560}
-        offset={[-1, 0]}
-        width={SAFE_W}
-        text={'你看到的只是一次回车，背后却是一整条互联网流程。'}
+        ref={detail}
+        y={-710}
+        width={840}
+        text={'不到一秒，背后会发生什么？'}
         fill={C.muted}
         fontFamily={FONT}
-        fontSize={29}
-        lineHeight={44}
-        textAlign={'left'}
+        fontSize={26}
+        lineHeight={38}
+        fontWeight={500}
+        textAlign={'center'}
         opacity={0}
       />
-      <Rect
-        ref={stepPill}
-        x={-SAFE_W / 2}
-        y={-792}
-        offset={[-1, 0]}
-        height={52}
-        radius={26}
-        padding={[0, 20]}
-        fill={C.accentDark}
-        stroke={'#405021'}
-        lineWidth={2}
-        layout
-        alignItems={'center'}
-        opacity={0}
-      >
-        <Txt
-          ref={stepText}
-          text={''}
-          fill={C.accent}
-          fontFamily={MONO}
-          fontSize={22}
-          fontWeight={700}
-        />
-      </Rect>
 
-      {/* Browser shell uses layout internally instead of hand-placing toolbar children. */}
+      {/* Familiar browser frame. Everything inside is flex-laid-out and clipped. */}
       <Rect
         ref={browser}
-        y={190}
-        width={900}
-        height={760}
-        radius={34}
+        y={20}
+        width={SAFE_W}
+        height={650}
+        radius={30}
         fill={C.surface}
         stroke={C.border}
-        lineWidth={2.5}
+        lineWidth={2}
         clip
         opacity={0}
-        scale={0.96}
+        scale={0.97}
       >
         <Rect
-          ref={browserToolbar}
-          y={-321}
-          width={900}
-          height={118}
-          padding={[0, 26]}
+          y={-277}
+          width={SAFE_W}
+          height={96}
+          padding={[0, 24]}
           fill={C.raised}
           layout
           direction={'row'}
           alignItems={'center'}
-          gap={16}
+          gap={15}
         >
-          <Icon icon={'lucide:arrow-left'} size={28} color={C.muted} />
-          <Icon icon={'lucide:rotate-cw'} size={26} color={C.muted} />
+          <Icon icon={'lucide:arrow-left'} size={27} color={C.muted} />
+          <Icon icon={'lucide:rotate-cw'} size={25} color={C.muted} />
           <Rect
-            ref={addressBar}
-            height={70}
+            height={62}
             grow={1}
-            radius={35}
-            padding={[0, 22]}
+            radius={31}
+            padding={[0, 20]}
             fill={'#11120F'}
             stroke={C.border}
             lineWidth={2}
@@ -195,206 +144,194 @@ export default makeScene2D(function* (view) {
             alignItems={'center'}
             gap={12}
           >
-            <Icon icon={'lucide:globe-2'} size={24} color={C.muted} />
+            <Icon icon={'lucide:globe-2'} size={23} color={C.muted} />
             <Txt
               ref={addressText}
+              grow={1}
               text={''}
               fill={C.text}
               fontFamily={MONO}
-              fontSize={31}
-              fontWeight={600}
+              fontSize={29}
+              fontWeight={650}
+              textAlign={'left'}
             />
-            <Rect ref={caret} width={2} height={31} fill={C.accent} opacity={0} />
           </Rect>
-          <Icon icon={'lucide:ellipsis'} size={28} color={C.muted} />
+          <Icon icon={'lucide:ellipsis'} size={27} color={C.muted} />
         </Rect>
 
-        <Rect
-          ref={pageBody}
-          y={59}
-          width={900}
-          height={642}
-          fill={C.paper}
-        >
-          <Rect
-            ref={logoSkeleton}
-            y={-155}
-            width={180}
-            height={58}
-            radius={14}
-            fill={'#E1E2DD'}
-            opacity={0}
-          />
+        <Rect y={48} width={SAFE_W} height={554} fill={C.paper}>
           <Txt
-            ref={pageLogo}
-            y={-155}
-            text={'Baidu'}
-            fill={C.ink}
-            fontFamily={FONT}
-            fontSize={64}
-            fontWeight={760}
-            opacity={0}
-          />
-          <Rect
-            ref={pageSearch}
-            y={-35}
-            width={610}
-            height={76}
-            radius={14}
-            fill={'#FFFFFF'}
-            stroke={'#D7D8D3'}
-            lineWidth={2}
-            opacity={0}
-          >
-            <Txt
-              x={-220}
-              text={'搜索一下'}
-              fill={'#A1A49C'}
-              fontFamily={FONT}
-              fontSize={25}
-            />
-            <Rect
-              ref={pageButton}
-              x={252}
-              width={106}
-              height={72}
-              radius={[0, 14, 14, 0]}
-              fill={'#D7D8D3'}
-            >
-              <Txt
-                ref={pageButtonText}
-                text={'搜索'}
-                fill={'#FFFFFF'}
-                fontFamily={FONT}
-                fontSize={24}
-                fontWeight={650}
-              />
-            </Rect>
-          </Rect>
-          <Rect ref={pageLine1} x={-70} y={100} width={500} height={22} radius={11} fill={'#DEDFDA'} opacity={0} />
-          <Rect ref={pageLine2} x={-120} y={150} width={400} height={18} radius={9} fill={'#E6E7E2'} opacity={0} />
-          <Rect ref={pageLine3} x={-155} y={196} width={330} height={18} radius={9} fill={'#E6E7E2'} opacity={0} />
-          <Rect
-            ref={pageReady}
-            y={258}
-            height={42}
-            radius={21}
-            padding={[0, 16]}
-            fill={'#EDF0E8'}
-            layout
-            alignItems={'center'}
-            gap={9}
-            opacity={0}
-          >
-            <Circle size={9} fill={'#58A36A'} />
-            <Txt
-              ref={pageReadyText}
-              text={'交互已就绪'}
-              fill={C.softInk}
-              fontFamily={FONT}
-              fontSize={20}
-              fontWeight={600}
-            />
-          </Rect>
-          <Txt
-            ref={browserStatus}
-            y={270}
-            text={'等待网页数据…'}
+            ref={pageWaiting}
+            y={0}
+            text={'等待服务器响应…'}
             fill={C.softInk}
             fontFamily={FONT}
             fontSize={25}
             opacity={0}
           />
+
+          <Rect
+            ref={pageLogoGhost}
+            y={-120}
+            width={160}
+            height={54}
+            radius={13}
+            fill={'#E1E3DD'}
+            opacity={0}
+          />
+          <Txt
+            ref={pageLogo}
+            y={-120}
+            text={'百度'}
+            fill={C.baiduBlue}
+            fontFamily={FONT}
+            fontSize={62}
+            fontWeight={800}
+            opacity={0}
+          />
+          <Rect
+            ref={pageSearch}
+            y={-10}
+            width={600}
+            height={74}
+            radius={14}
+            fill={'#FFFFFF'}
+            stroke={'#D7D9D3'}
+            lineWidth={2}
+            opacity={0}
+          >
+            <Txt
+              x={-215}
+              text={'搜索一下'}
+              fill={'#A2A59D'}
+              fontFamily={FONT}
+              fontSize={24}
+            />
+            <Rect
+              ref={pageButton}
+              x={247}
+              width={106}
+              height={70}
+              radius={[0, 14, 14, 0]}
+              fill={'#D7D9D3'}
+            >
+              <Txt
+                text={'搜索'}
+                fill={'#FFFFFF'}
+                fontFamily={FONT}
+                fontSize={23}
+                fontWeight={650}
+              />
+            </Rect>
+          </Rect>
+          <Rect ref={pageLine1} x={-82} y={112} width={470} height={21} radius={10} fill={'#D9DCD5'} opacity={0} />
+          <Rect ref={pageLine2} x={-128} y={158} width={378} height={17} radius={8} fill={'#E4E6E0'} opacity={0} />
+          <Rect ref={pageLine3} x={-160} y={200} width={314} height={17} radius={8} fill={'#E4E6E0'} opacity={0} />
+          <Rect
+            ref={pageInteractive}
+            x={132}
+            y={180}
+            height={40}
+            radius={20}
+            padding={[0, 14]}
+            fill={'#EEF1EA'}
+            layout
+            direction={'row'}
+            alignItems={'center'}
+            gap={8}
+            opacity={0}
+          >
+            <Circle size={9} fill={C.success} />
+            <Txt text={'交互已就绪'} fill={C.softInk} fontFamily={FONT} fontSize={19} fontWeight={600} />
+          </Rect>
+          <Rect
+            ref={pageImage}
+            x={238}
+            y={108}
+            width={112}
+            height={82}
+            radius={15}
+            fill={'#ECEFE8'}
+            stroke={'#D9DCD5'}
+            lineWidth={2}
+            opacity={0}
+          >
+            <Icon icon={'lucide:image'} size={30} color={'#9BA096'} />
+          </Rect>
         </Rect>
       </Rect>
 
-      {/* DNS node */}
-      <Rect
-        ref={dnsCard}
-        x={255}
-        y={-135}
-        width={370}
-        height={230}
-        radius={28}
-        padding={28}
-        fill={C.surface}
-        stroke={C.border}
-        lineWidth={2.5}
-        layout
-        direction={'column'}
-        alignItems={'start'}
-        justifyContent={'center'}
-        gap={12}
-        opacity={0}
-        scale={0.9}
-      >
-        <Rect width={58} height={58} radius={18} fill={C.accentDark} layout alignItems={'center'} justifyContent={'center'}>
-          <Icon icon={'lucide:network'} size={31} color={C.accent} />
-        </Rect>
-        <Txt text={'DNS'} fill={C.text} fontFamily={MONO} fontSize={40} fontWeight={800} />
-        <Txt text={'把域名翻译成 IP 地址'} fill={C.muted} fontFamily={FONT} fontSize={24} />
-      </Rect>
+      {/* One centered vertical network path. This uses the 9:16 frame instead of fighting it. */}
       <Line
-        ref={dnsLine}
+        ref={link}
         points={[
-          [-80, 250],
-          [60, 90],
-          [120, -40],
+          [0, -120],
+          [0, 290],
         ]}
         stroke={C.border}
-        lineWidth={3}
-        radius={28}
-        end={0}
-        opacity={0}
-      />
-
-      {/* Web server node */}
-      <Rect
-        ref={serverCard}
-        x={270}
-        y={330}
-        width={360}
-        height={310}
-        radius={28}
-        padding={28}
-        fill={C.surface}
-        stroke={C.border}
-        lineWidth={2.5}
-        layout
-        direction={'column'}
-        alignItems={'start'}
-        justifyContent={'center'}
-        gap={14}
-        opacity={0}
-        scale={0.9}
-      >
-        <Rect width={58} height={58} radius={18} fill={C.accentDark} layout alignItems={'center'} justifyContent={'center'}>
-          <Icon icon={'lucide:server'} size={31} color={C.accent} />
-        </Rect>
-        <Txt text={'WEB SERVER'} fill={C.text} fontFamily={MONO} fontSize={31} fontWeight={800} />
-        <Rect width={260} height={2} fill={C.border} />
-        <Layout layout direction={'row'} alignItems={'center'} gap={10}>
-          <Circle size={10} fill={C.accent} />
-          <Txt text={'ready · 等待请求'} fill={C.muted} fontFamily={MONO} fontSize={20} />
-        </Layout>
-      </Rect>
-      <Line
-        ref={serverLine}
-        points={[
-          [-15, 330],
-          [55, 330],
-          [88, 330],
-        ]}
-        stroke={C.accent}
         lineWidth={4}
         end={0}
         opacity={0}
       />
 
       <Rect
-        ref={securePill}
-        x={36}
-        y={244}
+        ref={dnsCard}
+        y={410}
+        width={520}
+        height={190}
+        radius={28}
+        padding={26}
+        fill={C.surface}
+        stroke={C.border}
+        lineWidth={2}
+        layout
+        direction={'row'}
+        alignItems={'center'}
+        gap={20}
+        opacity={0}
+        scale={0.94}
+      >
+        <Rect width={68} height={68} radius={20} fill={C.accentDark} layout alignItems={'center'} justifyContent={'center'}>
+          <Icon icon={'lucide:network'} size={34} color={C.accent} />
+        </Rect>
+        <Layout grow={1} layout direction={'column'} alignItems={'start'} gap={8}>
+          <Txt text={'DNS'} fill={C.text} fontFamily={MONO} fontSize={36} fontWeight={800} />
+          <Txt text={'把域名翻译成 IP 地址'} fill={C.muted} fontFamily={FONT} fontSize={23} />
+        </Layout>
+      </Rect>
+
+      <Rect
+        ref={serverCard}
+        y={420}
+        width={540}
+        height={220}
+        radius={28}
+        padding={28}
+        fill={C.surface}
+        stroke={C.border}
+        lineWidth={2}
+        layout
+        direction={'row'}
+        alignItems={'center'}
+        gap={22}
+        opacity={0}
+        scale={0.94}
+      >
+        <Rect width={74} height={74} radius={22} fill={C.accentDark} layout alignItems={'center'} justifyContent={'center'}>
+          <Icon icon={'lucide:server'} size={36} color={C.accent} />
+        </Rect>
+        <Layout grow={1} layout direction={'column'} alignItems={'start'} gap={9}>
+          <Txt text={'WEB SERVER'} fill={C.text} fontFamily={MONO} fontSize={30} fontWeight={800} />
+          <Layout layout direction={'row'} alignItems={'center'} gap={9}>
+            <Circle size={10} fill={C.accent} />
+            <Txt text={'ready · 等待请求'} fill={C.muted} fontFamily={MONO} fontSize={19} />
+          </Layout>
+        </Layout>
+      </Rect>
+
+      <Rect
+        ref={secureChip}
+        y={92}
         height={58}
         radius={29}
         padding={[0, 18]}
@@ -406,41 +343,18 @@ export default makeScene2D(function* (view) {
         alignItems={'center'}
         gap={10}
         opacity={0}
-        scale={0.9}
+        scale={0.94}
       >
         <Icon icon={'lucide:shield-check'} size={25} color={C.accent} />
         <Txt ref={secureText} text={'连接已建立'} fill={C.accent} fontFamily={FONT} fontSize={22} fontWeight={650} />
       </Rect>
 
-      {/* One primary moving object: packet chip. */}
       <Rect
-        ref={packet}
-        width={286}
-        height={92}
-        radius={22}
-        padding={[0, 20]}
-        fill={C.accent}
-        layout
-        direction={'row'}
-        alignItems={'center'}
-        gap={14}
-        opacity={0}
-        scale={0.94}
-      >
-        <Icon ref={packetIcon} icon={'lucide:send'} size={30} color={C.bg} />
-        <Layout layout direction={'column'} alignItems={'start'} gap={2}>
-          <Txt ref={packetLabel} text={''} fill={C.bg} fontFamily={MONO} fontSize={25} fontWeight={800} />
-          <Txt ref={packetMeta} text={''} fill={'#36401F'} fontFamily={MONO} fontSize={17} fontWeight={650} />
-        </Layout>
-      </Rect>
-
-      <Rect
-        ref={resultPill}
-        x={-260}
-        y={555}
-        height={64}
-        radius={32}
-        padding={[0, 20]}
+        ref={resultChip}
+        y={105}
+        height={58}
+        radius={29}
+        padding={[0, 18]}
         fill={C.raised}
         stroke={C.border}
         lineWidth={2}
@@ -451,203 +365,206 @@ export default makeScene2D(function* (view) {
         <Txt ref={resultText} text={''} fill={C.text} fontFamily={MONO} fontSize={22} fontWeight={700} />
       </Rect>
 
-      <Txt
-        ref={footer}
-        x={-SAFE_W / 2}
-        y={805}
-        offset={[-1, 0]}
-        width={SAFE_W}
-        text={''}
-        fill={C.muted}
-        fontFamily={FONT}
-        fontSize={27}
-        lineHeight={42}
-        textAlign={'left'}
+      {/* The packet is the only primary moving object during network stages. */}
+      <Rect
+        ref={packet}
+        width={270}
+        height={86}
+        radius={21}
+        padding={[0, 18]}
+        fill={C.accent}
+        layout
+        direction={'row'}
+        alignItems={'center'}
+        gap={13}
         opacity={0}
-      />
+        scale={0.96}
+      >
+        <Icon ref={packetIcon} icon={'lucide:send'} size={28} color={C.bg} />
+        <Layout layout direction={'column'} alignItems={'start'} gap={1}>
+          <Txt ref={packetLabel} text={''} fill={C.bg} fontFamily={MONO} fontSize={24} fontWeight={800} />
+          <Txt ref={packetMeta} text={''} fill={'#36401F'} fontFamily={MONO} fontSize={16} fontWeight={650} />
+        </Layout>
+      </Rect>
 
       <Layout
         ref={summary}
-        y={30}
-        width={SAFE_W}
+        y={0}
+        width={860}
         layout
         direction={'column'}
         alignItems={'center'}
-        gap={32}
+        gap={26}
         opacity={0}
+        scale={0.98}
       >
-        <Txt text={'一次回车，背后跑完这一整条链路'} fill={C.text} fontFamily={FONT} fontSize={46} fontWeight={720} />
-        <Layout layout direction={'column'} alignItems={'stretch'} gap={14} width={780}>
-          {[
-            ['01', 'DNS', '找到服务器'],
-            ['02', 'CONNECT', '建立连接 + 加密通道'],
-            ['03', 'HTTP', '发送网页请求'],
-            ['04', 'RESOURCES', 'HTML / CSS / JS / IMG 返回'],
-            ['05', 'RENDER', '浏览器解析、排版、绘制'],
-          ].map(([n, label, desc]) => (
-            <Rect height={88} radius={22} padding={[0, 24]} fill={C.surface} stroke={C.border} lineWidth={2} layout direction={'row'} alignItems={'center'} gap={22}>
-              <Txt width={48} text={n} fill={C.accent} fontFamily={MONO} fontSize={22} fontWeight={800} />
-              <Txt width={190} text={label} fill={C.text} fontFamily={MONO} fontSize={24} fontWeight={750} />
-              <Txt grow={1} text={desc} fill={C.muted} fontFamily={FONT} fontSize={23} />
-            </Rect>
-          ))}
-        </Layout>
+        <Txt
+          text={'一次回车，背后其实就这几步'}
+          fill={C.text}
+          fontFamily={FONT}
+          fontSize={48}
+          fontWeight={720}
+        />
+        <Txt
+          width={820}
+          text={'找地址  →  建连接  →  发请求\n→  收资源  →  浏览器渲染'}
+          fill={C.muted}
+          fontFamily={FONT}
+          fontSize={36}
+          lineHeight={62}
+          fontWeight={560}
+          textAlign={'center'}
+        />
       </Layout>
 
-      <Layout ref={outro} y={0} layout direction={'column'} alignItems={'center'} gap={18} opacity={0} scale={0.96}>
-        <Txt text={'7BYTE'} fill={C.text} fontFamily={MONO} fontSize={122} fontWeight={850} letterSpacing={5} />
-        <Rect width={110} height={6} radius={3} fill={C.accent} />
-        <Txt text={'把计算机讲简单一点。'} fill={C.muted} fontFamily={FONT} fontSize={38} fontWeight={550} />
+      <Layout ref={outro} y={0} layout direction={'column'} alignItems={'center'} gap={18} opacity={0} scale={0.97}>
+        <Txt text={'7BYTE'} fill={C.text} fontFamily={MONO} fontSize={116} fontWeight={850} letterSpacing={5} />
+        <Rect width={108} height={6} radius={3} fill={C.accent} />
+        <Txt text={'把计算机讲简单一点。'} fill={C.muted} fontFamily={FONT} fontSize={36} fontWeight={550} />
       </Layout>
     </>,
   );
 
-  function* setStep(index: string, title: string, caption: string) {
-    yield* all(headline().opacity(0, 0.22), subhead().opacity(0, 0.22), stepPill().opacity(0, 0.18));
-    headline().text(title);
-    subhead().text(caption);
-    stepText().text(index);
-    yield* all(headline().opacity(1, 0.34), subhead().opacity(1, 0.34), stepPill().opacity(1, 0.28));
+  function* setCaption(title: string, subtitle: string) {
+    yield* all(caption().opacity(0, 0.18), detail().opacity(0, 0.18));
+    caption().text(title);
+    detail().text(subtitle);
+    yield* all(caption().opacity(1, 0.3), detail().opacity(1, 0.3));
   }
 
   function* movePacket(
     label: string,
     meta: string,
     icon: string,
-    from: [number, number],
-    to: [number, number],
-    duration = 1.05,
+    fromY: number,
+    toY: number,
+    duration = 1.0,
   ) {
     packetLabel().text(label);
     packetMeta().text(meta);
     packetIcon().icon(icon);
-    packet().position(from);
-    packet().scale(0.94);
-    yield* all(packet().opacity(1, 0.2), packet().scale(1, 0.28));
-    yield* packet().position(to, duration, easeInOutCubic);
-    yield* packet().opacity(0, 0.2);
+    packet().position([0, fromY]);
+    packet().scale(0.96);
+    yield* all(packet().opacity(1, 0.18), packet().scale(1, 0.24));
+    yield* packet().position([0, toY], duration, easeInOutCubic);
+    yield* packet().opacity(0, 0.18);
   }
 
-  // 00:00–00:06 — Hook: a clean, readable browser at full vertical-video scale.
+  // Hook — let the browser be the hero. No extra episode chrome.
   yield* all(
-    kicker().opacity(1, 0.35),
-    headline().opacity(1, 0.5),
-    subhead().opacity(1, 0.55),
-    browser().opacity(1, 0.5),
-    spring(SmoothSpring, 0.96, 1, value => browser().scale(value)),
+    caption().opacity(1, 0.36),
+    detail().opacity(1, 0.42),
+    browser().opacity(1, 0.45),
+    spring(SmoothSpring, 0.97, 1, value => browser().scale(value)),
   );
-  yield* waitFor(0.8);
+  yield* waitFor(0.65);
 
-  caret().opacity(1);
   const domain = 'baidu.com';
   for (let i = 1; i <= domain.length; i++) {
     addressText().text(domain.slice(0, i));
     yield* waitFor(0.11);
   }
-  yield* waitFor(0.35);
-  caret().opacity(0);
-  browserStatus().text('↵  Enter');
-  yield* browserStatus().opacity(1, 0.2);
-  yield* waitFor(0.55);
-  yield* browserStatus().opacity(0, 0.18);
-
-  // 00:06–00:15 — DNS. Browser becomes a persistent left anchor.
-  yield* setStep('01  /  DNS', '第一步：先找到百度在哪', '电脑真正连接的是 IP 地址，所以浏览器要先把域名交给 DNS。');
-  yield* all(
-    browser().position([-230, 320], 0.8, easeInOutCubic),
-    browser().scale(0.46, 0.8, easeInOutCubic),
-  );
-  yield* all(
-    dnsCard().opacity(1, 0.28),
-    spring(SmoothSpring, 0.9, 1, value => dnsCard().scale(value)),
-    dnsLine().opacity(1, 0.2),
-    dnsLine().end(1, 0.7, easeInOutCubic),
-  );
-  yield* waitFor(0.4);
-
-  yield* movePacket('DNS QUERY', 'baidu.com ?', 'lucide:search', [-120, 210], [230, -65], 1.05);
   yield* waitFor(0.45);
-  yield* movePacket('DNS ANSWER', 'IP 地址', 'lucide:map-pin', [230, -65], [-120, 210], 1.05);
-  resultText().text('baidu.com  →  IP 地址');
-  yield* resultPill().opacity(1, 0.3);
-  yield* waitFor(0.85);
+  pageWaiting().text('↵  Enter');
+  yield* pageWaiting().opacity(1, 0.2);
+  yield* waitFor(0.5);
+  pageWaiting().text('等待服务器响应…');
+  yield* waitFor(0.35);
 
-  // 00:15–00:23 — Connection + HTTPS.
-  yield* setStep('02  /  CONNECT', '找到服务器后，先建立连接', 'HTTPS 还会建立加密通道，后面的请求不会直接裸奔在网络上。');
-  yield* all(dnsCard().opacity(0, 0.35), dnsLine().opacity(0, 0.35), resultPill().opacity(0, 0.3));
+  // DNS — browser moves upward; the explanation naturally continues downward.
+  yield* setCaption('第一步，先找到百度在哪', 'DNS 会把域名翻译成 IP 地址。');
   yield* all(
-    serverCard().opacity(1, 0.3),
-    spring(SmoothSpring, 0.9, 1, value => serverCard().scale(value)),
+    browser().position([0, -360], 0.78, easeInOutCubic),
+    browser().scale(0.72, 0.78, easeInOutCubic),
   );
-  serverLine().opacity(1);
-  yield* serverLine().end(1, 0.8, easeInOutCubic);
+  yield* all(
+    link().opacity(1, 0.2),
+    link().end(1, 0.65, easeInOutCubic),
+    dnsCard().opacity(1, 0.28),
+    spring(SmoothSpring, 0.94, 1, value => dnsCard().scale(value)),
+  );
+  yield* waitFor(0.35);
+
+  yield* movePacket('DNS QUERY', 'baidu.com ?', 'lucide:search', -125, 300, 1.0);
+  yield* waitFor(0.4);
+  yield* movePacket('DNS ANSWER', 'IP 地址', 'lucide:map-pin', 300, -125, 1.0);
+  resultText().text('baidu.com  →  IP 地址');
+  yield* resultChip().opacity(1, 0.28);
+  yield* waitFor(0.75);
+
+  // Connection + HTTPS — same vertical path, new endpoint.
+  yield* setCaption('找到服务器以后，先建立连接', '如果是 HTTPS，还会先建立一条加密通道。');
+  yield* all(dnsCard().opacity(0, 0.3), resultChip().opacity(0, 0.25));
+  yield* all(
+    serverCard().opacity(1, 0.28),
+    spring(SmoothSpring, 0.94, 1, value => serverCard().scale(value)),
+  );
+  link().stroke(C.accent);
   secureText().text('连接已建立');
   yield* all(
-    securePill().opacity(1, 0.25),
-    spring(SmoothSpring, 0.9, 1, value => securePill().scale(value)),
+    secureChip().opacity(1, 0.25),
+    spring(SmoothSpring, 0.94, 1, value => secureChip().scale(value)),
+  );
+  yield* waitFor(0.7);
+  secureText().text('HTTPS · 加密通道');
+  yield* waitFor(0.8);
+
+  // HTTP request.
+  yield* setCaption('连接准备好，浏览器才真正要网页', '这时才会发送 HTTP 请求。');
+  yield* movePacket('GET /', 'HTTP REQUEST', 'lucide:send', -125, 305, 1.05);
+  yield* waitFor(0.55);
+
+  // Resource return. Every return visibly changes the same browser.
+  yield* setCaption('服务器把网页需要的内容发回来', 'HTML 定结构，CSS 管样式，JS 管交互，图片负责视觉内容。');
+  yield* secureChip().opacity(0, 0.25);
+
+  yield* movePacket('HTML', '页面结构', 'lucide:file-code-2', 305, -125, 0.88);
+  pageWaiting().opacity(0);
+  yield* sequence(
+    0.07,
+    pageLogoGhost().opacity(1, 0.22),
+    pageSearch().opacity(1, 0.25),
+    pageLine1().opacity(1, 0.22),
+    pageLine2().opacity(1, 0.22),
+    pageLine3().opacity(1, 0.22),
+  );
+  yield* waitFor(0.3);
+
+  yield* movePacket('CSS', '布局 + 样式', 'lucide:palette', 305, -125, 0.88);
+  yield* all(
+    pageButton().fill(C.baiduBlue, 0.4),
+    pageSearch().stroke('#BFC2BC', 0.4),
+    pageLine1().fill('#C9CCC5', 0.4),
+  );
+  yield* waitFor(0.3);
+
+  yield* movePacket('JS', '交互逻辑', 'lucide:braces', 305, -125, 0.88);
+  yield* pageInteractive().opacity(1, 0.3);
+  yield* waitFor(0.3);
+
+  yield* movePacket('IMG', '图片资源', 'lucide:image', 305, -125, 0.88);
+  yield* all(
+    pageLogoGhost().opacity(0, 0.24),
+    pageLogo().opacity(1, 0.3),
+    pageImage().opacity(1, 0.28),
   );
   yield* waitFor(0.65);
-  secureText().text('HTTPS · 加密通道');
-  yield* waitFor(1.0);
 
-  // 00:23–00:30 — HTTP request.
-  yield* setStep('03  /  HTTP', '连接好了，浏览器才真正要网页', '这时浏览器发送 HTTP 请求：把这个页面给我。');
-  yield* movePacket('GET /', 'HTTP REQUEST', 'lucide:send', [-80, 340], [245, 340], 1.15);
-  yield* waitFor(0.7);
-
-  // 00:30–00:43 — Resources return one by one; each packet visibly changes the browser.
-  yield* setStep('04  /  RESOURCES', '服务器把网页需要的东西陆续发回来', 'HTML 定结构，CSS 管样式，JavaScript 管交互，图片负责视觉内容。');
-  yield* all(browser().position([-190, 330], 0.55, easeInOutCubic), browser().scale(0.52, 0.55, easeInOutCubic));
-
-  yield* movePacket('HTML', '页面结构', 'lucide:file-code-2', [245, 330], [-55, 330], 0.9);
-  yield* sequence(
-    0.08,
-    logoSkeleton().opacity(1, 0.26),
-    pageSearch().opacity(1, 0.28),
-    pageLine1().opacity(1, 0.25),
-    pageLine2().opacity(1, 0.25),
-    pageLine3().opacity(1, 0.25),
-  );
-  yield* waitFor(0.35);
-
-  yield* movePacket('CSS', '布局 + 样式', 'lucide:palette', [245, 330], [-55, 330], 0.9);
+  // Render — same browser returns to the center, now complete.
+  yield* setCaption('最后，浏览器把这些内容真正画出来', '解析 → 排版 → 绘制，于是你看到了网页。');
   yield* all(
-    pageButton().fill(C.baiduBlue, 0.45),
-    pageSearch().stroke('#BFC2BC', 0.45),
-    pageLine1().fill('#C9CBC5', 0.45),
+    serverCard().opacity(0, 0.3),
+    link().opacity(0, 0.28),
+    browser().position([0, 25], 0.78, easeInOutCubic),
+    browser().scale(1, 0.78, easeInOutCubic),
   );
-  yield* waitFor(0.35);
+  yield* waitFor(1.2);
 
-  yield* movePacket('JS', '交互逻辑', 'lucide:braces', [245, 330], [-55, 330], 0.9);
-  yield* pageReady().opacity(1, 0.35);
-  yield* waitFor(0.35);
-
-  yield* movePacket('IMG', '图片资源', 'lucide:image', [245, 330], [-55, 330], 0.9);
-  yield* all(logoSkeleton().opacity(0, 0.28), pageLogo().opacity(1, 0.35));
-  yield* waitFor(0.7);
-
-  // 00:43–00:49 — Render: same browser returns to center, now complete.
-  yield* setStep('05  /  RENDER', '最后，浏览器把这些内容真正画出来', '解析、计算布局、绘制——于是你终于看到了网页。');
-  yield* all(
-    serverCard().opacity(0, 0.35),
-    serverLine().opacity(0, 0.3),
-    securePill().opacity(0, 0.3),
-    browser().position([0, 185], 0.8, easeInOutCubic),
-    browser().scale(1, 0.8, easeInOutCubic),
-  );
-  yield* waitFor(1.3);
-
-  // 00:49–00:55 — Summary and restrained outro.
-  yield* all(
-    kicker().opacity(0, 0.3),
-    headline().opacity(0, 0.3),
-    subhead().opacity(0, 0.3),
-    stepPill().opacity(0, 0.3),
-    browser().opacity(0, 0.42),
-  );
-  yield* all(summary().opacity(1, 0.45), spring(SmoothSpring, 0.97, 1, value => summary().scale(value)));
-  yield* waitFor(2.1);
-  yield* summary().opacity(0, 0.4);
-  yield* all(outro().opacity(1, 0.45), spring(SmoothSpring, 0.96, 1, value => outro().scale(value)));
-  yield* waitFor(2.0);
+  // Summary + outro. Still no numbered chapter list.
+  yield* all(caption().opacity(0, 0.28), detail().opacity(0, 0.28), browser().opacity(0, 0.38));
+  yield* all(summary().opacity(1, 0.4), spring(SmoothSpring, 0.98, 1, value => summary().scale(value)));
+  yield* waitFor(1.8);
+  yield* summary().opacity(0, 0.32);
+  yield* all(outro().opacity(1, 0.4), spring(SmoothSpring, 0.97, 1, value => outro().scale(value)));
+  yield* waitFor(1.8);
 });
