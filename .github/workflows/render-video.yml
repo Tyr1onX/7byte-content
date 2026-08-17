@@ -1,0 +1,90 @@
+name: render-video
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/render-video.yml
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, or SHA to render
+        required: true
+        default: feat/bootstrap-7byte-studio
+      duration_ms:
+        description: Capture duration in milliseconds
+        required: true
+        default: '100500'
+
+permissions:
+  contents: read
+
+jobs:
+  capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Resolve render ref
+        id: render
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+            echo "duration_ms=${{ inputs.duration_ms }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=feat/bootstrap-7byte-studio" >> "$GITHUB_OUTPUT"
+            echo "duration_ms=100500" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout episode source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.render.outputs.ref }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install project dependencies
+        run: npm install
+
+      - name: Install capture browser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Build Pages player
+        run: npm run build:pages
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Start local preview
+        shell: bash
+        run: |
+          npx vite preview --host 127.0.0.1 --port 4173 > /tmp/7byte-vite.log 2>&1 &
+          echo $! > /tmp/7byte-vite.pid
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/7byte-content/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/7byte-vite.log
+          exit 1
+
+      - name: Capture animation canvas
+        run: node scripts/capture-pages-video.mjs
+        env:
+          CAPTURE_URL: http://127.0.0.1:4173/7byte-content/?capture=1
+          CAPTURE_DURATION_MS: ${{ steps.render.outputs.duration_ms }}
+          CAPTURE_OUTPUT: output/ep001-silent.webm
+
+      - name: Upload silent video
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep001-silent-video
+          path: output/ep001-silent.webm
+          if-no-files-found: error
+          retention-days: 7
