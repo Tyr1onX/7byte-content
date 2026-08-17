@@ -44,6 +44,7 @@ jobs:
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           else
+            # Main only owns the Pages deployment. Preview source stays on the episode branch.
             echo "ref=feat/bootstrap-7byte-studio" >> "$GITHUB_OUTPUT"
           fi
 
@@ -73,6 +74,7 @@ jobs:
           test -f dist/index.html
           test -f dist/project-manifest.js
           grep -q '/7byte-content/assets/' dist/index.html
+          grep -q 'quality="1"' dist/index.html
           grep -q 'auto="true"' dist/index.html
 
       - name: Upload Pages artifact
