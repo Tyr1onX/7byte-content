@@ -71,6 +71,9 @@ export default makeScene2D(function* (view) {
   const packetLabel = createRef<Txt>();
   const packetMeta = createRef<Txt>();
 
+  const subtitleBar = createRef<Rect>();
+  const subtitleText = createRef<Txt>();
+
   const summary = createRef<Layout>();
   const outro = createRef<Layout>();
 
@@ -387,6 +390,35 @@ export default makeScene2D(function* (view) {
         </Layout>
       </Rect>
 
+      {/* Narration subtitles live in a dedicated lower safe zone. Keep them short and readable. */}
+      <Rect
+        ref={subtitleBar}
+        y={690}
+        width={880}
+        height={112}
+        radius={26}
+        padding={[14, 28]}
+        fill={'#181916'}
+        stroke={'#30332B'}
+        lineWidth={2}
+        layout
+        alignItems={'center'}
+        justifyContent={'center'}
+        opacity={0}
+      >
+        <Txt
+          ref={subtitleText}
+          width={820}
+          text={'你有没有想过？'}
+          fill={C.text}
+          fontFamily={FONT}
+          fontSize={36}
+          lineHeight={48}
+          fontWeight={650}
+          textAlign={'center'}
+        />
+      </Rect>
+
       <Layout
         ref={summary}
         y={0}
@@ -425,6 +457,11 @@ export default makeScene2D(function* (view) {
     </>,
   );
 
+  function setSubtitle(text: string) {
+    subtitleText().text(text);
+    subtitleBar().opacity(1);
+  }
+
   function* setCaption(title: string, subtitle: string) {
     yield* all(caption().opacity(0, 0.2), detail().opacity(0, 0.2));
     caption().text(title);
@@ -455,10 +492,12 @@ export default makeScene2D(function* (view) {
     caption().opacity(1, 0.42),
     detail().opacity(1, 0.48),
     browser().opacity(1, 0.5),
+    subtitleBar().opacity(1, 0.32),
     spring(SmoothSpring, 0.97, 1, value => browser().scale(value)),
   );
   yield* waitFor(1.1);
 
+  setSubtitle('当你在浏览器里输入 baidu.com，\n然后按下回车。');
   const domain = 'baidu.com';
   for (let i = 1; i <= domain.length; i++) {
     addressText().text(domain.slice(0, i));
@@ -467,11 +506,13 @@ export default makeScene2D(function* (view) {
   yield* waitFor(0.75);
   pageWaiting().text('↵  Enter');
   yield* pageWaiting().opacity(1, 0.22);
+  setSubtitle('看起来只是打开了一个网页，\n背后却跑完了一整套互联网流程。');
   yield* waitFor(1.3);
   pageWaiting().text('等待服务器响应…');
   yield* waitFor(1.0);
 
   // 00:07–00:20 — DNS. Let the result stay on screen long enough for the narration to explain it.
+  setSubtitle('第一步，浏览器得先知道：\n百度到底在哪。');
   yield* setCaption('第一步，先找到百度在哪', 'DNS 会把域名翻译成 IP 地址。');
   yield* waitFor(0.9);
   yield* all(
@@ -484,16 +525,20 @@ export default makeScene2D(function* (view) {
     dnsCard().opacity(1, 0.32),
     spring(SmoothSpring, 0.94, 1, value => dnsCard().scale(value)),
   );
+  setSubtitle('网络通信真正要找的不是域名，\n而是服务器对应的 IP 地址。');
   yield* waitFor(1.2);
 
+  setSubtitle('所以它会先去问 DNS：\n这个域名对应哪个 IP？');
   yield* movePacket('DNS QUERY', 'baidu.com ?', 'lucide:search', -125, 300, 1.3);
   yield* waitFor(0.9);
+  setSubtitle('DNS 把地址告诉浏览器以后，\n它才知道该去找哪台服务器。');
   yield* movePacket('DNS ANSWER', 'IP 地址', 'lucide:map-pin', 300, -125, 1.3);
   resultText().text('baidu.com  →  IP 地址');
   yield* resultChip().opacity(1, 0.32);
   yield* waitFor(2.6);
 
   // 00:20–00:31 — Connection + HTTPS. The labels hold; the transitions themselves remain quick.
+  setSubtitle('接下来，浏览器和服务器建立连接。');
   yield* setCaption('找到服务器以后，先建立连接', '如果是 HTTPS，还会先建立一条加密通道。');
   yield* waitFor(0.8);
   yield* all(dnsCard().opacity(0, 0.34), resultChip().opacity(0, 0.3));
@@ -504,25 +549,31 @@ export default makeScene2D(function* (view) {
   yield* waitFor(1.0);
   link().stroke(C.accent);
   secureText().text('连接已建立');
+  setSubtitle('如果访问的是 HTTPS，\n还会先建立一条加密通道。');
   yield* all(
     secureChip().opacity(1, 0.28),
     spring(SmoothSpring, 0.94, 1, value => secureChip().scale(value)),
   );
   yield* waitFor(2.2);
   secureText().text('HTTPS · 加密通道');
+  setSubtitle('后面的数据，\n就在这条加密通道里传输。');
   yield* waitFor(3.3);
 
   // 00:31–00:38 — HTTP request.
+  setSubtitle('然后浏览器才真正发出 HTTP 请求。');
   yield* setCaption('连接准备好，浏览器才真正要网页', '这时才会发送 HTTP 请求。');
   yield* waitFor(1.2);
+  setSubtitle('GET / —— 把这个页面给我。');
   yield* movePacket('GET /', 'HTTP REQUEST', 'lucide:send', -125, 305, 1.3);
   yield* waitFor(2.3);
 
   // 00:38–00:51 — Resource return. Each arrival gets a visible hold before the next resource starts.
+  setSubtitle('服务器收到以后，\n会把网页需要的内容陆续发回来。');
   yield* setCaption('服务器把网页需要的内容发回来', 'HTML 定结构，CSS 管样式，JS 管交互，图片负责视觉内容。');
   yield* waitFor(0.8);
   yield* secureChip().opacity(0, 0.28);
 
+  setSubtitle('HTML 决定页面结构。');
   yield* movePacket('HTML', '页面结构', 'lucide:file-code-2', 305, -125, 1.1);
   pageWaiting().opacity(0);
   yield* sequence(
@@ -535,6 +586,7 @@ export default makeScene2D(function* (view) {
   );
   yield* waitFor(1.0);
 
+  setSubtitle('CSS 决定页面样式。');
   yield* movePacket('CSS', '布局 + 样式', 'lucide:palette', 305, -125, 1.1);
   yield* all(
     pageButton().fill(C.baiduBlue, 0.46),
@@ -543,10 +595,12 @@ export default makeScene2D(function* (view) {
   );
   yield* waitFor(1.0);
 
+  setSubtitle('JavaScript 负责交互。');
   yield* movePacket('JS', '交互逻辑', 'lucide:braces', 305, -125, 1.1);
   yield* pageInteractive().opacity(1, 0.36);
   yield* waitFor(1.0);
 
+  setSubtitle('图片等资源也会继续加载。');
   yield* movePacket('IMG', '图片资源', 'lucide:image', 305, -125, 1.1);
   yield* all(
     pageLogoGhost().opacity(0, 0.3),
@@ -556,6 +610,7 @@ export default makeScene2D(function* (view) {
   yield* waitFor(1.4);
 
   // 00:51–00:56 — Render. Hold the completed browser instead of cutting away immediately.
+  setSubtitle('浏览器一边收到这些数据，\n一边解析、排版和绘制。');
   yield* setCaption('最后，浏览器把这些内容真正画出来', '解析 → 排版 → 绘制，于是你看到了网页。');
   yield* waitFor(0.7);
   yield* all(
@@ -564,13 +619,17 @@ export default makeScene2D(function* (view) {
     browser().position([0, 25], 0.88, easeInOutCubic),
     browser().scale(1, 0.88, easeInOutCubic),
   );
-  yield* waitFor(2.8);
+  yield* waitFor(1.3);
+  setSubtitle('最后，你才真正看到了这个网页。');
+  yield* waitFor(1.5);
 
   // 00:56–01:00 — Summary + outro.
+  setSubtitle('所以你以为自己只是按了一次回车。');
   yield* all(caption().opacity(0, 0.3), detail().opacity(0, 0.3), browser().opacity(0, 0.42));
   yield* all(summary().opacity(1, 0.42), spring(SmoothSpring, 0.98, 1, value => summary().scale(value)));
+  setSubtitle('实际上背后已经完成了：\n找地址、建连接、加密、请求、传输和渲染。');
   yield* waitFor(2.2);
-  yield* summary().opacity(0, 0.34);
+  yield* all(summary().opacity(0, 0.34), subtitleBar().opacity(0, 0.24));
   yield* all(outro().opacity(1, 0.42), spring(SmoothSpring, 0.97, 1, value => outro().scale(value)));
   yield* waitFor(2.1);
 });
