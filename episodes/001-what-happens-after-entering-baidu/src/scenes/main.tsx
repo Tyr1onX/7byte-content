@@ -63,7 +63,6 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
-      {/* 顶部叙事区：字幕会在剪映中另加，这里只保留必要的视觉标题。 */}
       <Txt
         ref={eyebrow}
         x={-390}
@@ -101,7 +100,7 @@ export default makeScene2D(function* (view) {
         opacity={0}
       />
 
-      {/* 一个程序化复现的“真实感浏览器”，始终作为故事中的同一个对象存在。 */}
+      {/* 程序化浏览器：同一个对象贯穿开头、抽象流程和结尾。 */}
       <Rect
         ref={browser}
         x={0}
@@ -115,13 +114,7 @@ export default makeScene2D(function* (view) {
         opacity={0}
         clip
       >
-        {/* 浏览器 chrome */}
-        <Rect
-          y={-470}
-          width={900}
-          height={100}
-          fill={PANEL_2}
-        >
+        <Rect y={-470} width={900} height={100} fill={PANEL_2}>
           <Circle x={-395} width={18} height={18} fill={'#6C7068'} />
           <Circle x={-360} width={18} height={18} fill={'#6C7068'} />
           <Circle x={-325} width={18} height={18} fill={'#6C7068'} />
@@ -170,7 +163,7 @@ export default makeScene2D(function* (view) {
           />
         </Rect>
 
-        {/* 页面主体。资源回来时逐步“长出来”，体现因果，而不是装饰性飞卡片。 */}
+        {/* 资源抵达时页面真的发生变化，避免装饰性“飞卡片”。 */}
         <Txt
           ref={browserHint}
           y={-80}
@@ -266,7 +259,6 @@ export default makeScene2D(function* (view) {
         />
       </Rect>
 
-      {/* DNS：形状接近基础设施节点，不做发光玻璃卡片。 */}
       <Rect
         ref={dns}
         x={290}
@@ -309,7 +301,6 @@ export default makeScene2D(function* (view) {
         end={0}
       />
 
-      {/* 目标服务器始终固定在右下，DNS 淡出后这里成为唯一焦点。 */}
       <Rect
         ref={server}
         x={300}
@@ -390,7 +381,7 @@ export default makeScene2D(function* (view) {
         />
       </Rect>
 
-      {/* 唯一主要运动对象：packet。每次运动都有明确方向和语义。 */}
+      {/* packet 是网络阶段唯一的主运动对象。 */}
       <Rect
         ref={packet}
         x={-180}
@@ -421,7 +412,6 @@ export default makeScene2D(function* (view) {
         />
       </Rect>
 
-      {/* 小结果卡只用于停留阅读，不参与无意义运动。 */}
       <Rect
         ref={result}
         x={-220}
@@ -480,9 +470,7 @@ export default makeScene2D(function* (view) {
     </>,
   );
 
-  // ---------------------------------------------------------------------------
-  // 00:00–00:06  Hook：先从“真实浏览器行为”开始，不先抛流程图。
-  // ---------------------------------------------------------------------------
+  // 00:00–00:06 — 从真实浏览器行为进入，不先抛流程图。
   yield* all(
     eyebrow().opacity(1, 0.45),
     headline().opacity(1, 0.65),
@@ -490,8 +478,10 @@ export default makeScene2D(function* (view) {
   );
   yield* waitFor(0.8);
 
-  headline().opacity(0, 0.45);
-  eyebrow().opacity(0, 0.45);
+  yield* all(
+    headline().opacity(0, 0.45),
+    eyebrow().opacity(0, 0.45),
+  );
   caret().opacity(1);
 
   const domain = 'baidu.com';
@@ -508,15 +498,13 @@ export default makeScene2D(function* (view) {
   yield* browserHint().opacity(0, 0.25);
   caret().opacity(0);
 
-  // 浏览器缩到左侧，之后始终保持在同一空间位置，建立连续性。
+  // 浏览器缩到左侧后保持锚点位置，保证空间连续性。
   yield* all(
     browser().position([-300, 220], 0.9, easeInOutCubic),
     browser().scale(0.56, 0.9, easeInOutCubic),
   );
 
-  // ---------------------------------------------------------------------------
-  // 00:06–00:17  DNS：问题 → 查询 → 响应。一次只有 packet 是主运动对象。
-  // ---------------------------------------------------------------------------
+  // 00:06–00:17 — DNS 查询与响应。
   phase().text('01 / 先找到服务器在哪');
   yield* phase().opacity(1, 0.35);
   yield* dns().opacity(1, 0.55);
@@ -542,15 +530,12 @@ export default makeScene2D(function* (view) {
   yield* waitFor(1.15);
   yield* result().opacity(0, 0.35);
 
-  // DNS 完成任务后退到背景，不突然换一套布局。
   yield* all(
     dns().opacity(0.18, 0.55),
     dnsLine().opacity(0.18, 0.55),
   );
 
-  // ---------------------------------------------------------------------------
-  // 00:17–00:27  建立连接 + HTTPS：沿同一条固定路径完成。
-  // ---------------------------------------------------------------------------
+  // 00:17–00:27 — 建立连接，再建立 HTTPS 加密通道。
   phase().text('02 / 建立连接');
   yield* server().opacity(1, 0.55);
   serverLine().opacity(1);
@@ -568,9 +553,7 @@ export default makeScene2D(function* (view) {
     connectionState().opacity(0, 0.35),
   );
 
-  // ---------------------------------------------------------------------------
-  // 00:27–00:34  HTTP：GET / 是一个“真正有内容的数据包”。
-  // ---------------------------------------------------------------------------
+  // 00:27–00:34 — 沿既有路径发送一个明确的 HTTP request packet。
   phase().text('04 / 发出 HTTP 请求');
   packetText().text('GET /');
   packetSub().text('HTTP request');
@@ -587,36 +570,54 @@ export default makeScene2D(function* (view) {
   yield* waitFor(0.85);
   yield* result().opacity(0, 0.35);
 
-  // ---------------------------------------------------------------------------
-  // 00:34–00:47  资源返回：每个资源都对应浏览器页面的一个可见变化。
-  // ---------------------------------------------------------------------------
+  // 00:34–00:47 — 返回资源，每个 packet 抵达都改变页面状态。
   phase().text('05 / 数据回来，页面一点点长出来');
   browserHint().text('正在接收页面数据…');
   yield* browserHint().opacity(1, 0.3);
 
   const resources = [
-    {label: 'HTML', sub: 'structure', state: 'HTML → 页面结构', apply: function* () {
-      yield* all(
-        pageTitle().opacity(1, 0.35),
-        pageLine1().opacity(1, 0.35),
-        pageLine2().opacity(1, 0.35),
-        pageLine3().opacity(1, 0.35),
-      );
-    }},
-    {label: 'CSS', sub: 'styles', state: 'CSS → 页面样式', apply: function* () {
-      yield* pageSearch().opacity(1, 0.4);
-    }},
-    {label: 'JS', sub: 'behavior', state: 'JavaScript → 页面开始工作', apply: function* () {
-      pageStatus().text('interaction ready');
-      yield* pageStatus().opacity(1, 0.35);
-    }},
-    {label: 'IMG', sub: 'assets', state: '图片等资源继续加载', apply: function* () {
-      yield* all(
-        pageLine1().fill('#5B6255', 0.35),
-        pageLine2().fill('#444940', 0.35),
-        pageLine3().fill('#383D36', 0.35),
-      );
-    }},
+    {
+      label: 'HTML',
+      sub: 'structure',
+      state: 'HTML → 页面结构',
+      apply: function* () {
+        yield* all(
+          pageTitle().opacity(1, 0.35),
+          pageLine1().opacity(1, 0.35),
+          pageLine2().opacity(1, 0.35),
+          pageLine3().opacity(1, 0.35),
+        );
+      },
+    },
+    {
+      label: 'CSS',
+      sub: 'styles',
+      state: 'CSS → 页面样式',
+      apply: function* () {
+        yield* pageSearch().opacity(1, 0.4);
+      },
+    },
+    {
+      label: 'JS',
+      sub: 'behavior',
+      state: 'JavaScript → 页面开始工作',
+      apply: function* () {
+        pageStatus().text('interaction ready');
+        yield* pageStatus().opacity(1, 0.35);
+      },
+    },
+    {
+      label: 'IMG',
+      sub: 'assets',
+      state: '图片等资源继续加载',
+      apply: function* () {
+        yield* all(
+          pageLine1().fill('#5B6255', 0.35),
+          pageLine2().fill('#444940', 0.35),
+          pageLine3().fill('#383D36', 0.35),
+        );
+      },
+    },
   ];
 
   for (const item of resources) {
@@ -637,9 +638,7 @@ export default makeScene2D(function* (view) {
   yield* browserHint().opacity(0, 0.3);
   yield* waitFor(0.65);
 
-  // ---------------------------------------------------------------------------
-  // 00:47–00:52  回到浏览器：把抽象解释重新接回用户最初看到的结果。
-  // ---------------------------------------------------------------------------
+  // 00:47–00:52 — 网络抽象退场，同一个浏览器回到中央形成闭环。
   phase().text('06 / 浏览器解析、排版、绘制');
   yield* all(
     dns().opacity(0, 0.45),
@@ -663,9 +662,7 @@ export default makeScene2D(function* (view) {
     phase().opacity(0, 0.45),
   );
 
-  // ---------------------------------------------------------------------------
-  // 00:52–00:57  总结 + 克制片尾。
-  // ---------------------------------------------------------------------------
+  // 00:52–00:57 — 六步总结和克制片尾。
   yield* summary().opacity(1, 0.55);
   yield* waitFor(1.65);
   yield* summary().opacity(0, 0.45);
