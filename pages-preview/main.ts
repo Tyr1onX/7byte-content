@@ -60,14 +60,17 @@ async function boot() {
       throw new Error('项目 bundle 已加载，但没有 default export。');
     }
 
+    player.setAttribute('auto', 'true');
     player.setAttribute('src', projectUrl);
-    player.setAttribute('auto', '');
     setStatus('loading', '正在初始化场景…', '项目代码已加载，等待播放器进入 ready 状态。');
 
     const deadline = Date.now() + 15000;
     while (Date.now() < deadline) {
       const overlay = player.shadowRoot?.querySelector('.overlay');
       if (overlay?.classList.contains('state-ready')) {
+        // @motion-canvas/player 把 auto 当作字符串布尔值读取，必须是非空值。
+        // 再写一次确保 attributeChangedCallback 会启动播放。
+        player.setAttribute('auto', 'true');
         setStatus('ready', '已加载', 'Episode 001 正在自动播放。');
         return;
       }
