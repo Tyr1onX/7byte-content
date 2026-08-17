@@ -3,6 +3,8 @@ import '@motion-canvas/player';
 declare global {
   interface Window {
     __SEVENBYTE_PROJECT_PATH__?: string;
+    __SEVENBYTE_CAPTURE_MODE__?: boolean;
+    __SEVENBYTE_START_CAPTURE_PLAYBACK__?: () => void;
   }
 }
 
@@ -10,6 +12,8 @@ const player = document.querySelector('#player') as HTMLElement | null;
 const status = document.querySelector('#status') as HTMLElement | null;
 const title = document.querySelector('#status-title') as HTMLElement | null;
 const detail = document.querySelector('#status-detail') as HTMLElement | null;
+const captureMode = new URLSearchParams(window.location.search).get('capture') === '1';
+window.__SEVENBYTE_CAPTURE_MODE__ = captureMode;
 
 function setStatus(state: 'loading' | 'ready' | 'error', heading: string, message: string) {
   if (status) status.dataset.state = state;
@@ -60,18 +64,30 @@ async function boot() {
       throw new Error('项目 bundle 已加载，但没有 default export。');
     }
 
-    player.setAttribute('auto', 'true');
+    // Normal preview auto-plays. Capture mode intentionally stays paused at frame 0
+    // so a recorder can start first and then begin playback deterministically.
+    if (!captureMode) {
+      player.setAttribute('auto', 'true');
+    } else {
+      player.removeAttribute('auto');
+    }
     player.setAttribute('src', projectUrl);
     setStatus('loading', '正在初始化场景…', '项目代码已加载，等待播放器进入 ready 状态。');
 
     const deadline = Date.now() + 15000;
     while (Date.now() < deadline) {
-      const overlay = player.shadowRoot?.querySelector('.overlay');
+      const overlay = player.shadowRoot?.querySelector('.overlay') as HTMLElement | null;
       if (overlay?.classList.contains('state-ready')) {
-        // @motion-canvas/player 把 auto 当作字符串布尔值读取，必须是非空值。
-        // 再写一次确保 attributeChangedCallback 会启动播放。
-        player.setAttribute('auto', 'true');
-        setStatus('ready', '已加载', 'Episode 001 正在自动播放。');
+        if (captureMode) {
+          window.__SEVENBYTE_START_CAPTURE_PLAYBACK__ = () => {
+            overlay.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
+          };
+          setStatus('ready', '捕获模式已就绪', '播放器停在第 0 帧，等待录制脚本启动。');
+        } else {
+          // @motion-canvas/player reads auto as a string boolean; it must be non-empty.
+          player.setAttribute('auto', 'true');
+          setStatus('ready', '已加载', 'Episode 001 正在自动播放。');
+        }
         return;
       }
       if (overlay?.classList.contains('state-error')) {
