@@ -73,6 +73,7 @@ jobs:
           test -f dist/index.html
           test -f dist/project-manifest.js
           grep -q '/7byte-content/assets/' dist/index.html
+          grep -q 'auto="true"' dist/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
