@@ -2,6 +2,11 @@ name: deploy-pages
 
 on:
   workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch or ref to deploy
+        required: true
+        default: feat/bootstrap-7byte-studio
 
 permissions:
   contents: read
@@ -16,13 +21,15 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout preview ref
         uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Configure Pages
         uses: actions/configure-pages@v5
