@@ -63,15 +63,18 @@ jobs:
       - name: Start local preview
         shell: bash
         run: |
-          npx vite preview --host 127.0.0.1 --port 4173 > /tmp/7byte-vite.log 2>&1 &
-          echo $! > /tmp/7byte-vite.pid
+          rm -rf .capture-site
+          mkdir -p .capture-site/7byte-content
+          cp -a dist/. .capture-site/7byte-content/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site > /tmp/7byte-http.log 2>&1 &
+          echo $! > /tmp/7byte-http.pid
           for i in {1..60}; do
             if curl --fail --silent http://127.0.0.1:4173/7byte-content/ > /dev/null; then
               exit 0
             fi
             sleep 1
           done
-          cat /tmp/7byte-vite.log
+          cat /tmp/7byte-http.log
           exit 1
 
       - name: Capture animation canvas
