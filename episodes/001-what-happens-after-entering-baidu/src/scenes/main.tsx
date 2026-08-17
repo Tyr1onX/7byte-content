@@ -426,10 +426,10 @@ export default makeScene2D(function* (view) {
   );
 
   function* setCaption(title: string, subtitle: string) {
-    yield* all(caption().opacity(0, 0.18), detail().opacity(0, 0.18));
+    yield* all(caption().opacity(0, 0.2), detail().opacity(0, 0.2));
     caption().text(title);
     detail().text(subtitle);
-    yield* all(caption().opacity(1, 0.3), detail().opacity(1, 0.3));
+    yield* all(caption().opacity(1, 0.34), detail().opacity(1, 0.34));
   }
 
   function* movePacket(
@@ -438,133 +438,139 @@ export default makeScene2D(function* (view) {
     icon: string,
     fromY: number,
     toY: number,
-    duration = 1.0,
+    duration = 1.2,
   ) {
     packetLabel().text(label);
     packetMeta().text(meta);
     packetIcon().icon(icon);
     packet().position([0, fromY]);
     packet().scale(0.96);
-    yield* all(packet().opacity(1, 0.18), packet().scale(1, 0.24));
+    yield* all(packet().opacity(1, 0.2), packet().scale(1, 0.26));
     yield* packet().position([0, toY], duration, easeInOutCubic);
-    yield* packet().opacity(0, 0.18);
+    yield* packet().opacity(0, 0.2);
   }
 
-  // Hook — let the browser be the hero. No extra episode chrome.
+  // 00:00–00:07 — Hook. Movement stays crisp; time is added as readable holds.
   yield* all(
-    caption().opacity(1, 0.36),
-    detail().opacity(1, 0.42),
-    browser().opacity(1, 0.45),
+    caption().opacity(1, 0.42),
+    detail().opacity(1, 0.48),
+    browser().opacity(1, 0.5),
     spring(SmoothSpring, 0.97, 1, value => browser().scale(value)),
   );
-  yield* waitFor(0.65);
+  yield* waitFor(1.1);
 
   const domain = 'baidu.com';
   for (let i = 1; i <= domain.length; i++) {
     addressText().text(domain.slice(0, i));
-    yield* waitFor(0.11);
+    yield* waitFor(0.16);
   }
-  yield* waitFor(0.45);
-  pageWaiting().text('↵  Enter');
-  yield* pageWaiting().opacity(1, 0.2);
-  yield* waitFor(0.5);
-  pageWaiting().text('等待服务器响应…');
-  yield* waitFor(0.35);
-
-  // DNS — browser moves upward; the explanation naturally continues downward.
-  yield* setCaption('第一步，先找到百度在哪', 'DNS 会把域名翻译成 IP 地址。');
-  yield* all(
-    browser().position([0, -360], 0.78, easeInOutCubic),
-    browser().scale(0.72, 0.78, easeInOutCubic),
-  );
-  yield* all(
-    link().opacity(1, 0.2),
-    link().end(1, 0.65, easeInOutCubic),
-    dnsCard().opacity(1, 0.28),
-    spring(SmoothSpring, 0.94, 1, value => dnsCard().scale(value)),
-  );
-  yield* waitFor(0.35);
-
-  yield* movePacket('DNS QUERY', 'baidu.com ?', 'lucide:search', -125, 300, 1.0);
-  yield* waitFor(0.4);
-  yield* movePacket('DNS ANSWER', 'IP 地址', 'lucide:map-pin', 300, -125, 1.0);
-  resultText().text('baidu.com  →  IP 地址');
-  yield* resultChip().opacity(1, 0.28);
   yield* waitFor(0.75);
+  pageWaiting().text('↵  Enter');
+  yield* pageWaiting().opacity(1, 0.22);
+  yield* waitFor(1.3);
+  pageWaiting().text('等待服务器响应…');
+  yield* waitFor(1.0);
 
-  // Connection + HTTPS — same vertical path, new endpoint.
-  yield* setCaption('找到服务器以后，先建立连接', '如果是 HTTPS，还会先建立一条加密通道。');
-  yield* all(dnsCard().opacity(0, 0.3), resultChip().opacity(0, 0.25));
+  // 00:07–00:20 — DNS. Let the result stay on screen long enough for the narration to explain it.
+  yield* setCaption('第一步，先找到百度在哪', 'DNS 会把域名翻译成 IP 地址。');
+  yield* waitFor(0.9);
   yield* all(
-    serverCard().opacity(1, 0.28),
-    spring(SmoothSpring, 0.94, 1, value => serverCard().scale(value)),
+    browser().position([0, -360], 0.86, easeInOutCubic),
+    browser().scale(0.72, 0.86, easeInOutCubic),
   );
-  link().stroke(C.accent);
-  secureText().text('连接已建立');
   yield* all(
-    secureChip().opacity(1, 0.25),
-    spring(SmoothSpring, 0.94, 1, value => secureChip().scale(value)),
-  );
-  yield* waitFor(0.7);
-  secureText().text('HTTPS · 加密通道');
-  yield* waitFor(0.8);
-
-  // HTTP request.
-  yield* setCaption('连接准备好，浏览器才真正要网页', '这时才会发送 HTTP 请求。');
-  yield* movePacket('GET /', 'HTTP REQUEST', 'lucide:send', -125, 305, 1.05);
-  yield* waitFor(0.55);
-
-  // Resource return. Every return visibly changes the same browser.
-  yield* setCaption('服务器把网页需要的内容发回来', 'HTML 定结构，CSS 管样式，JS 管交互，图片负责视觉内容。');
-  yield* secureChip().opacity(0, 0.25);
-
-  yield* movePacket('HTML', '页面结构', 'lucide:file-code-2', 305, -125, 0.88);
-  pageWaiting().opacity(0);
-  yield* sequence(
-    0.07,
-    pageLogoGhost().opacity(1, 0.22),
-    pageSearch().opacity(1, 0.25),
-    pageLine1().opacity(1, 0.22),
-    pageLine2().opacity(1, 0.22),
-    pageLine3().opacity(1, 0.22),
-  );
-  yield* waitFor(0.3);
-
-  yield* movePacket('CSS', '布局 + 样式', 'lucide:palette', 305, -125, 0.88);
-  yield* all(
-    pageButton().fill(C.baiduBlue, 0.4),
-    pageSearch().stroke('#BFC2BC', 0.4),
-    pageLine1().fill('#C9CCC5', 0.4),
-  );
-  yield* waitFor(0.3);
-
-  yield* movePacket('JS', '交互逻辑', 'lucide:braces', 305, -125, 0.88);
-  yield* pageInteractive().opacity(1, 0.3);
-  yield* waitFor(0.3);
-
-  yield* movePacket('IMG', '图片资源', 'lucide:image', 305, -125, 0.88);
-  yield* all(
-    pageLogoGhost().opacity(0, 0.24),
-    pageLogo().opacity(1, 0.3),
-    pageImage().opacity(1, 0.28),
-  );
-  yield* waitFor(0.65);
-
-  // Render — same browser returns to the center, now complete.
-  yield* setCaption('最后，浏览器把这些内容真正画出来', '解析 → 排版 → 绘制，于是你看到了网页。');
-  yield* all(
-    serverCard().opacity(0, 0.3),
-    link().opacity(0, 0.28),
-    browser().position([0, 25], 0.78, easeInOutCubic),
-    browser().scale(1, 0.78, easeInOutCubic),
+    link().opacity(1, 0.24),
+    link().end(1, 0.72, easeInOutCubic),
+    dnsCard().opacity(1, 0.32),
+    spring(SmoothSpring, 0.94, 1, value => dnsCard().scale(value)),
   );
   yield* waitFor(1.2);
 
-  // Summary + outro. Still no numbered chapter list.
-  yield* all(caption().opacity(0, 0.28), detail().opacity(0, 0.28), browser().opacity(0, 0.38));
-  yield* all(summary().opacity(1, 0.4), spring(SmoothSpring, 0.98, 1, value => summary().scale(value)));
-  yield* waitFor(1.8);
-  yield* summary().opacity(0, 0.32);
-  yield* all(outro().opacity(1, 0.4), spring(SmoothSpring, 0.97, 1, value => outro().scale(value)));
-  yield* waitFor(1.8);
+  yield* movePacket('DNS QUERY', 'baidu.com ?', 'lucide:search', -125, 300, 1.3);
+  yield* waitFor(0.9);
+  yield* movePacket('DNS ANSWER', 'IP 地址', 'lucide:map-pin', 300, -125, 1.3);
+  resultText().text('baidu.com  →  IP 地址');
+  yield* resultChip().opacity(1, 0.32);
+  yield* waitFor(2.6);
+
+  // 00:20–00:31 — Connection + HTTPS. The labels hold; the transitions themselves remain quick.
+  yield* setCaption('找到服务器以后，先建立连接', '如果是 HTTPS，还会先建立一条加密通道。');
+  yield* waitFor(0.8);
+  yield* all(dnsCard().opacity(0, 0.34), resultChip().opacity(0, 0.3));
+  yield* all(
+    serverCard().opacity(1, 0.32),
+    spring(SmoothSpring, 0.94, 1, value => serverCard().scale(value)),
+  );
+  yield* waitFor(1.0);
+  link().stroke(C.accent);
+  secureText().text('连接已建立');
+  yield* all(
+    secureChip().opacity(1, 0.28),
+    spring(SmoothSpring, 0.94, 1, value => secureChip().scale(value)),
+  );
+  yield* waitFor(2.2);
+  secureText().text('HTTPS · 加密通道');
+  yield* waitFor(3.3);
+
+  // 00:31–00:38 — HTTP request.
+  yield* setCaption('连接准备好，浏览器才真正要网页', '这时才会发送 HTTP 请求。');
+  yield* waitFor(1.2);
+  yield* movePacket('GET /', 'HTTP REQUEST', 'lucide:send', -125, 305, 1.3);
+  yield* waitFor(2.3);
+
+  // 00:38–00:51 — Resource return. Each arrival gets a visible hold before the next resource starts.
+  yield* setCaption('服务器把网页需要的内容发回来', 'HTML 定结构，CSS 管样式，JS 管交互，图片负责视觉内容。');
+  yield* waitFor(0.8);
+  yield* secureChip().opacity(0, 0.28);
+
+  yield* movePacket('HTML', '页面结构', 'lucide:file-code-2', 305, -125, 1.1);
+  pageWaiting().opacity(0);
+  yield* sequence(
+    0.09,
+    pageLogoGhost().opacity(1, 0.28),
+    pageSearch().opacity(1, 0.3),
+    pageLine1().opacity(1, 0.28),
+    pageLine2().opacity(1, 0.28),
+    pageLine3().opacity(1, 0.28),
+  );
+  yield* waitFor(1.0);
+
+  yield* movePacket('CSS', '布局 + 样式', 'lucide:palette', 305, -125, 1.1);
+  yield* all(
+    pageButton().fill(C.baiduBlue, 0.46),
+    pageSearch().stroke('#BFC2BC', 0.46),
+    pageLine1().fill('#C9CCC5', 0.46),
+  );
+  yield* waitFor(1.0);
+
+  yield* movePacket('JS', '交互逻辑', 'lucide:braces', 305, -125, 1.1);
+  yield* pageInteractive().opacity(1, 0.36);
+  yield* waitFor(1.0);
+
+  yield* movePacket('IMG', '图片资源', 'lucide:image', 305, -125, 1.1);
+  yield* all(
+    pageLogoGhost().opacity(0, 0.3),
+    pageLogo().opacity(1, 0.36),
+    pageImage().opacity(1, 0.34),
+  );
+  yield* waitFor(1.4);
+
+  // 00:51–00:56 — Render. Hold the completed browser instead of cutting away immediately.
+  yield* setCaption('最后，浏览器把这些内容真正画出来', '解析 → 排版 → 绘制，于是你看到了网页。');
+  yield* waitFor(0.7);
+  yield* all(
+    serverCard().opacity(0, 0.34),
+    link().opacity(0, 0.32),
+    browser().position([0, 25], 0.88, easeInOutCubic),
+    browser().scale(1, 0.88, easeInOutCubic),
+  );
+  yield* waitFor(2.8);
+
+  // 00:56–01:00 — Summary + outro.
+  yield* all(caption().opacity(0, 0.3), detail().opacity(0, 0.3), browser().opacity(0, 0.42));
+  yield* all(summary().opacity(1, 0.42), spring(SmoothSpring, 0.98, 1, value => summary().scale(value)));
+  yield* waitFor(2.2);
+  yield* summary().opacity(0, 0.34);
+  yield* all(outro().opacity(1, 0.42), spring(SmoothSpring, 0.97, 1, value => outro().scale(value)));
+  yield* waitFor(2.1);
 });
