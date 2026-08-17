@@ -21,7 +21,10 @@ if (!projectFile) {
   throw new Error('Motion Canvas project bundle was not found in dist/.');
 }
 
-const projectSrc = `./${path.relative(dist, projectFile).split(path.sep).join('/')}`;
+const projectPath = path.relative(dist, projectFile).split(path.sep).join('/');
+const [owner, repo] = (process.env.GITHUB_REPOSITORY ?? 'Tyr1onX/7byte-content').split('/');
+const siteBase = `https://${owner.toLowerCase()}.github.io/${repo}/`;
+const projectSrc = new URL(projectPath, siteBase).href;
 
 const html = `<!doctype html>
 <html lang="zh-CN">
@@ -37,8 +40,9 @@ const html = `<!doctype html>
     header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 14px; }
     h1 { margin: 0; font-size: 18px; letter-spacing: .08em; }
     small { color: #969a90; }
-    .frame { width: 100%; aspect-ratio: 9 / 16; border: 1px solid #30332d; border-radius: 18px; overflow: hidden; background: #111210; box-shadow: 0 24px 80px rgba(0,0,0,.35); }
+    .frame { position: relative; width: 100%; aspect-ratio: 9 / 16; border: 1px solid #30332d; border-radius: 18px; overflow: hidden; background: #111210; box-shadow: 0 24px 80px rgba(0,0,0,.35); }
     motion-canvas-player { display: block; width: 100%; height: 100%; }
+    .hint { position: absolute; left: 50%; bottom: 18px; translate: -50% 0; z-index: 2; pointer-events: none; padding: 7px 11px; border: 1px solid #34382f; border-radius: 999px; background: rgba(17,18,16,.82); color: #b9bcb3; font-size: 12px; white-space: nowrap; }
     p { margin: 12px 2px 0; color: #8f9389; font-size: 13px; line-height: 1.6; }
   </style>
   <script type="importmap">
@@ -54,8 +58,9 @@ const html = `<!doctype html>
     </header>
     <div class="frame">
       <motion-canvas-player src="${projectSrc}" width="1080" height="1920" quality="0.5"></motion-canvas-player>
+      <div class="hint">点击画面开始播放</div>
     </div>
-    <p>点击画面播放 / 暂停。此页面只用于远程验收 Motion Canvas 动画，不替代本地编辑器。</p>
+    <p>此页面只用于远程验收 Motion Canvas 动画，不替代本地编辑器。</p>
   </main>
 </body>
 </html>`;
