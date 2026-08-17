@@ -1,258 +1,678 @@
-import {makeScene2D} from '@motion-canvas/2d';
-import {Circle, Line, Rect, Txt} from '@motion-canvas/2d/lib/components';
-import {all, waitFor} from '@motion-canvas/core/lib/flow';
-import {createRef} from '@motion-canvas/core/lib/utils';
+import {
+  Circle,
+  Line,
+  Rect,
+  Txt,
+  makeScene2D,
+} from '@motion-canvas/2d';
+import {
+  all,
+  createRef,
+  easeInOutCubic,
+  waitFor,
+} from '@motion-canvas/core';
 
 const BG = '#111210';
-const SURFACE = '#1B1D1A';
-const TEXT = '#F3F1E8';
-const MUTED = '#A7AAA1';
+const PANEL = '#1A1C19';
+const PANEL_2 = '#22241F';
+const TEXT = '#F2F0E7';
+const MUTED = '#9B9E95';
+const LINE = '#4A4E46';
 const ACCENT = '#D9FF6A';
+const ACCENT_DARK = '#1B2110';
+const WARM = '#E9D9B5';
+
+const FONT = 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif';
+const MONO = 'JetBrains Mono, Consolas, monospace';
 
 export default makeScene2D(function* (view) {
   view.fill(BG);
 
-  const title = createRef<Txt>();
-  const question = createRef<Txt>();
-  const domain = createRef<Txt>();
-  const computer = createRef<Rect>();
+  const eyebrow = createRef<Txt>();
+  const headline = createRef<Txt>();
+  const phase = createRef<Txt>();
+
+  const browser = createRef<Rect>();
+  const addressText = createRef<Txt>();
+  const caret = createRef<Rect>();
+  const browserHint = createRef<Txt>();
+  const pageTitle = createRef<Txt>();
+  const pageSearch = createRef<Rect>();
+  const pageLine1 = createRef<Rect>();
+  const pageLine2 = createRef<Rect>();
+  const pageLine3 = createRef<Rect>();
+  const pageStatus = createRef<Txt>();
+
   const dns = createRef<Rect>();
+  const dnsLine = createRef<Line>();
   const server = createRef<Rect>();
+  const serverLine = createRef<Line>();
+  const connectionState = createRef<Txt>();
+  const lock = createRef<Rect>();
+
   const packet = createRef<Rect>();
   const packetText = createRef<Txt>();
-  const link = createRef<Line>();
-  const result = createRef<Txt>();
-  const lock = createRef<Circle>();
-  const resource = createRef<Rect>();
-  const resourceText = createRef<Txt>();
-  const page = createRef<Rect>();
-  const pageText = createRef<Txt>();
-  const outro = createRef<Txt>();
+  const packetSub = createRef<Txt>();
+
+  const result = createRef<Rect>();
+  const resultText = createRef<Txt>();
+
+  const summary = createRef<Txt>();
+  const outroBrand = createRef<Txt>();
+  const outroTagline = createRef<Txt>();
 
   view.add(
     <>
+      {/* 顶部叙事区：字幕会在剪映中另加，这里只保留必要的视觉标题。 */}
       <Txt
-        ref={title}
-        y={-560}
-        text={'baidu.com'}
-        fill={TEXT}
-        fontSize={96}
+        ref={eyebrow}
+        x={-390}
+        y={-790}
+        text={'7BYTE · EP.001'}
+        fill={ACCENT}
+        fontFamily={MONO}
+        fontSize={28}
         fontWeight={700}
         opacity={0}
       />
       <Txt
-        ref={question}
-        y={-390}
-        text={'浏览器首先要知道：百度在哪？'}
+        ref={headline}
+        x={-40}
+        y={-690}
+        width={880}
+        text={'输入 baidu.com 后\n发生了什么？'}
+        fill={TEXT}
+        fontFamily={FONT}
+        fontSize={76}
+        fontWeight={700}
+        lineHeight={100}
+        textAlign={'left'}
+        opacity={0}
+      />
+      <Txt
+        ref={phase}
+        x={-360}
+        y={-785}
+        text={''}
         fill={MUTED}
-        fontSize={42}
+        fontFamily={MONO}
+        fontSize={26}
+        fontWeight={600}
         opacity={0}
       />
 
+      {/* 一个程序化复现的“真实感浏览器”，始终作为故事中的同一个对象存在。 */}
       <Rect
-        ref={computer}
-        x={-300}
-        y={180}
-        width={320}
-        height={210}
-        radius={28}
-        fill={SURFACE}
-        stroke={TEXT}
+        ref={browser}
+        x={0}
+        y={150}
+        width={900}
+        height={1040}
+        radius={30}
+        fill={PANEL}
+        stroke={LINE}
         lineWidth={3}
         opacity={0}
+        clip
       >
-        <Txt text={'你的电脑'} fill={TEXT} fontSize={42} />
+        {/* 浏览器 chrome */}
+        <Rect
+          y={-470}
+          width={900}
+          height={100}
+          fill={PANEL_2}
+        >
+          <Circle x={-395} width={18} height={18} fill={'#6C7068'} />
+          <Circle x={-360} width={18} height={18} fill={'#6C7068'} />
+          <Circle x={-325} width={18} height={18} fill={'#6C7068'} />
+          <Txt
+            x={-190}
+            text={'新标签页'}
+            fill={MUTED}
+            fontFamily={FONT}
+            fontSize={24}
+          />
+        </Rect>
+
+        <Rect
+          y={-380}
+          width={790}
+          height={68}
+          radius={34}
+          fill={'#111310'}
+          stroke={LINE}
+          lineWidth={2}
+        >
+          <Txt
+            x={-340}
+            text={'⌕'}
+            fill={MUTED}
+            fontFamily={FONT}
+            fontSize={28}
+          />
+          <Txt
+            ref={addressText}
+            x={-285}
+            width={570}
+            text={''}
+            fill={TEXT}
+            fontFamily={MONO}
+            fontSize={28}
+            textAlign={'left'}
+          />
+          <Rect
+            ref={caret}
+            x={-281}
+            width={2}
+            height={32}
+            fill={ACCENT}
+            opacity={0}
+          />
+        </Rect>
+
+        {/* 页面主体。资源回来时逐步“长出来”，体现因果，而不是装饰性飞卡片。 */}
+        <Txt
+          ref={browserHint}
+          y={-80}
+          text={'等待页面数据…'}
+          fill={MUTED}
+          fontFamily={FONT}
+          fontSize={30}
+          opacity={0}
+        />
+        <Txt
+          ref={pageTitle}
+          y={-150}
+          text={'Baidu'}
+          fill={TEXT}
+          fontFamily={FONT}
+          fontSize={68}
+          fontWeight={700}
+          opacity={0}
+        />
+        <Rect
+          ref={pageSearch}
+          y={-20}
+          width={580}
+          height={80}
+          radius={18}
+          fill={'#111310'}
+          stroke={LINE}
+          lineWidth={2}
+          opacity={0}
+        >
+          <Txt
+            x={-210}
+            text={'搜索内容'}
+            fill={MUTED}
+            fontFamily={FONT}
+            fontSize={25}
+          />
+          <Rect
+            x={235}
+            width={110}
+            height={58}
+            radius={12}
+            fill={ACCENT}
+          >
+            <Txt
+              text={'搜索'}
+              fill={BG}
+              fontFamily={FONT}
+              fontSize={24}
+              fontWeight={700}
+            />
+          </Rect>
+        </Rect>
+        <Rect
+          ref={pageLine1}
+          x={-80}
+          y={145}
+          width={570}
+          height={28}
+          radius={14}
+          fill={'#343831'}
+          opacity={0}
+        />
+        <Rect
+          ref={pageLine2}
+          x={-135}
+          y={205}
+          width={460}
+          height={22}
+          radius={11}
+          fill={'#2B2E29'}
+          opacity={0}
+        />
+        <Rect
+          ref={pageLine3}
+          x={-175}
+          y={260}
+          width={380}
+          height={22}
+          radius={11}
+          fill={'#2B2E29'}
+          opacity={0}
+        />
+        <Txt
+          ref={pageStatus}
+          y={390}
+          text={''}
+          fill={ACCENT}
+          fontFamily={MONO}
+          fontSize={25}
+          fontWeight={600}
+          opacity={0}
+        />
       </Rect>
 
+      {/* DNS：形状接近基础设施节点，不做发光玻璃卡片。 */}
       <Rect
         ref={dns}
-        x={260}
-        y={-240}
-        width={250}
-        height={160}
-        radius={80}
-        fill={SURFACE}
-        stroke={MUTED}
-        lineWidth={3}
-        opacity={0}
-      >
-        <Txt text={'DNS'} fill={TEXT} fontSize={44} fontWeight={700} />
-      </Rect>
-
-      <Rect
-        ref={server}
-        x={300}
-        y={180}
+        x={290}
+        y={-190}
         width={300}
-        height={230}
-        radius={24}
-        fill={SURFACE}
-        stroke={TEXT}
+        height={220}
+        radius={26}
+        fill={PANEL}
+        stroke={LINE}
         lineWidth={3}
         opacity={0}
       >
-        <Txt text={'百度服务器'} fill={TEXT} fontSize={38} />
+        <Txt
+          y={-45}
+          text={'DNS'}
+          fill={TEXT}
+          fontFamily={MONO}
+          fontSize={50}
+          fontWeight={700}
+        />
+        <Txt
+          y={35}
+          text={'域名 → IP 地址'}
+          fill={MUTED}
+          fontFamily={FONT}
+          fontSize={25}
+        />
       </Rect>
 
       <Line
-        ref={link}
-        points={[[-135, 180], [140, 180]]}
-        stroke={ACCENT}
-        lineWidth={6}
+        ref={dnsLine}
+        points={[
+          [-175, 220],
+          [-20, 40],
+          [160, -120],
+        ]}
+        stroke={LINE}
+        lineWidth={4}
+        radius={30}
         end={0}
       />
 
+      {/* 目标服务器始终固定在右下，DNS 淡出后这里成为唯一焦点。 */}
+      <Rect
+        ref={server}
+        x={300}
+        y={350}
+        width={320}
+        height={290}
+        radius={26}
+        fill={PANEL}
+        stroke={LINE}
+        lineWidth={3}
+        opacity={0}
+      >
+        <Txt
+          y={-70}
+          text={'WEB SERVER'}
+          fill={TEXT}
+          fontFamily={MONO}
+          fontSize={32}
+          fontWeight={700}
+        />
+        <Rect y={10} width={235} height={18} radius={9} fill={'#383C35'} />
+        <Rect y={55} width={235} height={18} radius={9} fill={'#383C35'} />
+        <Circle x={95} y={105} width={18} height={18} fill={ACCENT} />
+        <Txt
+          x={-20}
+          y={105}
+          text={'ready'}
+          fill={MUTED}
+          fontFamily={MONO}
+          fontSize={21}
+        />
+      </Rect>
+
+      <Line
+        ref={serverLine}
+        points={[
+          [-175, 280],
+          [20, 300],
+          [140, 330],
+        ]}
+        stroke={ACCENT}
+        lineWidth={5}
+        radius={30}
+        end={0}
+        opacity={0}
+      />
+
+      <Txt
+        ref={connectionState}
+        x={0}
+        y={450}
+        text={''}
+        fill={MUTED}
+        fontFamily={FONT}
+        fontSize={30}
+        fontWeight={600}
+        opacity={0}
+      />
+
+      <Rect
+        ref={lock}
+        x={5}
+        y={310}
+        width={96}
+        height={82}
+        radius={22}
+        fill={ACCENT_DARK}
+        stroke={ACCENT}
+        lineWidth={3}
+        opacity={0}
+      >
+        <Txt
+          text={'LOCK'}
+          fill={ACCENT}
+          fontFamily={MONO}
+          fontSize={21}
+          fontWeight={800}
+        />
+      </Rect>
+
+      {/* 唯一主要运动对象：packet。每次运动都有明确方向和语义。 */}
       <Rect
         ref={packet}
-        x={-300}
-        y={0}
-        width={210}
-        height={82}
+        x={-180}
+        y={160}
+        width={290}
+        height={104}
         radius={18}
         fill={ACCENT}
         opacity={0}
       >
-        <Txt ref={packetText} text={'DNS ?'} fill={BG} fontSize={34} fontWeight={700} />
+        <Txt
+          ref={packetText}
+          y={-14}
+          text={''}
+          fill={BG}
+          fontFamily={MONO}
+          fontSize={29}
+          fontWeight={800}
+        />
+        <Txt
+          ref={packetSub}
+          y={25}
+          text={''}
+          fill={'#343B21'}
+          fontFamily={MONO}
+          fontSize={19}
+          fontWeight={600}
+        />
+      </Rect>
+
+      {/* 小结果卡只用于停留阅读，不参与无意义运动。 */}
+      <Rect
+        ref={result}
+        x={-220}
+        y={500}
+        width={420}
+        height={112}
+        radius={22}
+        fill={WARM}
+        opacity={0}
+      >
+        <Txt
+          ref={resultText}
+          text={''}
+          fill={BG}
+          fontFamily={MONO}
+          fontSize={27}
+          fontWeight={800}
+        />
       </Rect>
 
       <Txt
-        ref={result}
-        y={-30}
-        text={'IP address'}
-        fill={ACCENT}
-        fontSize={44}
+        ref={summary}
+        y={-50}
+        width={850}
+        text={'找地址  →  建连接  →  加密\n→  请求  →  传输  →  渲染'}
+        fill={TEXT}
+        fontFamily={FONT}
+        fontSize={54}
+        fontWeight={650}
+        lineHeight={90}
+        textAlign={'center'}
         opacity={0}
       />
 
-      <Circle
-        ref={lock}
-        x={0}
-        y={80}
-        width={86}
-        height={86}
-        fill={ACCENT}
-        opacity={0}
-      >
-        <Txt text={'✓'} fill={BG} fontSize={52} fontWeight={700} />
-      </Circle>
-
-      <Rect
-        ref={resource}
-        x={300}
-        y={40}
-        width={190}
-        height={78}
-        radius={16}
-        fill={TEXT}
-        opacity={0}
-      >
-        <Txt ref={resourceText} text={'HTML'} fill={BG} fontSize={32} fontWeight={700} />
-      </Rect>
-
-      <Rect
-        ref={page}
-        x={-300}
-        y={540}
-        width={360}
-        height={500}
-        radius={26}
-        fill={SURFACE}
-        stroke={MUTED}
-        lineWidth={3}
-        opacity={0}
-      >
-        <Txt ref={pageText} y={-150} text={'网页骨架'} fill={MUTED} fontSize={34} />
-      </Rect>
-
       <Txt
-        ref={outro}
-        text={'7BYTE\n把计算机讲简单一点。'}
+        ref={outroBrand}
+        y={-80}
+        text={'7BYTE'}
         fill={TEXT}
-        fontSize={72}
-        fontWeight={700}
-        textAlign={'center'}
-        lineHeight={110}
+        fontFamily={MONO}
+        fontSize={118}
+        fontWeight={800}
+        letterSpacing={4}
+        opacity={0}
+      />
+      <Txt
+        ref={outroTagline}
+        y={70}
+        text={'把计算机讲简单一点。'}
+        fill={MUTED}
+        fontFamily={FONT}
+        fontSize={38}
+        fontWeight={500}
         opacity={0}
       />
     </>,
   );
 
-  // 00:00–00:05 — 输入域名：先让观众看清问题。
-  yield* title().opacity(1, 0.7);
-  yield* waitFor(1.0);
-  yield* question().opacity(1, 0.6);
-  yield* waitFor(1.5);
-
-  // 00:05–00:16 — DNS：保持电脑与 DNS 的空间关系稳定。
-  yield* all(computer().opacity(1, 0.6), dns().opacity(1, 0.6));
+  // ---------------------------------------------------------------------------
+  // 00:00–00:06  Hook：先从“真实浏览器行为”开始，不先抛流程图。
+  // ---------------------------------------------------------------------------
+  yield* all(
+    eyebrow().opacity(1, 0.45),
+    headline().opacity(1, 0.65),
+    browser().opacity(1, 0.65),
+  );
   yield* waitFor(0.8);
-  packetText().text('DNS ?');
-  packet().position([-300, 0]);
-  yield* packet().opacity(1, 0.3);
-  yield* packet().position([260, -120], 1.15);
-  yield* waitFor(0.7);
-  packetText().text('IP');
-  yield* packet().position([-300, 0], 1.15);
-  yield* result().opacity(1, 0.5);
-  yield* waitFor(1.0);
-  yield* packet().opacity(0, 0.3);
 
-  // 00:16–00:23 — 建立连接和加密。
-  yield* all(dns().opacity(0.2, 0.6), server().opacity(1, 0.6));
-  yield* link().end(1, 1.2);
-  result().text('建立连接');
-  yield* result().opacity(1, 0.3);
-  yield* waitFor(0.8);
-  result().text('建立加密通信');
+  headline().opacity(0, 0.45);
+  eyebrow().opacity(0, 0.45);
+  caret().opacity(1);
+
+  const domain = 'baidu.com';
+  for (let i = 1; i <= domain.length; i++) {
+    addressText().text(domain.slice(0, i));
+    caret().x(-281 + i * 18.5);
+    yield* waitFor(0.10);
+  }
+  yield* waitFor(0.45);
+
+  browserHint().text('↵  Enter');
+  yield* browserHint().opacity(1, 0.25);
+  yield* waitFor(0.55);
+  yield* browserHint().opacity(0, 0.25);
+  caret().opacity(0);
+
+  // 浏览器缩到左侧，之后始终保持在同一空间位置，建立连续性。
+  yield* all(
+    browser().position([-300, 220], 0.9, easeInOutCubic),
+    browser().scale(0.56, 0.9, easeInOutCubic),
+  );
+
+  // ---------------------------------------------------------------------------
+  // 00:06–00:17  DNS：问题 → 查询 → 响应。一次只有 packet 是主运动对象。
+  // ---------------------------------------------------------------------------
+  phase().text('01 / 先找到服务器在哪');
+  yield* phase().opacity(1, 0.35);
+  yield* dns().opacity(1, 0.55);
+  yield* dnsLine().end(1, 0.75, easeInOutCubic);
+  yield* waitFor(0.55);
+
+  packetText().text('DNS QUERY');
+  packetSub().text('baidu.com ?');
+  packet().fill(ACCENT);
+  packet().position([-185, 205]);
+  yield* packet().opacity(1, 0.25);
+  yield* packet().position([250, -105], 1.25, easeInOutCubic);
+  yield* waitFor(0.75);
+
+  packetText().text('DNS ANSWER');
+  packetSub().text('IP address');
+  packet().fill(WARM);
+  yield* packet().position([-185, 205], 1.25, easeInOutCubic);
+  yield* packet().opacity(0, 0.25);
+
+  resultText().text('baidu.com  →  IP 地址');
+  yield* result().opacity(1, 0.35);
+  yield* waitFor(1.15);
+  yield* result().opacity(0, 0.35);
+
+  // DNS 完成任务后退到背景，不突然换一套布局。
+  yield* all(
+    dns().opacity(0.18, 0.55),
+    dnsLine().opacity(0.18, 0.55),
+  );
+
+  // ---------------------------------------------------------------------------
+  // 00:17–00:27  建立连接 + HTTPS：沿同一条固定路径完成。
+  // ---------------------------------------------------------------------------
+  phase().text('02 / 建立连接');
+  yield* server().opacity(1, 0.55);
+  serverLine().opacity(1);
+  yield* serverLine().end(1, 1.0, easeInOutCubic);
+  connectionState().text('连接已经建立');
+  yield* connectionState().opacity(1, 0.35);
+  yield* waitFor(1.0);
+
+  phase().text('03 / 建立 HTTPS 加密通道');
+  connectionState().text('后面的数据在加密通道中传输');
   yield* lock().opacity(1, 0.45);
-  yield* waitFor(1.0);
+  yield* waitFor(1.35);
+  yield* all(
+    lock().opacity(0, 0.35),
+    connectionState().opacity(0, 0.35),
+  );
 
-  // 00:23–00:30 — HTTP request：沿同一条连接发送明确的数据包。
-  lock().opacity(0);
-  result().opacity(0);
+  // ---------------------------------------------------------------------------
+  // 00:27–00:34  HTTP：GET / 是一个“真正有内容的数据包”。
+  // ---------------------------------------------------------------------------
+  phase().text('04 / 发出 HTTP 请求');
   packetText().text('GET /');
-  packet().position([-160, 180]);
-  yield* packet().opacity(1, 0.3);
-  yield* packet().position([160, 180], 1.15);
-  yield* waitFor(0.8);
-  yield* packet().opacity(0, 0.3);
+  packetSub().text('HTTP request');
+  packet().fill(ACCENT);
+  packet().position([-175, 300]);
+  yield* packet().opacity(1, 0.25);
+  yield* packet().position([180, 340], 1.15, easeInOutCubic);
+  yield* waitFor(0.75);
+  yield* packet().opacity(0, 0.25);
 
-  // 00:30–00:41 — 资源回来并真正改变页面状态。
-  yield* page().opacity(1, 0.5);
+  resultText().text('服务器收到请求');
+  result().position([220, 535]);
+  yield* result().opacity(1, 0.35);
+  yield* waitFor(0.85);
+  yield* result().opacity(0, 0.35);
+
+  // ---------------------------------------------------------------------------
+  // 00:34–00:47  资源返回：每个资源都对应浏览器页面的一个可见变化。
+  // ---------------------------------------------------------------------------
+  phase().text('05 / 数据回来，页面一点点长出来');
+  browserHint().text('正在接收页面数据…');
+  yield* browserHint().opacity(1, 0.3);
+
   const resources = [
-    ['HTML', '页面结构'],
-    ['CSS', '页面有了样式'],
-    ['JS', '页面开始工作'],
-    ['IMG', '图片显示出来'],
+    {label: 'HTML', sub: 'structure', state: 'HTML → 页面结构', apply: function* () {
+      yield* all(
+        pageTitle().opacity(1, 0.35),
+        pageLine1().opacity(1, 0.35),
+        pageLine2().opacity(1, 0.35),
+        pageLine3().opacity(1, 0.35),
+      );
+    }},
+    {label: 'CSS', sub: 'styles', state: 'CSS → 页面样式', apply: function* () {
+      yield* pageSearch().opacity(1, 0.4);
+    }},
+    {label: 'JS', sub: 'behavior', state: 'JavaScript → 页面开始工作', apply: function* () {
+      pageStatus().text('interaction ready');
+      yield* pageStatus().opacity(1, 0.35);
+    }},
+    {label: 'IMG', sub: 'assets', state: '图片等资源继续加载', apply: function* () {
+      yield* all(
+        pageLine1().fill('#5B6255', 0.35),
+        pageLine2().fill('#444940', 0.35),
+        pageLine3().fill('#383D36', 0.35),
+      );
+    }},
   ];
 
-  for (const [label, state] of resources) {
-    resourceText().text(label);
-    resource().position([300, 40]);
-    yield* resource().opacity(1, 0.25);
-    yield* resource().position([-160, 420], 1.0);
-    pageText().text(state);
-    yield* resource().opacity(0, 0.25);
+  for (const item of resources) {
+    packetText().text(item.label);
+    packetSub().text(item.sub);
+    packet().fill(WARM);
+    packet().position([180, 340]);
+    yield* packet().opacity(1, 0.2);
+    yield* packet().position([-175, 300], 1.0, easeInOutCubic);
+    yield* packet().opacity(0, 0.2);
+
+    pageStatus().text(item.state);
+    pageStatus().opacity(1);
+    yield* item.apply();
     yield* waitFor(0.45);
   }
 
-  // 00:41–00:47 — 给结果阅读时间。
-  yield* all(
-    title().opacity(0, 0.6),
-    question().opacity(0, 0.6),
-    computer().opacity(0, 0.6),
-    dns().opacity(0, 0.6),
-    server().opacity(0, 0.6),
-    link().opacity(0, 0.6),
-  );
-  page().position([0, 120]);
-  page().size([700, 900]);
-  pageText().text('于是，你看到了网页。');
-  pageText().fontSize(48);
-  yield* waitFor(2.0);
-  yield* page().opacity(0, 0.7);
+  yield* browserHint().opacity(0, 0.3);
+  yield* waitFor(0.65);
 
-  // 00:47–00:51 — 克制片尾。
-  yield* outro().opacity(1, 0.7);
-  yield* waitFor(2.2);
+  // ---------------------------------------------------------------------------
+  // 00:47–00:52  回到浏览器：把抽象解释重新接回用户最初看到的结果。
+  // ---------------------------------------------------------------------------
+  phase().text('06 / 浏览器解析、排版、绘制');
+  yield* all(
+    dns().opacity(0, 0.45),
+    dnsLine().opacity(0, 0.45),
+    server().opacity(0, 0.45),
+    serverLine().opacity(0, 0.45),
+    connectionState().opacity(0, 0.45),
+  );
+
+  yield* all(
+    browser().position([0, 120], 0.9, easeInOutCubic),
+    browser().scale(0.86, 0.9, easeInOutCubic),
+  );
+  pageStatus().text('页面渲染完成');
+  pageStatus().fill(ACCENT);
+  pageStatus().opacity(1);
+  yield* waitFor(1.2);
+
+  yield* all(
+    browser().opacity(0, 0.55),
+    phase().opacity(0, 0.45),
+  );
+
+  // ---------------------------------------------------------------------------
+  // 00:52–00:57  总结 + 克制片尾。
+  // ---------------------------------------------------------------------------
+  yield* summary().opacity(1, 0.55);
+  yield* waitFor(1.65);
+  yield* summary().opacity(0, 0.45);
+
+  yield* all(
+    outroBrand().opacity(1, 0.55),
+    outroTagline().opacity(1, 0.75),
+  );
+  yield* waitFor(2.0);
 });
