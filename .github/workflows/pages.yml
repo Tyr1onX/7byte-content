@@ -1,10 +1,18 @@
 name: deploy-pages
 
 on:
+  push:
+    branches:
+      - main
+  workflow_run:
+    workflows:
+      - validate
+    types:
+      - completed
   workflow_dispatch:
     inputs:
       ref:
-        description: Branch or ref to deploy
+        description: Branch, tag, or SHA to deploy
         required: true
         default: feat/bootstrap-7byte-studio
 
@@ -19,12 +27,30 @@ concurrency:
 
 jobs:
   build:
+    if: >-
+      github.event_name == 'push' ||
+      github.event_name == 'workflow_dispatch' ||
+      (github.event_name == 'workflow_run' &&
+       github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'feat/bootstrap-7byte-studio')
     runs-on: ubuntu-latest
     steps:
+      - name: Resolve preview ref
+        id: preview
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_run" ]; then
+            echo "ref=${{ github.event.workflow_run.head_sha }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${{ github.sha }}" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Checkout preview ref
         uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref }}
+          ref: ${{ steps.preview.outputs.ref }}
 
       - name: Setup Node
         uses: actions/setup-node@v4
