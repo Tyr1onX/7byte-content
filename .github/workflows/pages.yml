@@ -63,10 +63,13 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Build Motion Canvas site
-        run: npm run build
+      - name: Build Motion Canvas Pages preview
+        run: npm run build:pages
         env:
           GITHUB_PAGES: 'true'
+
+      - name: Verify static entry point
+        run: test -f dist/index.html
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v4
