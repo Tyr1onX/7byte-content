@@ -44,27 +44,28 @@ jobs:
             slug="$2"
             rate="$3"
             pitch="$4"
-            if grep -q "^${voice}[[:space:]]" output/voices.txt; then
-              edge-tts \
-                --voice "$voice" \
-                --rate="$rate" \
-                --pitch="$pitch" \
-                --text "$(cat output/sample.txt)" \
-                --write-media "output/${slug}.mp3" \
-                --write-subtitles "output/${slug}.vtt"
-            fi
+            edge-tts \
+              --voice "$voice" \
+              --rate="$rate" \
+              --pitch="$pitch" \
+              --text "$(cat output/sample.txt)" \
+              --write-media "output/${slug}.mp3" \
+              --write-subtitles "output/${slug}.vtt"
           }
 
+          # Four native male voice choices; no post-processing, no duplicated audio tracks.
           generate zh-CN-YunjianNeural A-yunjian '+0%' '+0Hz'
-          generate zh-CN-YunyangNeural B-yunyang '-2%' '+0Hz'
-          generate zh-CN-YunfengNeural C-yunfeng '-2%' '+0Hz'
-          generate zh-CN-YunhaoNeural D-yunhao '-2%' '+0Hz'
+          generate zh-CN-YunyangNeural B-yunyang '-3%' '+0Hz'
+          generate zh-CN-YunxiaNeural C-yunxia '-5%' '+0Hz'
+          generate zh-TW-YunJheNeural D-yunjhe '-2%' '+0Hz'
 
           cat > output/README.txt <<'EOF'
-          A = Yunjian：稳重、清楚
-          B = Yunyang：成熟、播讲感
-          C = Yunfeng：自然、克制
-          D = Yunhao：低调、平静
+          A = zh-CN-YunjianNeural：大陆男声，力度更足。
+          B = zh-CN-YunyangNeural：大陆男声，新闻/播讲取向，更专业可靠。
+          C = zh-CN-YunxiaNeural：大陆男声，更年轻、更轻。
+          D = zh-TW-YunJheNeural：台湾男声，更平静自然，但口音会不同。
+
+          这四个都是不同的原生声线，不使用上一版的 rubberband 降调，也不做任何双轨叠加。
           EOF
 
       - name: Upload narration pack
@@ -83,8 +84,8 @@ jobs:
           git switch --orphan voice-previews
           git rm -rf . >/dev/null 2>&1 || true
           mkdir -p previews
-          cp output/*.mp3 previews/ 2>/dev/null || true
-          cp output/*.vtt previews/ 2>/dev/null || true
+          cp output/*.mp3 previews/
+          cp output/*.vtt previews/
           cp output/README.txt previews/README.txt
           cp output/voices.txt previews/voices.txt
           git add previews
