@@ -44,16 +44,17 @@ jobs:
           所以你以为自己只是按了一次回车，但实际上背后已经完成了找地址、建立连接、加密、请求、传输和渲染这一整套流程。这里是 7BYTE，把计算机讲简单一点。
           EOF
           edge-tts \
-            --voice zh-CN-YunxiNeural \
-            --rate=-3% \
+            --voice zh-CN-YunjianNeural \
+            --rate=-5% \
+            --pitch=-6Hz \
             --text "$(cat output/script.txt)" \
-            --write-media output/ep001-ai-voice.mp3 \
-            --write-subtitles output/ep001-ai-voice.vtt
+            --write-media output/ep001-ai-voice-deep.mp3 \
+            --write-subtitles output/ep001-ai-voice-deep.vtt
 
       - name: Upload narration
         uses: actions/upload-artifact@v4
         with:
-          name: ep001-ai-narration-demo
+          name: ep001-ai-narration-deep
           path: output/
           if-no-files-found: error
           retention-days: 7
