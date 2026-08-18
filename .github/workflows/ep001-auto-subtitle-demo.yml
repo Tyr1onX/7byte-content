@@ -1,0 +1,77 @@
+name: ep001-auto-subtitle-demo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ep001-auto-subtitle-demo.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Install Edge TTS
+        run: pip install edge-tts
+
+      - name: Write final EP001 narration
+        shell: bash
+        run: |
+          cat > narration.txt <<'EOF'
+          你有没有想过？
+          当你在浏览器里输入 baidu.com，然后按下回车，
+          到网页真正出现之前，电脑到底干了什么？
+          第一步，浏览器得先知道：百度到底在哪。
+          因为网络通信真正要找的，不是 baidu.com 这个名字，
+          而是服务器对应的 IP 地址。
+          所以浏览器会先去问 DNS：
+          这个域名，对应哪个 IP？
+          DNS 把地址返回来以后，
+          浏览器才知道接下来该去找哪台服务器。
+          找到服务器以后，接下来就要建立连接。
+          如果访问的是 HTTPS，
+          还会先建立一条加密通道，
+          后面的数据就会通过这条通道来传输。
+          连接准备好以后，
+          浏览器才会真正发送 HTTP 请求。
+          比如 GET /，
+          你可以简单理解成一句话：
+          “把首页给我。”
+          服务器收到请求以后，
+          就会把网页需要的东西陆续发回来。
+          比如 HTML 负责页面结构，
+          CSS 负责样式，
+          JavaScript 负责交互，
+          图片这些资源也会一起加载。
+          浏览器一边接收这些内容，
+          一边解析、排版，再把它们绘制到屏幕上。
+          最后，你才真正看到了这个网页。
+          所以你以为自己只是按了一次回车，
+          但实际上背后已经完成了：
+          找地址、建立连接、加密、请求、传输和渲染这一整套流程。
+          这里是 7BYTE，
+          把计算机讲简单一点。
+          EOF
+
+      - name: Generate Yunyang narration and automatic timestamps
+        shell: bash
+        run: |
+          mkdir -p output
+          edge-tts \
+            --voice zh-CN-YunyangNeural \
+            --rate=-2% \
+            --text "$(cat narration.txt)" \
+            --write-media output/narration.mp3 \
+            --write-subtitles output/narration.vtt
+          ffmpeg -y -i output/narration.vtt output/narration.srt
+
+      - name: Upload demo assets
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep001-auto-subtitles
+          path: output/
+          retention-days: 3
