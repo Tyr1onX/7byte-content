@@ -45,7 +45,6 @@ jobs:
             rate="$3"
             pitch="$4"
             if grep -q "^${voice}[[:space:]]" output/voices.txt; then
-              echo "Generating ${voice}"
               edge-tts \
                 --voice "$voice" \
                 --rate="$rate" \
@@ -53,12 +52,9 @@ jobs:
                 --text "$(cat output/sample.txt)" \
                 --write-media "output/${slug}.mp3" \
                 --write-subtitles "output/${slug}.vtt"
-            else
-              echo "Voice unavailable: ${voice}" | tee -a output/unavailable.txt
             fi
           }
 
-          # Different native male voices; no post pitch-shifting or layering.
           generate zh-CN-YunjianNeural A-yunjian '+0%' '+0Hz'
           generate zh-CN-YunyangNeural B-yunyang '-2%' '+0Hz'
           generate zh-CN-YunfengNeural C-yunfeng '-2%' '+0Hz'
@@ -69,8 +65,6 @@ jobs:
           B = Yunyang：成熟、播讲感
           C = Yunfeng：自然、克制
           D = Yunhao：低调、平静
-
-          全部是不同的原生声线，不使用后期降调复制，也不做双声道/双轨叠加。
           EOF
 
       - name: Upload narration pack
@@ -92,6 +86,7 @@ jobs:
           cp output/*.mp3 previews/ 2>/dev/null || true
           cp output/*.vtt previews/ 2>/dev/null || true
           cp output/README.txt previews/README.txt
+          cp output/voices.txt previews/voices.txt
           git add previews
           git commit -m "chore: publish AI voice comparison previews"
           git push origin HEAD:voice-previews --force
