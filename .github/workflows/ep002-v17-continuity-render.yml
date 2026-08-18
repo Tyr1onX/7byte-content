@@ -1,4 +1,5 @@
 name: ep002-v17-continuity-render
+# trigger: object continuity preview
 
 on:
   push:
