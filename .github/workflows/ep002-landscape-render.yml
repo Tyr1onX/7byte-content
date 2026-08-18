@@ -1,5 +1,6 @@
 name: ep002-landscape-render
 
+# One-shot renderer for validating the EP002 16:9 layout fix.
 on:
   push:
     branches: [main]
