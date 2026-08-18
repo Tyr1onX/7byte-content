@@ -1,5 +1,5 @@
 name: ep002-v16-device-render
-# trigger: endpoint refinement preview
+# trigger: endpoint refinement preview PR
 
 on:
   push:
