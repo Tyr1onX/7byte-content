@@ -15,10 +15,29 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
+      - name: Checkout main for run id
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Publish run id early
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan ep002-render-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
+          git add preview/run-id.txt
+          git commit -m "chore: publish EP002 landscape render run id"
+          git push origin HEAD:ep002-render-previews --force
+
       - name: Checkout EP002 source
         uses: actions/checkout@v4
         with:
           ref: feat/ep002-wifi-full-signal
+          clean: true
 
       - uses: actions/setup-node@v4
         with:
@@ -61,20 +80,6 @@ jobs:
           CAPTURE_WIDTH: '1920'
           CAPTURE_HEIGHT: '1080'
           CAPTURE_OUTPUT: output/ep002-landscape-silent-60fps.webm
-
-      - name: Publish run id
-        shell: bash
-        run: |
-          printf '%s\n' "$GITHUB_RUN_ID" > output/run-id.txt
-          git config user.name "7BYTE Preview Bot"
-          git config user.email "actions@users.noreply.github.com"
-          git switch --orphan ep002-render-previews
-          git rm -rf . >/dev/null 2>&1 || true
-          mkdir -p preview
-          cp output/run-id.txt preview/run-id.txt
-          git add preview/run-id.txt
-          git commit -m "chore: publish EP002 landscape render run id"
-          git push origin HEAD:ep002-render-previews --force
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
