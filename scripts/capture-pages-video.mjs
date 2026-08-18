@@ -4,6 +4,8 @@ import {chromium} from 'playwright';
 
 const url = process.env.CAPTURE_URL ?? 'http://127.0.0.1:4173/7byte-content/?capture=1';
 const durationMs = Number(process.env.CAPTURE_DURATION_MS ?? 100500);
+const fps = Number(process.env.CAPTURE_FPS ?? 60);
+const videoBitsPerSecond = Number(process.env.CAPTURE_BITRATE ?? 20_000_000);
 const output = path.resolve(process.env.CAPTURE_OUTPUT ?? 'output/ep001-silent.webm');
 
 await fs.mkdir(path.dirname(output), {recursive: true});
@@ -34,7 +36,7 @@ try {
 
   const downloadPromise = page.waitForEvent('download', {timeout: durationMs + 60000});
 
-  await page.evaluate(async ({durationMs}) => {
+  await page.evaluate(async ({durationMs, fps, videoBitsPerSecond}) => {
     const player = document.querySelector('#player');
     if (!(player instanceof HTMLElement)) {
       throw new Error('motion-canvas-player not found');
@@ -55,10 +57,10 @@ try {
       throw new Error('No supported MediaRecorder WebM codec found');
     }
 
-    const stream = canvas.captureStream(30);
+    const stream = canvas.captureStream(fps);
     const recorder = new MediaRecorder(stream, {
       mimeType,
-      videoBitsPerSecond: 8_000_000,
+      videoBitsPerSecond,
     });
     const chunks = [];
 
@@ -89,12 +91,12 @@ try {
     anchor.click();
     anchor.remove();
     setTimeout(() => URL.revokeObjectURL(href), 5000);
-  }, {durationMs});
+  }, {durationMs, fps, videoBitsPerSecond});
 
   const download = await downloadPromise;
   await download.saveAs(output);
   const stat = await fs.stat(output);
-  console.log(`Captured ${output} (${(stat.size / 1024 / 1024).toFixed(2)} MiB)`);
+  console.log(`Captured ${output} at ${fps}fps / ${(videoBitsPerSecond / 1_000_000).toFixed(1)} Mbps (${(stat.size / 1024 / 1024).toFixed(2)} MiB)`);
 } finally {
   await browser.close();
 }
