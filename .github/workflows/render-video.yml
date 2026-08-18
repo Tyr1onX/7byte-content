@@ -18,7 +18,7 @@ on:
         default: '100500'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   capture:
@@ -86,10 +86,26 @@ jobs:
           CAPTURE_BITRATE: '20000000'
           CAPTURE_OUTPUT: output/ep001-silent-60fps.webm
 
+      - name: Record workflow run id
+        run: printf '%s\n' "$GITHUB_RUN_ID" > output/run-id.txt
+
       - name: Upload silent video
         uses: actions/upload-artifact@v4
         with:
           name: ep001-silent-video-60fps
-          path: output/ep001-silent-60fps.webm
+          path: output/
           if-no-files-found: error
           retention-days: 7
+
+      - name: Publish run id
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan render-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          cp output/run-id.txt preview/run-id.txt
+          git add preview/run-id.txt
+          git commit -m "chore: publish 60fps render run id"
+          git push origin HEAD:render-previews --force
