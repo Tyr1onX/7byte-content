@@ -3,7 +3,7 @@
 The approved outro is NOT generated here.
 It must be copied verbatim from the canonical asset extracted from EP001 V5:
 
-    ChatGPT Library: /7BYTE/brand/7BYTE-outro-canonical-from-EP001-V5.mp4
+    ChatGPT Library: /7BYTE/brand/outro-canonical.mp4
 
 This script intentionally refuses to synthesize a replacement. It only copies an
 explicit canonical input file to an output path so future automation cannot
@@ -22,8 +22,8 @@ def main(canonical_path: str, output_path: str) -> None:
     if not source.exists():
         raise FileNotFoundError(
             "Canonical 7BYTE outro is missing. Fetch "
-            "/7BYTE/brand/7BYTE-outro-canonical-from-EP001-V5.mp4 from the "
-            "ChatGPT file library. Do not regenerate a substitute."
+            "/7BYTE/brand/outro-canonical.mp4 from the ChatGPT file library. "
+            "Do not regenerate a substitute."
         )
 
     target.parent.mkdir(parents=True, exist_ok=True)
