@@ -9,13 +9,16 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   synthesize:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -55,19 +58,19 @@ jobs:
             fi
           }
 
-          # Four genuinely different male voices. No post pitch-shifting or voice layering.
+          # Different native male voices; no post pitch-shifting or layering.
           generate zh-CN-YunjianNeural A-yunjian '+0%' '+0Hz'
           generate zh-CN-YunyangNeural B-yunyang '-2%' '+0Hz'
           generate zh-CN-YunfengNeural C-yunfeng '-2%' '+0Hz'
           generate zh-CN-YunhaoNeural D-yunhao '-2%' '+0Hz'
 
           cat > output/README.txt <<'EOF'
-          A = Yunjian：偏稳重、清楚
-          B = Yunyang：偏成熟、播讲感
-          C = Yunfeng：偏自然、克制
-          D = Yunhao：偏低调、平静
+          A = Yunjian：稳重、清楚
+          B = Yunyang：成熟、播讲感
+          C = Yunfeng：自然、克制
+          D = Yunhao：低调、平静
 
-          本轮全部使用原生不同声线，不使用上一版的后期降调处理，以避免“像两个人声叠在一起”的相位/音色伪影。
+          全部是不同的原生声线，不使用后期降调复制，也不做双声道/双轨叠加。
           EOF
 
       - name: Upload narration pack
@@ -77,3 +80,18 @@ jobs:
           path: output/
           if-no-files-found: error
           retention-days: 7
+
+      - name: Publish temporary preview branch
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan voice-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p previews
+          cp output/*.mp3 previews/ 2>/dev/null || true
+          cp output/*.vtt previews/ 2>/dev/null || true
+          cp output/README.txt previews/README.txt
+          git add previews
+          git commit -m "chore: publish AI voice comparison previews"
+          git push origin HEAD:voice-previews --force
