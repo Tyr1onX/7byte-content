@@ -27,51 +27,39 @@ jobs:
       - name: Install Edge TTS
         run: pip install edge-tts
 
-      - name: Generate voice comparison pack
+      - name: Generate selected narration
         shell: bash
         run: |
           mkdir -p output
-          edge-tts --list-voices > output/voices.txt
-
-          cat > output/sample.txt <<'EOF'
+          cat > output/script.txt <<'EOF'
           你有没有想过，当你在浏览器里输入 baidu.com，然后按下回车，到网页真正出现之前，电脑到底干了什么？
-          浏览器会先去问 DNS：这个域名对应哪个 IP？找到服务器以后，如果访问的是 HTTPS，还会先建立一条加密通道。
-          这里是 7BYTE，把计算机讲简单一点。
+
+          第一步，浏览器得先知道，百度到底在哪。因为网络通信真正要找的，不是 baidu.com 这个名字，而是服务器对应的 IP 地址。所以浏览器会先去问 DNS：这个域名，对应哪个 IP？DNS 把地址返回来以后，浏览器才知道接下来该去找哪台服务器。
+
+          找到服务器以后，接下来就要建立连接。如果访问的是 HTTPS，还会先建立一条加密通道，后面的数据就会通过这条通道来传输。
+
+          连接准备好以后，浏览器才会真正发送 HTTP 请求。比如 GET slash，你可以简单理解成一句话：把首页给我。
+
+          服务器收到请求以后，就会把网页需要的东西陆续发回来。比如 HTML 负责页面结构，CSS 负责样式，JavaScript 负责交互，图片这些资源也会一起加载。
+
+          浏览器一边接收这些内容，一边解析、排版，再把它们绘制到屏幕上。最后，你才真正看到了这个网页。
+
+          所以你以为自己只是按了一次回车，但实际上背后已经完成了找地址、建立连接、加密、请求、传输和渲染这一整套流程。这里是 7BYTE，把计算机讲简单一点。
           EOF
 
-          generate() {
-            voice="$1"
-            slug="$2"
-            rate="$3"
-            pitch="$4"
-            edge-tts \
-              --voice "$voice" \
-              --rate="$rate" \
-              --pitch="$pitch" \
-              --text "$(cat output/sample.txt)" \
-              --write-media "output/${slug}.mp3" \
-              --write-subtitles "output/${slug}.vtt"
-          }
+          # User-selected voice B: Yunyang. Native voice only, no pitch-shift/post voice layering.
+          edge-tts \
+            --voice zh-CN-YunyangNeural \
+            --rate=-3% \
+            --pitch=+0Hz \
+            --text "$(cat output/script.txt)" \
+            --write-media output/full-B-yunyang.mp3 \
+            --write-subtitles output/full-B-yunyang.vtt
 
-          # Four native male voice choices; no post-processing, no duplicated audio tracks.
-          generate zh-CN-YunjianNeural A-yunjian '+0%' '+0Hz'
-          generate zh-CN-YunyangNeural B-yunyang '-3%' '+0Hz'
-          generate zh-CN-YunxiaNeural C-yunxia '-5%' '+0Hz'
-          generate zh-TW-YunJheNeural D-yunjhe '-2%' '+0Hz'
-
-          cat > output/README.txt <<'EOF'
-          A = zh-CN-YunjianNeural：大陆男声，力度更足。
-          B = zh-CN-YunyangNeural：大陆男声，新闻/播讲取向，更专业可靠。
-          C = zh-CN-YunxiaNeural：大陆男声，更年轻、更轻。
-          D = zh-TW-YunJheNeural：台湾男声，更平静自然，但口音会不同。
-
-          这四个都是不同的原生声线，不使用上一版的 rubberband 降调，也不做任何双轨叠加。
-          EOF
-
-      - name: Upload narration pack
+      - name: Upload selected narration
         uses: actions/upload-artifact@v4
         with:
-          name: ep001-ai-voice-comparison
+          name: ep001-full-yunyang
           path: output/
           if-no-files-found: error
           retention-days: 7
@@ -84,10 +72,9 @@ jobs:
           git switch --orphan voice-previews
           git rm -rf . >/dev/null 2>&1 || true
           mkdir -p previews
-          cp output/*.mp3 previews/
-          cp output/*.vtt previews/
-          cp output/README.txt previews/README.txt
-          cp output/voices.txt previews/voices.txt
+          cp output/full-B-yunyang.mp3 previews/full-B-yunyang.mp3
+          cp output/full-B-yunyang.vtt previews/full-B-yunyang.vtt
+          cp output/script.txt previews/script.txt
           git add previews
-          git commit -m "chore: publish AI voice comparison previews"
+          git commit -m "chore: publish selected Yunyang narration"
           git push origin HEAD:voice-previews --force
