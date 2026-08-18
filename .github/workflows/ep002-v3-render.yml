@@ -1,4 +1,4 @@
-name: ep002-v3-render
+name: ep002-v4-render
 
 on:
   push:
@@ -25,13 +25,13 @@ jobs:
         run: |
           git config user.name "7BYTE Preview Bot"
           git config user.email "actions@users.noreply.github.com"
-          git switch --orphan ep002-v3-render-previews
+          git switch --orphan ep002-v4-render-previews
           git rm -rf . >/dev/null 2>&1 || true
           mkdir -p preview
           printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
           git add preview/run-id.txt
-          git commit -m "chore: publish EP002 v3 render run id"
-          git push origin HEAD:ep002-v3-render-previews --force
+          git commit -m "chore: publish EP002 v4 render run id"
+          git push origin HEAD:ep002-v4-render-previews --force
 
       - name: Checkout EP002 source
         uses: actions/checkout@v4
@@ -79,11 +79,11 @@ jobs:
           CAPTURE_BITRATE: '20000000'
           CAPTURE_WIDTH: '1920'
           CAPTURE_HEIGHT: '1080'
-          CAPTURE_OUTPUT: output/ep002-v3-silent-60fps.webm
+          CAPTURE_OUTPUT: output/ep002-v4-silent-60fps.webm
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: ep002-v3-silent-60fps
+          name: ep002-v4-silent-60fps
           path: output/
           retention-days: 2
