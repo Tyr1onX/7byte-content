@@ -1,0 +1,132 @@
+name: ep002-v14-fix-shot-leak
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ep002-v14-fix-shot-leak.yml
+
+permissions:
+  contents: write
+
+jobs:
+  fix-and-render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout main for run id
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Publish run id early
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan ep002-v14-render-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
+          git add preview/run-id.txt
+          git commit -m "chore: publish EP002 v14 render run id"
+          git push origin HEAD:ep002-v14-render-previews --force
+
+      - name: Checkout EP002 source
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ep002-wifi-full-signal
+          fetch-depth: 0
+
+      - name: Remove leaked hook primitive and record invariant
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          scene = Path('episodes/002-wifi-full-signal/src/scenes/main-v13.tsx')
+          text = scene.read_text(encoding='utf-8')
+          leaked = "            <Circle x={-78} y={-8} width={11} height={11} fill={C.accent} />\n"
+          if leaked not in text:
+              raise SystemExit('expected leaked hook Circle not found; refuse silent edit')
+          text = text.replace(leaked, '', 1)
+          scene.write_text(text, encoding='utf-8')
+
+          notes = Path('episodes/002-wifi-full-signal/design-notes.md')
+          n = notes.read_text(encoding='utf-8')
+          marker = '## V14：Shot ownership / 提前泄漏修复'
+          if marker not in n:
+              n += '''\n\n## V14：Shot ownership / 提前泄漏修复\n\n用户在 Hook 手机浏览器内发现一个提前出现的绿色小点。定位到它不是渲染随机噪声，而是 SHOT 1 JSX 内遗留的无 ref `<Circle>`：它与 loader 同层、默认可见，但语义属于后续“数据沿链路移动”的视觉语言，因此在当前镜头提前泄漏。\n\n**根因：** shot 虽然按 Layout 分组，但内部仍允许存在没有明确语义归属、没有生命周期控制的静态 primitive。此前只检查 connector 是否孤立，没有检查“当前 shot 是否包含下一 shot 才应该出现的视觉元素”。\n\n**修复：** 删除 Hook 中该静态绿色 Circle。以后执行 shot ownership gate：每个可见 primitive 必须回答“它属于当前 shot 的哪个信息角色”；回答不了就删除或移动到正确 shot。\n\n**边界审计：** 每次切镜必须检查 `切换前 2–3 帧 / 边界帧 / 切换后 2–3 帧`，专门查提前泄漏、残留元素和下一镜头预显。\n'''
+              notes.write_text(n, encoding='utf-8')
+
+          system = Path('skills/visual-system.md')
+          s = system.read_text(encoding='utf-8')
+          smarker = '## 9. Shot ownership：禁止跨镜头提前泄漏'
+          if smarker not in s:
+              s += '''\n\n## 9. Shot ownership：禁止跨镜头提前泄漏\n\n每一个可见 primitive（点、线、图标、chip、packet、状态标记）都必须有明确的当前镜头语义归属。\n\n- 不允许为了后续动画方便，把下一 shot 的元素提前放在当前 shot 且默认可见。\n- 临时元素默认 `opacity=0`，只能由所属 shot 的时间线显式激活。\n- 无 ref、无生命周期、无法说明信息角色的装饰 primitive 默认视为风险项。\n- 最终视觉审计必须覆盖所有 shot boundary：切换前、边界、切换后，而不仅是每个镜头的中间关键帧。\n- 发现“提前出现/上一镜头残留”时回到 scene ownership 修复，不用遮罩掩盖。\n'''
+              system.write_text(s, encoding='utf-8')
+          PY
+
+          if grep -Fq '<Circle x={-78} y={-8} width={11} height={11} fill={C.accent} />' episodes/002-wifi-full-signal/src/scenes/main-v13.tsx; then
+            echo 'hook leak still present'
+            exit 1
+          fi
+
+      - name: Commit source fix
+        shell: bash
+        run: |
+          git config user.name "7BYTE Studio Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/002-wifi-full-signal/src/scenes/main-v13.tsx episodes/002-wifi-full-signal/design-notes.md skills/visual-system.md
+          git commit -m "fix(ep002): enforce shot ownership in hook"
+          git push origin HEAD:feat/ep002-wifi-full-signal
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build:pages
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Start preview
+        shell: bash
+        run: |
+          rm -rf .capture-site
+          mkdir -p .capture-site/7byte-content
+          cp -a dist/. .capture-site/7byte-content/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site >/tmp/7byte-http.log 2>&1 &
+          for i in {1..60}; do
+            curl --fail --silent http://127.0.0.1:4173/7byte-content/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/7byte-http.log
+          exit 1
+
+      - name: Capture 1920x1080 at 60fps
+        run: node scripts/capture-pages-video.mjs
+        env:
+          CAPTURE_URL: http://127.0.0.1:4173/7byte-content/?capture=1
+          CAPTURE_DURATION_MS: '58400'
+          CAPTURE_FPS: '60'
+          CAPTURE_BITRATE: '20000000'
+          CAPTURE_WIDTH: '1920'
+          CAPTURE_HEIGHT: '1080'
+          CAPTURE_OUTPUT: output/ep002-v14-silent-60fps.webm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep002-v14-silent-60fps
+          path: output/ep002-v14-silent-60fps.webm
+          retention-days: 2
