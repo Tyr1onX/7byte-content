@@ -1,5 +1,6 @@
 name: ep002-v15-focus-render
 
+# one-shot render workflow; removed by the job after completion
 on:
   push:
     branches: [main]
