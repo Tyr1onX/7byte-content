@@ -1,0 +1,309 @@
+name: ep002-v15-focus-render
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ep002-v15-focus-render.yml
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout main for run id
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Publish run id early
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan ep002-v15-render-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
+          git add preview/run-id.txt
+          git commit -m "chore: publish EP002 V15 render run id"
+          git push origin HEAD:ep002-v15-render-previews --force
+
+      - name: Checkout EP002 source
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ep002-wifi-full-signal
+
+      - name: Build V15 scene from V13
+        shell: bash
+        run: |
+          python3 <<'PY'
+          from pathlib import Path
+
+          src = Path('episodes/002-wifi-full-signal/src/scenes/main-v13.tsx')
+          dst = Path('episodes/002-wifi-full-signal/src/scenes/main-v15.tsx')
+          text = src.read_text(encoding='utf-8')
+
+          shot_start = text.index('      {/* SHOT 3 — full path + native 7-byte packet */}')
+          connector_start = text.index('        <Line ref={c1}', shot_start)
+          shot_prefix = r'''      {/* SHOT 3 — typed nodes + focus system + native 7-byte packet */}
+      <Layout ref={chain} width={1920} height={1080} opacity={0}>
+        {/* Endpoint: device-shaped container, visually softer than infrastructure/services. */}
+        <Rect ref={chainPhone} x={-760} y={-30} width={180} height={220} radius={44} fill={'#141512'} stroke={C.border} lineWidth={2}>
+          <Rect y={-22} width={116} height={150} radius={28} fill={C.raised} stroke={'#4A4E43'} lineWidth={2}>
+            <Icon icon={'lucide:smartphone'} y={-16} size={48} color={C.text} />
+            <Rect y={46} width={34} height={5} radius={3} fill={C.muted} opacity={0.72} />
+          </Rect>
+          <Txt y={88} text={'设备'} fill={C.text} fontFamily={FONT} fontSize={24} fontWeight={720} />
+        </Rect>
+
+        {/* Infrastructure: flatter chassis, narrow accent rail. */}
+        <Rect ref={chainRouter} x={-420} y={-30} width={250} height={170} radius={18} fill={C.surface} stroke={C.border} lineWidth={2}>
+          <Rect y={-80} width={210} height={5} radius={3} fill={C.accent} opacity={0.78} />
+          <Icon icon={'lucide:router'} x={-76} y={-8} size={48} color={C.accent} />
+          <Txt x={34} y={-21} text={'路由器'} fill={C.text} fontFamily={FONT} fontSize={26} fontWeight={730} />
+          <Txt x={34} y={23} text={'无线接入'} fill={C.muted} fontFamily={FONT} fontSize={18} fontWeight={520} />
+        </Rect>
+
+        <Rect ref={chainIsp} x={-40} y={-30} width={290} height={170} radius={18} fill={C.surface} stroke={C.border} lineWidth={2} opacity={0}>
+          <Rect y={-80} width={250} height={5} radius={3} fill={C.blue} opacity={0.72} />
+          <Icon icon={'lucide:network'} x={-92} y={-8} size={46} color={C.blue} />
+          <Txt x={38} y={-21} text={'运营商网络'} fill={C.text} fontFamily={FONT} fontSize={24} fontWeight={720} />
+          <Txt x={38} y={23} text={'WAN'} fill={C.muted} fontFamily={MONO} fontSize={17} fontWeight={620} />
+          <Txt ref={ispFail} x={118} y={-62} text={'×'} fill={C.danger} fontFamily={FONT} fontSize={40} fontWeight={850} opacity={0} />
+        </Rect>
+
+        {/* Services: compact squared modules with a small functional label. */}
+        <Rect ref={chainDns} x={370} y={-30} width={250} height={166} radius={12} fill={C.raised} stroke={C.border} lineWidth={2} opacity={0}>
+          <Rect x={-103} width={5} height={126} radius={3} fill={C.accent} opacity={0.64} />
+          <Icon icon={'lucide:book-key'} x={-65} y={-18} size={42} color={C.accent} />
+          <Txt x={35} y={-24} text={'DNS'} fill={C.text} fontFamily={MONO} fontSize={27} fontWeight={770} />
+          <Txt x={35} y={20} text={'解析服务'} fill={C.muted} fontFamily={FONT} fontSize={18} fontWeight={520} />
+          <Txt ref={dnsFail} x={100} y={-60} text={'×'} fill={C.danger} fontFamily={FONT} fontSize={40} fontWeight={850} opacity={0} />
+        </Rect>
+
+        <Rect ref={chainServer} x={750} y={-30} width={250} height={166} radius={12} fill={C.raised} stroke={C.border} lineWidth={2} opacity={0}>
+          <Rect x={-103} width={5} height={126} radius={3} fill={C.blue} opacity={0.58} />
+          <Icon icon={'lucide:server'} x={-65} y={-18} size={42} color={C.text} />
+          <Txt x={35} y={-24} text={'网站'} fill={C.text} fontFamily={FONT} fontSize={25} fontWeight={730} />
+          <Txt x={35} y={20} text={'目标服务器'} fill={C.muted} fontFamily={FONT} fontSize={18} fontWeight={520} />
+          <Txt ref={serverFail} x={100} y={-60} text={'×'} fill={C.danger} fontFamily={FONT} fontSize={40} fontWeight={850} opacity={0} />
+        </Rect>
+
+'''
+          text = text[:shot_start] + shot_prefix + text[connector_start:]
+
+          helper_start = text.index('  // Later bytes travel a touch slower')
+          helper_end = text.index('  // 0.000–4.005 — Hook.', helper_start)
+          helpers = r'''  // A focus system makes the explanation decide where the eye should go.
+  // Hidden nodes are never included until their reveal step, preventing temporal leakage.
+  const byteDurations = [0.58, 0.59, 0.60, 0.61, 0.62, 0.63, 0.64];
+
+  function* focusHop(
+    revealedNodes: Rect[],
+    visibleLines: Line[],
+    source: Rect,
+    target: Rect,
+    activeLine: Line,
+  ) {
+    yield* all(
+      ...revealedNodes.map(node =>
+        node.opacity(node === target ? 1 : node === source ? 0.68 : 0.34, 0.18, easeInOutCubic),
+      ),
+      ...visibleLines.map(line =>
+        all(
+          line.opacity(line === activeLine ? 1 : 0.22, 0.18, easeInOutCubic),
+          line.lineWidth(line === activeLine ? 8 : 4, 0.18, easeInOutCubic),
+          line.stroke(line === activeLine ? C.accent : C.border, 0.18, easeInOutCubic),
+        ),
+      ),
+    );
+  }
+
+  function* sendHop(startX: number, endX: number, target: Rect) {
+    byteRefs.forEach((byte) => {
+      byte().x(startX);
+      byte().y(-30);
+      byte().opacity(0);
+      byte().scale(0.78);
+    });
+
+    yield* all(
+      ...byteRefs.map((byte, index) =>
+        delay(
+          index * 0.045,
+          all(
+            byte().opacity(1, 0.10, easeInOutCubic),
+            byte().scale(1, 0.13, easeInOutCubic),
+            byte().x(endX, byteDurations[index], easeInOutCubic),
+            delay(byteDurations[index] - 0.13, byte().opacity(0, 0.13, easeInOutCubic)),
+          ),
+        ),
+      ),
+      delay(
+        0.84,
+        all(
+          target.stroke(C.accent, 0.10),
+          target.lineWidth(3.5, 0.10),
+          target.scale(1.012, 0.10, easeInOutCubic),
+        ),
+      ),
+    );
+
+    yield* all(
+      target.stroke(C.border, 0.18),
+      target.lineWidth(2, 0.18),
+      target.scale(1, 0.18, easeInOutCubic),
+    );
+  }
+
+'''
+          text = text[:helper_start] + helpers + text[helper_end:]
+
+          p5 = text.index('  // 19.693–23.329 — Move to the end-to-end topology.')
+          p6 = text.index('  // 23.329–30.663 — Reveal and transmit hop-by-hop.', p5)
+          phase5 = r'''  // 19.693–23.329 — Preserve context, then establish the first focus pair.
+  yield* all(
+    waitFor(phase(4, 5)),
+    local().opacity(0, 0.18),
+    delay(0.14, chain().opacity(1, 0.24)),
+    delay(0.7, c1().end(1, 0.7, easeInOutCubic)),
+    delay(1.5, focusHop([chainPhone(), chainRouter()], [c1()], chainPhone(), chainRouter(), c1())),
+  );
+
+'''
+          text = text[:p5] + phase5 + text[p6:]
+
+          p6 = text.index('  // 23.329–30.663 — Reveal and transmit hop-by-hop.')
+          p7 = text.index('  // 30.663–37.869 — Failure examples.', p6)
+          phase6 = r'''  // 23.329–30.663 — BytePacket drives attention hop-by-hop.
+  yield* all(
+    waitFor(phase(5, 6)),
+    (function* () {
+      yield* focusHop([chainPhone(), chainRouter()], [c1()], chainPhone(), chainRouter(), c1());
+      yield* sendHop(-660, -555, chainRouter());
+
+      yield* all(
+        chainIsp().opacity(0.34, 0.24),
+        c2().end(1, 0.38, easeInOutCubic),
+      );
+      yield* focusHop([chainPhone(), chainRouter(), chainIsp()], [c1(), c2()], chainRouter(), chainIsp(), c2());
+      yield* sendHop(-285, -195, chainIsp());
+
+      yield* all(
+        chainDns().opacity(0.34, 0.24),
+        c3().end(1, 0.38, easeInOutCubic),
+      );
+      yield* focusHop([chainPhone(), chainRouter(), chainIsp(), chainDns()], [c1(), c2(), c3()], chainIsp(), chainDns(), c3());
+      yield* sendHop(115, 235, chainDns());
+
+      yield* all(
+        chainServer().opacity(0.34, 0.24),
+        c4().end(1, 0.38, easeInOutCubic),
+      );
+      yield* focusHop([chainPhone(), chainRouter(), chainIsp(), chainDns(), chainServer()], [c1(), c2(), c3(), c4()], chainDns(), chainServer(), c4());
+      yield* sendHop(505, 615, chainServer());
+
+      yield* all(
+        chainPhone().opacity(0.30, 0.20),
+        chainRouter().opacity(0.30, 0.20),
+        chainIsp().opacity(0.30, 0.20),
+        chainDns().opacity(0.42, 0.20),
+        chainServer().opacity(1, 0.20),
+        c1().opacity(0.18, 0.20),
+        c2().opacity(0.18, 0.20),
+        c3().opacity(0.18, 0.20),
+        c4().opacity(0.42, 0.20),
+      );
+    })(),
+  );
+
+'''
+          text = text[:p6] + phase6 + text[p7:]
+
+          dst.write_text(text, encoding='utf-8')
+
+          project = Path('episodes/002-wifi-full-signal/src/project.ts')
+          project_text = project.read_text(encoding='utf-8').replace("./scenes/main-v13?scene", "./scenes/main-v15?scene")
+          project.write_text(project_text, encoding='utf-8')
+
+          note = Path('episodes/002-wifi-full-signal/visual-v15.md')
+          note.write_text('''# EP002 V15 visual experiment\n\nScope: Shot 3 only.\n\n- Type-specific node silhouettes: endpoint / infrastructure / service.\n- Active-focus hierarchy: current source and target remain legible; unrelated revealed nodes recede.\n- BytePacket controls the focus progression instead of decorating a static chain.\n- Hidden nodes are excluded from focus calculations until explicitly revealed.\n- No changes to narration, subtitle policy, hook, diagnostics, takeaway, Brand Bug, watermark, or canonical outro.\n\nPromotion rule: keep this episode-local until visual review confirms the focus system is clearer and more comfortable than V14.\n''', encoding='utf-8')
+          PY
+
+      - name: Commit V15 source
+        shell: bash
+        run: |
+          git config user.name "7BYTE Studio"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/002-wifi-full-signal/src/project.ts \
+                  episodes/002-wifi-full-signal/src/scenes/main-v15.tsx \
+                  episodes/002-wifi-full-signal/visual-v15.md
+          git commit -m "feat(ep002): prototype typed nodes and focus system"
+          git push origin HEAD:feat/ep002-wifi-full-signal
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build:pages
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Start preview
+        shell: bash
+        run: |
+          rm -rf .capture-site
+          mkdir -p .capture-site/7byte-content
+          cp -a dist/. .capture-site/7byte-content/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site > /tmp/7byte-http.log 2>&1 &
+          for i in {1..60}; do
+            curl --fail --silent http://127.0.0.1:4173/7byte-content/ >/dev/null && exit 0
+            sleep 1
+          done
+          cat /tmp/7byte-http.log
+          exit 1
+
+      - name: Capture 1920x1080 at 60fps
+        run: node scripts/capture-pages-video.mjs
+        env:
+          CAPTURE_URL: http://127.0.0.1:4173/7byte-content/?capture=1
+          CAPTURE_DURATION_MS: '58350'
+          CAPTURE_FPS: '60'
+          CAPTURE_WIDTH: '1920'
+          CAPTURE_HEIGHT: '1080'
+          CAPTURE_BITRATE: '20000000'
+          CAPTURE_OUTPUT: output/ep002-v15-silent-60fps.webm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep002-v15-silent-60fps
+          path: output/ep002-v15-silent-60fps.webm
+          retention-days: 2
+
+      - name: Cleanup one-shot workflow and preview ref
+        if: always()
+        shell: bash
+        run: |
+          git fetch origin main
+          git checkout -B main origin/main
+          git rm -f .github/workflows/ep002-v15-focus-render.yml || true
+          if ! git diff --cached --quiet; then
+            git commit -m "chore: remove EP002 V15 one-shot render workflow"
+            git push origin main
+          fi
+          git push origin --delete ep002-v15-render-previews || true
