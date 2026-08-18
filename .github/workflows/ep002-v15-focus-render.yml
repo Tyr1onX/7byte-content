@@ -6,6 +6,10 @@ on:
     branches: [main]
     paths:
       - .github/workflows/ep002-v15-focus-render.yml
+  pull_request:
+    branches: [main]
+    paths:
+      - preview/ep002-v15-trigger.txt
 
 permissions:
   contents: write
@@ -296,7 +300,7 @@ jobs:
           path: output/ep002-v15-silent-60fps.webm
           retention-days: 2
 
-      - name: Cleanup one-shot workflow and preview ref
+      - name: Cleanup one-shot workflow and preview refs
         if: always()
         shell: bash
         run: |
@@ -308,3 +312,4 @@ jobs:
             git push origin main
           fi
           git push origin --delete ep002-v15-render-previews || true
+          git push origin --delete ep002-v15-trigger || true
