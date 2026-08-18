@@ -65,3 +65,5 @@ jobs:
           git add previews
           git commit -m "chore: publish EP002 Yunyang narration"
           git push origin HEAD:ep002-previews --force
+
+      # This workflow is intentionally episode-specific; delete it after the narration is accepted.
