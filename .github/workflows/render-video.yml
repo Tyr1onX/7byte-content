@@ -11,11 +11,11 @@ on:
       ref:
         description: Branch, tag, or SHA to render
         required: true
-        default: feat/bootstrap-7byte-studio
+        default: feat/ep002-wifi-full-signal
       duration_ms:
         description: Capture duration in milliseconds
         required: true
-        default: '100500'
+        default: '59000'
 
 permissions:
   contents: write
@@ -33,8 +33,8 @@ jobs:
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
             echo "duration_ms=${{ inputs.duration_ms }}" >> "$GITHUB_OUTPUT"
           else
-            echo "ref=feat/bootstrap-7byte-studio" >> "$GITHUB_OUTPUT"
-            echo "duration_ms=100500" >> "$GITHUB_OUTPUT"
+            echo "ref=feat/ep002-wifi-full-signal" >> "$GITHUB_OUTPUT"
+            echo "duration_ms=59000" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Checkout workflow branch
@@ -102,7 +102,7 @@ jobs:
           CAPTURE_DURATION_MS: ${{ steps.render.outputs.duration_ms }}
           CAPTURE_FPS: '60'
           CAPTURE_BITRATE: '20000000'
-          CAPTURE_OUTPUT: output/ep001-silent-60fps.webm
+          CAPTURE_OUTPUT: output/ep002-silent-60fps.webm
 
       - name: Record workflow run id
         run: printf '%s\n' "$GITHUB_RUN_ID" > output/run-id.txt
@@ -110,7 +110,7 @@ jobs:
       - name: Upload silent video
         uses: actions/upload-artifact@v4
         with:
-          name: ep001-silent-video-60fps
+          name: ep002-silent-video-60fps
           path: output/
           if-no-files-found: error
           retention-days: 7
