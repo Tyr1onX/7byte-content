@@ -47,7 +47,6 @@ jobs:
           所以你以为自己只是按了一次回车，但实际上背后已经完成了找地址、建立连接、加密、请求、传输和渲染这一整套流程。这里是 7BYTE，把计算机讲简单一点。
           EOF
 
-          # User-selected voice B: Yunyang. Native voice only, no pitch-shift/post voice layering.
           edge-tts \
             --voice zh-CN-YunyangNeural \
             --rate=-3% \
@@ -55,6 +54,8 @@ jobs:
             --text "$(cat output/script.txt)" \
             --write-media output/full-B-yunyang.mp3 \
             --write-subtitles output/full-B-yunyang.vtt
+
+          base64 -w0 output/full-B-yunyang.mp3 > output/full-B-yunyang.b64
 
       - name: Upload selected narration
         uses: actions/upload-artifact@v4
@@ -74,6 +75,7 @@ jobs:
           mkdir -p previews
           cp output/full-B-yunyang.mp3 previews/full-B-yunyang.mp3
           cp output/full-B-yunyang.vtt previews/full-B-yunyang.vtt
+          cp output/full-B-yunyang.b64 previews/full-B-yunyang.b64
           cp output/script.txt previews/script.txt
           git add previews
           git commit -m "chore: publish selected Yunyang narration"
