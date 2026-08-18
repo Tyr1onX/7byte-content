@@ -1,0 +1,13 @@
+{
+  "meta": "INTERNET",
+  "title_lines": [
+    "输入 baidu.com 后",
+    "电脑到底干了什么？"
+  ],
+  "kicker": "从 DNS 到浏览器渲染，一次看懂网页打开全过程",
+  "address": "baidu.com",
+  "keywords": ["DNS", "HTTPS", "HTTP", "RENDER"],
+  "keyword_desc": ["找地址", "加密通道", "发请求", "画网页"],
+  "bottom_line": "一次回车，背后发生了什么？",
+  "footer": "DNS → HTTPS → HTTP → RENDER"
+}
