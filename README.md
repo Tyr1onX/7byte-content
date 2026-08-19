@@ -25,8 +25,9 @@
 ## 当前 episode
 
 - `episodes/001-what-happens-after-entering-baidu/` — 输入 `baidu.com` 后发生了什么？
-- `episodes/002-wifi-full-signal/` — Wi-Fi 满格，为什么还是上不了网？（V21 Refined，已冻结待发布）
-- 下一期从 `episodes/_template/` 创建，不从旧 episode 复制一堆版本文件。
+- `episodes/002-wifi-full-signal/` — Wi-Fi 满格，为什么还是上不了网？（V21 Refined）
+- `episodes/003-bandwidth-vs-download-speed/` — 1000M 宽带，为什么下载只有 100MB/s？（Final Review）
+- 下一期继续从 `episodes/_template/` 创建，不从旧 episode 复制历史版本文件。
 
 ## 本地预览
 
