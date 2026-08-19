@@ -1,0 +1,88 @@
+name: ep003-v2-refine
+
+on:
+  push:
+    branches:
+      - feat/ep003-bandwidth-vs-download-speed
+    paths:
+      - .github/workflows/ep003-v2-refine.yml
+
+permissions:
+  contents: write
+
+jobs:
+  refine:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout EP003 source
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ep003-bandwidth-vs-download-speed
+
+      - name: Apply V2 visual fixes
+        shell: python
+        run: |
+          from pathlib import Path
+
+          path = Path('episodes/003-bandwidth-vs-download-speed/src/scenes/main.tsx')
+          s = path.read_text(encoding='utf-8')
+
+          # Remove sentence-style duplicate text from the core bit/Byte shot.
+          block = """        <Txt\n          y={-155}\n          text={'8 个 bit，组成 1 个 Byte'}\n          fill={C.text}\n          fontFamily={FONT}\n          fontSize={38}\n          fontWeight={720}\n        />\n\n"""
+          if block not in s:
+              raise SystemExit('Shot 2 duplicate sentence block not found')
+          s = s.replace(block, '', 1)
+
+          # Give the 8-bit visual more screen authority.
+          s = s.replace("""          y={20}\n          layout\n          direction={'row'}\n          gap={18}""", """          y={5}\n          layout\n          direction={'row'}\n          gap={16}""", 1)
+          s = s.replace("""              width={72}\n              height={72}\n              radius={16}""", """              width={90}\n              height={90}\n              radius={18}""", 1)
+          s = s.replace("""                text={'b'}\n                fill={C.accent}\n                fontFamily={MONO}\n                fontSize={30}\n                fontWeight={800}""", """                text={'b'}\n                fill={C.accent}\n                fontFamily={MONO}\n                fontSize={36}\n                fontWeight={800}""", 1)
+          s = s.replace("""          y={22}\n          width={790}\n          height={168}""", """          y={8}\n          width={940}\n          height={210}""", 1)
+          s = s.replace("""            y={104}\n            width={180}\n            height={48}""", """            y={128}\n            width={210}\n            height={52}""", 1)
+          s = s.replace("""<Txt text={'1 Byte'} fill={C.accent} fontFamily={MONO} fontSize={24} fontWeight={800} />""", """<Txt text={'1 Byte'} fill={C.accent} fontFamily={MONO} fontSize={26} fontWeight={800} />""", 1)
+          s = s.replace("""          y={230}\n          text={'8 bit = 1 Byte'}""", """          y={255}\n          text={'8 bit = 1 Byte'}""", 1)
+          s = s.replace("""          fontSize={42}\n          fontWeight={800}\n          opacity={0}\n        />\n      </Layout>\n\n      {/* SHOT 3""", """          fontSize={48}\n          fontWeight={800}\n          opacity={0}\n        />\n      </Layout>\n\n      {/* SHOT 3""", 1)
+
+          # Screen text should describe structure, not repeat whole subtitle sentences.
+          s = s.replace("text={'换成下载软件的单位，要先除以 8'}", "text={'单位换算'}", 1)
+          s = s.replace("text={'实际下载通常还会低于理论值'}", "text={'理论换算 vs 实际下载'}", 1)
+          s = s.replace("text={'Mbps 和 MB/s，不是同一个单位'}", "text={'换算关系'}", 1)
+
+          # Remove the pre-animation green dot and keep only factors spoken in this version.
+          s = s.replace("""            lineCap={'round'}\n            end={0}""", """            lineCap={'round'}\n            opacity={0}\n            end={0}""", 1)
+          s = s.replace("['协议开销', '服务器', '网络链路', '设备']", "['协议开销', '服务器', '设备']", 1)
+
+          # Replace fade-to-empty / muddy overlap transitions with clean semantic cuts.
+          marker = '  // Phase 1 — Hook.'
+          if marker not in s:
+              raise SystemExit('Phase marker not found')
+          s = s.split(marker, 1)[0] + """  // Phase 1 — Hook.\n  yield* all(\n    waitFor(phase(0, 1)),\n    hook().opacity(1, 0.25),\n    hookLeft().opacity(1, 0.42, easeInOutCubic),\n    hookLeft().scale(1, 0.42, easeInOutCubic),\n    delay(\n      1.15,\n      all(\n        hookRight().opacity(1, 0.42, easeInOutCubic),\n        hookRight().scale(1, 0.42, easeInOutCubic),\n      ),\n    ),\n    delay(2.55, hookQuestion().opacity(1, 0.28, easeInOutCubic)),\n    delay(\n      3.45,\n      all(\n        hookSmallB().fill(C.accent, 0.24, easeInOutCubic),\n        hookCapitalB().fill(C.accent, 0.24, easeInOutCubic),\n      ),\n    ),\n  );\n\n  // Phase 2 — bit vs Byte. Hard semantic cut; motion happens inside the shot.\n  hook().opacity(0);\n  unitShot().opacity(1);\n  yield* all(\n    waitFor(phase(1, 2)),\n    ...bitCells.map((cell, index) =>\n      delay(\n        0.82 + index * 0.055,\n        all(\n          cell().opacity(1, 0.18, easeInOutCubic),\n          cell().scale(1, 0.22, easeInOutCubic),\n        ),\n      ),\n    ),\n    delay(1.95, bitRow().gap(10, 0.72, easeInOutCubic)),\n    delay(\n      2.35,\n      all(\n        byteFrame().opacity(1, 0.32, easeInOutCubic),\n        byteFrame().scale(1, 0.36, easeInOutCubic),\n      ),\n    ),\n    delay(3.05, unitEquation().opacity(1, 0.28, easeInOutCubic)),\n  );\n\n  // Phase 3 — 1000 ÷ 8 = 125.\n  unitShot().opacity(0);\n  conversion().opacity(1);\n  yield* all(\n    waitFor(phase(2, 3)),\n    all(\n      conversionLeft().opacity(1, 0.34, easeInOutCubic),\n      conversionLeft().scale(1, 0.34, easeInOutCubic),\n    ),\n    delay(\n      1.15,\n      all(\n        divide().opacity(1, 0.28, easeInOutCubic),\n        divide().scale(1, 0.34, easeInOutCubic),\n      ),\n    ),\n    delay(\n      2.15,\n      all(\n        conversionRight().opacity(1, 0.36, easeInOutCubic),\n        conversionRight().scale(1, 0.36, easeInOutCubic),\n      ),\n    ),\n    delay(3.15, theoryBadge().opacity(1, 0.28, easeInOutCubic)),\n  );\n\n  // Phase 4 — Theory vs actual.\n  conversion().opacity(0);\n  reality().opacity(1);\n  yield* all(\n    waitFor(phase(3, 4)),\n    theoryCard().opacity(1, 0.34, easeInOutCubic),\n    delay(0.75, actualCard().opacity(1, 0.34, easeInOutCubic)),\n    delay(\n      1.30,\n      all(\n        actualBar().opacity(1, 0.18, easeInOutCubic),\n        actualBar().end(0.80, 0.92, easeInOutCubic),\n      ),\n    ),\n    delay(1.75, actualValue().opacity(1, 0.30, easeInOutCubic)),\n    delay(2.60, factors().opacity(1, 0.34, easeInOutCubic)),\n  );\n\n  // Phase 5 — Final model.\n  reality().opacity(0);\n  takeaway().opacity(1);\n  yield* all(\n    waitFor(phase(4, 5)),\n    finalLeft().opacity(1, 0.34, easeInOutCubic),\n    delay(\n      0.75,\n      all(\n        finalDivide().opacity(1, 0.28, easeInOutCubic),\n        finalDivide().scale(1, 0.34, easeInOutCubic),\n      ),\n    ),\n    delay(1.45, finalRight().opacity(1, 0.34, easeInOutCubic)),\n    delay(2.35, finalEquation().opacity(1, 0.30, easeInOutCubic)),\n  );\n});\n"""
+
+          path.write_text(s, encoding='utf-8')
+
+          notes = Path('episodes/003-bandwidth-vs-download-speed/design-notes.md')
+          n = notes.read_text(encoding='utf-8')
+          section = '''\n\n## V2：首轮视觉审计修正\n\nV1 首次 1920×1080 / 60fps 实际渲染通过，但视觉审计发现四类问题：\n\n1. Shot 1→2、Shot 2→3 在末尾预先 fade-out，下一 shot 又从 opacity 0 开始，产生纯背景空档。\n2. Shot 3→4、Shot 4→5 的渐隐/渐入在采样帧中形成两套信息叠在一起的 muddy frame。\n3. Shot 4 的圆头进度线在 `end=0` 时仍渲染为一个绿色小点，属于提前泄漏。\n4. 多个顶部标题仍然完整复述旁白，且核心 `8 bit → 1 Byte` 视觉比例偏小。\n\nV2 处理：\n\n- 这些镜头没有必须连续的同一语义对象，因此改为**干净的语义切镜**：边界时前一 shot 立即退场、后一 shot 立即获得 owner，动画只发生在 shot 内部。\n- 进度线增加显式 opacity 生命周期，正式增长前保持不可见。\n- `单位换算` / `理论换算 vs 实际下载` / `换算关系` 只承担结构标题，不再复述整句旁白。\n- `8 bit = 1 Byte` 的 8 个 bit 单元、Byte 外框和最终等式整体放大，强化本期唯一核心视觉记忆。\n- 现实因素收敛为本版旁白实际提到的 `协议开销 / 服务器 / 设备`。\n\nV2 必须重新渲染并重新执行同一组边界帧审计，不能沿用 V1 contact sheet。\n'''
+          if '## V2：首轮视觉审计修正' not in n:
+              notes.write_text(n.rstrip() + section + '\n', encoding='utf-8')
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Validate V2
+        run: |
+          npm install
+          npm run build
+
+      - name: Commit V2
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/003-bandwidth-vs-download-speed/src/scenes/main.tsx \
+                  episodes/003-bandwidth-vs-download-speed/design-notes.md
+          git commit -m "refactor(ep003): fix V1 visual audit findings"
+          git push origin HEAD:feat/ep003-bandwidth-vs-download-speed
