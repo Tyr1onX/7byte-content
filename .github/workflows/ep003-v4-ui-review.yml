@@ -1,5 +1,6 @@
 name: ep003-v4-ui-review
 
+# one-off visual review for the centered-UI revision
 on:
   push:
     branches:
