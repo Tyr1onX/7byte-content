@@ -1,6 +1,6 @@
 import {
-  Circle,
   Icon,
+  Img,
   Layout,
   Line,
   Rect,
@@ -14,16 +14,20 @@ import {
   easeInOutCubic,
   waitFor,
 } from '@motion-canvas/core';
+import {
+  HORIZONTAL_BRAND,
+  HORIZONTAL_HEADER_DATA_URI,
+} from '../../../../shared/brand/horizontal-video-chrome';
 
 const C = {
-  bg: '#111210',
-  surface: '#1B1D1A',
-  raised: '#242620',
-  border: '#3A3D35',
-  text: '#F3F1E8',
-  muted: '#A7AAA1',
-  accent: '#D8FF68',
-  accentDark: '#202812',
+  bg: HORIZONTAL_BRAND.background,
+  surface: HORIZONTAL_BRAND.surface,
+  raised: HORIZONTAL_BRAND.raised,
+  border: HORIZONTAL_BRAND.border,
+  text: HORIZONTAL_BRAND.text,
+  muted: HORIZONTAL_BRAND.muted,
+  accent: HORIZONTAL_BRAND.accent,
+  accentDark: HORIZONTAL_BRAND.accentDark,
   blue: '#72A7FF',
   danger: '#FF6B67',
 };
@@ -78,42 +82,27 @@ export default makeScene2D(function* (view) {
 
   view.add(
     <>
+      {/* Canonical EP002 watermark: fixed across horizontal episodes. */}
       <Txt
-        text={'7BYTE'}
-        y={8}
+        text={HORIZONTAL_BRAND.watermark.text}
+        x={HORIZONTAL_BRAND.watermark.x}
+        y={HORIZONTAL_BRAND.watermark.y}
         fill={C.text}
-        opacity={0.022}
+        opacity={HORIZONTAL_BRAND.watermark.opacity}
         fontFamily={MONO}
-        fontSize={250}
-        fontWeight={800}
-        letterSpacing={18}
+        fontSize={HORIZONTAL_BRAND.watermark.fontSize}
+        fontWeight={HORIZONTAL_BRAND.watermark.fontWeight}
+        letterSpacing={HORIZONTAL_BRAND.watermark.letterSpacing}
       />
 
-      {/* Persistent brand chrome — mirrors the EP002 final-video language. */}
-      <Rect
-        x={-785}
-        y={-455}
-        width={300}
-        height={76}
-        radius={22}
-        fill={'#141512'}
-        stroke={C.border}
-        lineWidth={1.5}
-        layout
-        direction={'row'}
-        alignItems={'center'}
-        justifyContent={'start'}
-        gap={14}
-        padding={[10, 16]}
-      >
-        <Circle width={50} height={50} fill={'#0D0E0C'} stroke={C.accent} lineWidth={2}>
-          <Icon icon={'lucide:cat'} size={31} color={C.text} />
-        </Circle>
-        <Layout layout direction={'column'} gap={5} alignItems={'start'} justifyContent={'center'}>
-          <Txt text={'7BYTE>_'} fill={C.text} fontFamily={MONO} fontSize={25} fontWeight={780} />
-          <Rect width={96} height={4} radius={2} fill={C.accent} />
-        </Layout>
-      </Rect>
+      {/* Exact header raster derived from the EP002 cloud final; do not redraw it per episode. */}
+      <Img
+        src={HORIZONTAL_HEADER_DATA_URI}
+        x={HORIZONTAL_BRAND.header.x}
+        y={HORIZONTAL_BRAND.header.y}
+        width={HORIZONTAL_BRAND.header.width}
+        height={HORIZONTAL_BRAND.header.height}
+      />
 
       {/* SHOT 1 — Hook */}
       <Layout ref={hook} width={1920} height={1080} opacity={0}>
