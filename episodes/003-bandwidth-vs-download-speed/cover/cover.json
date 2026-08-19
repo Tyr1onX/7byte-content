@@ -1,0 +1,9 @@
+{
+  "title": "1000M 宽带，为什么下载只有 100MB/s？",
+  "accent": "÷ 8",
+  "support": "1000 Mbps 理论约等于 125 MB/s",
+  "hero": "1000mbps-divide-8-to-125mbps",
+  "vertical_ratio": "3:4",
+  "horizontal_ratio": "4:3",
+  "forbidden_chrome": ["EP003", "episode number", "category label", "corner badge"]
+}
