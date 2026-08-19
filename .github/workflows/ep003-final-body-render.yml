@@ -1,0 +1,244 @@
+name: ep003-final-body-render
+
+on:
+  push:
+    branches:
+      - feat/ep003-bandwidth-vs-download-speed
+    paths:
+      - .github/workflows/ep003-final-body-render.yml
+
+permissions:
+  contents: write
+  actions: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout EP003 source
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ep003-bandwidth-vs-download-speed
+
+      - name: Publish final body run id early
+        shell: bash
+        run: |
+          mkdir -p episodes/003-bandwidth-vs-download-speed/work
+          printf '%s\n' "$GITHUB_RUN_ID" > episodes/003-bandwidth-vs-download-speed/work/final-render-run-id.txt
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/003-bandwidth-vs-download-speed/work/final-render-run-id.txt
+          git commit -m "chore(ep003): publish temporary final render run id"
+          git push origin HEAD:feat/ep003-bandwidth-vs-download-speed
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install render dependencies
+        run: |
+          npm install
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-cjk unzip
+
+      - name: Validate source
+        run: npm run build
+
+      - name: Download frozen Yunyang narration artifact
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          mkdir -p input/audio
+          gh api -H 'Accept: application/vnd.github+json' \
+            "/repos/${GITHUB_REPOSITORY}/actions/artifacts/9353345713/zip" > /tmp/tts.zip
+          unzip -q /tmp/tts.zip -d input/audio
+          test -s input/audio/ep003-yunyang.mp3
+
+      - name: Prepare isolated EP003 player
+        shell: bash
+        run: |
+          cat > vite.config.ts <<'EOF'
+          import {defineConfig} from 'vite';
+          import motionCanvas from '@motion-canvas/vite-plugin';
+          const isGitHubPages = process.env.GITHUB_PAGES === 'true';
+          export default defineConfig({
+            base: isGitHubPages ? '/7byte-content/' : '/',
+            plugins: [motionCanvas({project: ['./episodes/003-bandwidth-vs-download-speed/src/project.ts']})],
+          });
+          EOF
+
+          cat > vite.pages.config.ts <<'EOF'
+          import {defineConfig} from 'vite';
+          const isGitHubPages = process.env.GITHUB_PAGES === 'true';
+          export default defineConfig({
+            root: 'pages-preview',
+            base: isGitHubPages ? '/7byte-content/' : '/',
+            build: {outDir: '../dist', emptyOutDir: false},
+          });
+          EOF
+
+          mkdir -p pages-preview
+          cat > pages-preview/index.html <<'EOF'
+          <!doctype html>
+          <html lang="zh-CN">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>7BYTE · EP003 Final Body</title>
+              <style>
+                * { box-sizing: border-box; }
+                html, body { margin: 0; width: 100%; height: 100%; background: #090a08; overflow: hidden; }
+                body { display: grid; place-items: center; }
+                .frame { position: relative; width: min(96vw, calc(96vh * 16 / 9)); aspect-ratio: 16 / 9; overflow: hidden; background: #111210; }
+                motion-canvas-player { display: block; width: 100%; height: 100%; }
+                #status { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; background: rgba(17,18,16,.96); color: #f3f1e8; font-family: Inter, sans-serif; }
+                #status[data-state="ready"] { opacity: 0; pointer-events: none; }
+              </style>
+              <script src="./project-manifest.js"></script>
+            </head>
+            <body>
+              <div class="frame">
+                <motion-canvas-player id="player"></motion-canvas-player>
+                <div id="status" data-state="loading">正在加载 EP003…</div>
+              </div>
+              <script type="module" src="/main.ts"></script>
+            </body>
+          </html>
+          EOF
+
+          cat > pages-preview/main.ts <<'EOF'
+          import '@motion-canvas/player';
+          declare global {
+            interface Window {
+              __SEVENBYTE_PROJECT_PATH__?: string;
+              __SEVENBYTE_START_CAPTURE_PLAYBACK__?: () => void;
+            }
+          }
+          const player = document.querySelector('#player') as HTMLElement | null;
+          const status = document.querySelector('#status') as HTMLElement | null;
+          const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+          async function boot() {
+            if (!player) throw new Error('motion-canvas-player not found');
+            await customElements.whenDefined('motion-canvas-player');
+            const projectPath = window.__SEVENBYTE_PROJECT_PATH__;
+            if (!projectPath) throw new Error('project manifest missing');
+            const projectUrl = new URL(projectPath, document.baseURI).href;
+            const module = await import(/* @vite-ignore */ projectUrl);
+            if (!module?.default) throw new Error('project bundle has no default export');
+            player.setAttribute('src', projectUrl);
+            const deadline = Date.now() + 15000;
+            while (Date.now() < deadline) {
+              const overlay = player.shadowRoot?.querySelector('.overlay') as HTMLElement | null;
+              if (overlay?.classList.contains('state-ready')) {
+                window.__SEVENBYTE_START_CAPTURE_PLAYBACK__ = () => overlay.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
+                if (status) status.dataset.state = 'ready';
+                return;
+              }
+              if (overlay?.classList.contains('state-error')) throw new Error('Motion Canvas Player entered state-error');
+              await delay(100);
+            }
+            throw new Error('Motion Canvas Player ready timeout');
+          }
+          void boot().catch(error => {
+            console.error(error);
+            if (status) status.textContent = String(error);
+          });
+          EOF
+
+      - name: Build isolated preview
+        run: npm run build:pages
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Start local preview
+        shell: bash
+        run: |
+          rm -rf .capture-site
+          mkdir -p .capture-site/7byte-content
+          cp -a dist/. .capture-site/7byte-content/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site > /tmp/7byte-http.log 2>&1 &
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/7byte-content/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/7byte-http.log
+          exit 1
+
+      - name: Capture final body canvas
+        run: node scripts/capture-pages-video.mjs
+        env:
+          CAPTURE_URL: http://127.0.0.1:4173/7byte-content/?capture=1
+          CAPTURE_DURATION_MS: '49800'
+          CAPTURE_FPS: '60'
+          CAPTURE_BITRATE: '20000000'
+          CAPTURE_WIDTH: '1920'
+          CAPTURE_HEIGHT: '1080'
+          CAPTURE_OUTPUT: output/ep003-final-silent.webm
+
+      - name: Verify body covers narration
+        shell: bash
+        run: |
+          LAST_PTS=$(ffprobe -v error -select_streams v:0 -show_entries packet=pts_time -of csv=p=0 output/ep003-final-silent.webm | tail -1 | tr -d ',')
+          AUDIO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 input/audio/ep003-yunyang.mp3)
+          echo "last video PTS=${LAST_PTS}s audio duration=${AUDIO_DURATION}s"
+          awk -v v="$LAST_PTS" -v a="$AUDIO_DURATION" 'BEGIN {if (v + 0.03 < a) {print "video does not cover narration" > "/dev/stderr"; exit 1}}'
+
+      - name: Write reviewed ASS subtitles
+        shell: bash
+        run: |
+          cat > output/ep003-final.ass <<'EOF'
+          [Script Info]
+          ScriptType: v4.00+
+          PlayResX: 1920
+          PlayResY: 1080
+          WrapStyle: 2
+          ScaledBorderAndShadow: yes
+
+          [V4+ Styles]
+          Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+          Style: Default,Noto Sans CJK SC,48,&H00F3F1E8,&H00F3F1E8,&HC0000000,&H80000000,0,0,0,0,100,100,0,0,1,3,0,2,120,120,72,1
+
+          [Events]
+          Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+          Dialogue: 0,0:00:04.95,0:00:08.53,Default,,0,0,0,,不是网速少了九成，关键是单位不一样。
+          Dialogue: 0,0:00:08.53,0:00:13.62,Default,,0,0,0,,宽带里的小写 b 是 bit，下载速度里的大写 B 是 Byte。
+          Dialogue: 0,0:00:13.62,0:00:16.31,Default,,0,0,0,,8 个 bit，才等于 1 个 Byte。
+          Dialogue: 0,0:00:16.31,0:00:21.77,Default,,0,0,0,,所以 1000 兆比特每秒，换成兆字节每秒，要先除以 8。
+          Dialogue: 0,0:00:21.77,0:00:24.85,Default,,0,0,0,,1000 除以 8，就是 125。
+          Dialogue: 0,0:00:24.85,0:00:28.59,Default,,0,0,0,,也就是说，千兆宽带换成下载速度的单位，
+          Dialogue: 0,0:00:28.59,0:00:32.19,Default,,0,0,0,,理论上大约是每秒 125 兆字节。
+          Dialogue: 0,0:00:32.19,0:00:36.33,Default,,0,0,0,,实际还会有协议开销，也会受服务器和设备影响，
+          Dialogue: 0,0:00:36.33,0:00:40.05,Default,,0,0,0,,所以看到每秒 100 兆左右，并不奇怪。
+          Dialogue: 0,0:00:40.05,0:00:45.59,Default,,0,0,0,,记住：小写 b 和大写 B 不是一个单位，换算时别忘了除以 8。
+          Dialogue: 0,0:00:45.59,0:00:49.54,Default,,0,0,0,,这里是 7BYTE，把计算机讲简单一点。
+          EOF
+          node scripts/validate-ass-subtitles.mjs output/ep003-final.ass --single-line
+
+      - name: Compose reviewed final body
+        shell: bash
+        run: |
+          ffmpeg -y \
+            -i output/ep003-final-silent.webm \
+            -i input/audio/ep003-yunyang.mp3 \
+            -vf "ass=output/ep003-final.ass" \
+            -map 0:v:0 -map 1:a:0 \
+            -c:v libx264 -preset medium -crf 16 -pix_fmt yuv420p -r 60 \
+            -c:a aac -b:a 192k -shortest \
+            output/ep003-final-body.mp4
+
+      - name: Final body visual audit
+        run: bash scripts/audit-video-visual.sh output/ep003-final-body.mp4 output/visual-audit '8.530,16.314,32.190,40.051'
+
+      - name: Upload final body review
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep003-final-body-review
+          path: output/
+          if-no-files-found: warn
+          retention-days: 3
