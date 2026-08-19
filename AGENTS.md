@@ -1,5 +1,7 @@
 # 7BYTE AI Working Context
 
+**`main` 是唯一默认工作基线。** 新聊天 / 新 Agent 不要依赖历史 preview、render、trigger 或 episode feature 分支恢复上下文。
+
 在本仓库工作的 AI/Agent 开始任何 episode 前，先读取：
 
 1. `docs/architecture.md`
@@ -8,8 +10,13 @@
 4. `docs/publishing.md`
 5. `shared/brand/production-workflow.md`
 6. `skills/README.md`
-7. 与任务相关的 skill，尤其是 `skills/layout-safety.md` 与 `skills/auto-subtitles.md`
-8. 当前 episode 目录中的 `idea.md`、`script.md`、`storyboard.md`、`design-notes.md`、`animation-spec.md`；若该期已经进入发布阶段，还必须读取 `publish.md`。
+7. `skills/layout-safety.md`
+8. `skills/auto-subtitles.md`
+9. `skills/shot-design.md`
+10. `skills/cover-design.md`
+11. 当前 episode 目录中的 `idea.md`、`script.md`、`storyboard.md`、`design-notes.md`、`animation-spec.md`；若该期已经进入发布阶段，还必须读取 `publish.md`。
+
+需要复用上一期经验时，优先读取上一期 `design-notes.md` 与 `publish.md`，不要从旧版本 scene 文件或临时渲染分支倒推工作流。
 
 ## 目标
 
@@ -26,7 +33,7 @@
 - `project.meta`、capture viewport 和最终输出尺寸必须一致。
 - Motion Canvas 必须预留字幕带；字幕不能和正文争抢同一块画布。
 - 默认字幕路线优先使用 `skills/auto-subtitles.md`；剪映识别字幕可作为替代，但二选一。
-- 每一期必须同时准备竖 3:4 和横 4:3 两张平台封面。
+- 每一期必须同时准备竖 3:4 和横 4:3 两张平台封面，并按照 `skills/cover-design.md` 分别布局、分别审计。
 - 每一期必须维护 `publish.md`，记录最终标题、简介、话题、封面、声音、成片存储和发布状态。
 
 ## 固定品牌资产
@@ -35,6 +42,7 @@
 - 横版正文接 canonical 竖版片尾时，只允许等比适配/留黑边，不拉伸、不裁主体、不重绘。
 - 封面保持统一品牌语言，但内容必须围绕当期核心问题变化。
 - 封面默认不加入 `EP001`、系列编号、类别标签、无意义角标等额外 chrome。
+- 核心语义图标不得为了赶工临时手绘近似；文字必须按真实 bounding box 布局。
 
 ## 视觉禁区
 
@@ -49,3 +57,5 @@
 - 它是否仍然遵守标题区 / 主视觉区 / 字幕区的空间契约？
 
 答不上来就删掉这个动作。
+
+跨 shot 延续同一对象时，必须遵守 `skills/shot-design.md` 的 owner / proxy lifecycle / matched-geometry 规则；下一镜头稳定画面出现前，旧 owner 和临时 proxy 必须完整退场，禁止幽灵残留。
