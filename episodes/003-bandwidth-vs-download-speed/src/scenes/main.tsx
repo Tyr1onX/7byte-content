@@ -1,6 +1,5 @@
 import {
   Icon,
-  Img,
   Layout,
   Line,
   Rect,
@@ -14,10 +13,7 @@ import {
   easeInOutCubic,
   waitFor,
 } from '@motion-canvas/core';
-import {
-  HORIZONTAL_BRAND,
-  HORIZONTAL_HEADER_DATA_URI,
-} from '../../../../shared/brand/horizontal-video-chrome';
+import {HORIZONTAL_BRAND} from '../../../../shared/brand/horizontal-video-chrome';
 
 const C = {
   bg: HORIZONTAL_BRAND.background,
@@ -95,14 +91,7 @@ export default makeScene2D(function* (view) {
         letterSpacing={HORIZONTAL_BRAND.watermark.letterSpacing}
       />
 
-      {/* Exact header raster derived from the EP002 cloud final; do not redraw it per episode. */}
-      <Img
-        src={HORIZONTAL_HEADER_DATA_URI}
-        x={HORIZONTAL_BRAND.header.x}
-        y={HORIZONTAL_BRAND.header.y}
-        width={HORIZONTAL_BRAND.header.width}
-        height={HORIZONTAL_BRAND.header.height}
-      />
+      {/* Canonical top-left header is applied once during final composition. */}
 
       {/* SHOT 1 — Hook */}
       <Layout ref={hook} width={1920} height={1080} opacity={0}>
