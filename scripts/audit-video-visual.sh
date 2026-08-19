@@ -35,6 +35,15 @@ ffmpeg -y -i "$VIDEO" \
   -vf "fps=1/${INTERVAL},scale=480:-2,tile=5x4:padding=8:margin=8:color=0x202020" \
   -frames:v 1 "$OUT_DIR/contact-sheet.png" >/dev/null 2>&1
 
+# For audit frames, seek AFTER opening the input. Input-side -ss is faster but may
+# land on an earlier keyframe in MediaRecorder WebM, which makes boundary audits
+# look clean/dirty at the wrong timestamp. Accuracy matters more than speed here.
+extract_frame() {
+  local time=$1
+  local output=$2
+  ffmpeg -y -i "$VIDEO" -ss "$time" -frames:v 1 "$output" >/dev/null 2>&1
+}
+
 # Start/end frames catch initialization residue and accidental player loops.
 for entry in \
   "start-020:0.2" \
@@ -44,7 +53,7 @@ for entry in \
   "end-minus-020:${LAST02}"; do
   name=${entry%%:*}
   time=${entry#*:}
-  ffmpeg -y -ss "$time" -i "$VIDEO" -frames:v 1 "$OUT_DIR/${name}.png" >/dev/null 2>&1
+  extract_frame "$time" "$OUT_DIR/${name}.png"
 done
 
 # Ownership gate: inspect each requested shot boundary at -3/-1/0/+1/+3 frames.
@@ -71,8 +80,7 @@ if [[ -n "$BOUNDARIES_CSV" ]]; then
       "p3:${plus3}"; do
       label=${entry%%:*}
       time=${entry#*:}
-      ffmpeg -y -ss "$time" -i "$VIDEO" -frames:v 1 \
-        "$OUT_DIR/boundaries/b$(printf '%02d' "$index")-${label}.png" >/dev/null 2>&1
+      extract_frame "$time" "$OUT_DIR/boundaries/b$(printf '%02d' "$index")-${label}.png"
     done
   done
 fi

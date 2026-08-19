@@ -9,12 +9,13 @@
 3. `docs/workflow.md`
 4. `docs/publishing.md`
 5. `shared/brand/production-workflow.md`
-6. `skills/README.md`
-7. `skills/layout-safety.md`
-8. `skills/auto-subtitles.md`
-9. `skills/shot-design.md`
-10. `skills/cover-design.md`
-11. 当前 episode 目录中的 `idea.md`、`script.md`、`storyboard.md`、`design-notes.md`、`animation-spec.md`；若该期已经进入发布阶段，还必须读取 `publish.md`。
+6. **如果本期是横版：`shared/brand/horizontal-video-brand-lock.md`**
+7. `skills/README.md`
+8. `skills/layout-safety.md`
+9. `skills/auto-subtitles.md`
+10. `skills/shot-design.md`
+11. `skills/cover-design.md`
+12. 当前 episode 目录中的 `idea.md`、`script.md`、`storyboard.md`、`design-notes.md`、`animation-spec.md`；若该期已经进入发布阶段，还必须读取 `publish.md`。
 
 需要复用上一期经验时，优先读取上一期 `design-notes.md` 与 `publish.md`，不要从旧版本 scene 文件或临时渲染分支倒推工作流。
 
@@ -32,17 +33,28 @@
 - 画幅必须在 scene 开发前确定；禁止最后阶段把竖版硬裁成横版或反过来。
 - `project.meta`、capture viewport 和最终输出尺寸必须一致。
 - Motion Canvas 必须预留字幕带；字幕不能和正文争抢同一块画布。
+- 每个 UI 容器必须显式声明内部布局与对齐；禁止依赖默认子节点位置。
 - 默认字幕路线优先使用 `skills/auto-subtitles.md`；剪映识别字幕可作为替代，但二选一。
 - 每一期必须同时准备竖 3:4 和横 4:3 两张平台封面，并按照 `skills/cover-design.md` 分别布局、分别审计。
 - 每一期必须维护 `publish.md`，记录最终标题、简介、话题、封面、声音、成片存储和发布状态。
 
 ## 固定品牌资产
 
-- 片尾必须直接复用 canonical 片尾，不允许重新生成或“照着做一版”。
-- 横版正文接 canonical 竖版片尾时，只允许等比适配/留黑边，不拉伸、不裁主体、不重绘。
-- 封面保持统一品牌语言，但内容必须围绕当期核心问题变化。
-- 封面默认不加入 `EP001`、系列编号、类别标签、无意义角标等额外 chrome。
-- 核心语义图标不得为了赶工临时手绘近似；文字必须按真实 bounding box 布局。
+**横版品牌层不允许逐期重新设计。EP002 云端最终成片是唯一视觉金标。** 具体参数与资产见 `shared/brand/horizontal-video-brand-lock.md`。
+
+横版固定：
+
+- 正文背景 / 水印：使用 `shared/brand/horizontal-video-chrome.ts` 的固定参数。
+- 左上角品牌头：只使用 `/7BYTE/brand/header-horizontal.png`，最终合成固定 `(28px, 18px)`、`278×76`；不得重画近似头像、额外外框、横线或标签。
+- 横版片尾：只使用 `/7BYTE/brand/outro-horizontal-canonical.mp4`；不得每期把竖版片尾临时塞进横版。
+- 横版片尾左右背景必须与品牌背景 `#0F100E` 一致，**禁止黑色侧边栏 / 明显竖版嵌入感**。
+- 固定品牌口播 `这里是 7BYTE，把计算机讲简单一点。` 必须与片尾起点同帧开始。
+
+竖版固定：
+
+- 片尾使用 `/7BYTE/brand/outro-canonical.mp4`。
+
+封面保持统一品牌语言，但内容必须围绕当期核心问题变化。封面默认不加入 `EP001`、系列编号、类别标签、无意义角标等额外 chrome。核心语义图标不得为了赶工临时手绘近似；文字必须按真实 bounding box 布局。
 
 ## 视觉禁区
 

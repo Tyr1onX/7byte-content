@@ -13,6 +13,7 @@
 开始新一期前，先读取 `AGENTS.md`，并按其中顺序读取：
 
 - `shared/brand/production-workflow.md`
+- 横版 episode 额外读取 `shared/brand/horizontal-video-brand-lock.md`
 - `skills/README.md`
 - `skills/layout-safety.md`
 - `skills/auto-subtitles.md`
@@ -25,8 +26,9 @@
 ## 当前 episode
 
 - `episodes/001-what-happens-after-entering-baidu/` — 输入 `baidu.com` 后发生了什么？
-- `episodes/002-wifi-full-signal/` — Wi-Fi 满格，为什么还是上不了网？（V21 Refined，已冻结待发布）
-- 下一期从 `episodes/_template/` 创建，不从旧 episode 复制一堆版本文件。
+- `episodes/002-wifi-full-signal/` — Wi-Fi 满格，为什么还是上不了网？（V21 Refined）
+- `episodes/003-bandwidth-vs-download-speed/` — 1000M 宽带，为什么下载只有 100MB/s？（V5 Brand Gold / Final）
+- 下一期继续从 `episodes/_template/` 创建，不从旧 episode 复制历史版本文件。
 
 ## 本地预览
 
@@ -44,7 +46,10 @@ npm run dev
 - UI 默认优先程序化复现；只有真实界面明显增加可信度时才录屏。
 - 每个动作都必须帮助观众理解，不为“科技感”而动。
 - 同一语义对象跨镜头时遵守 owner / lifecycle / matched-geometry 规则，禁止视觉残留。
+- 所有 UI 容器内部对齐必须显式声明并通过抽帧检查。
 - 最终视频必须经过关键帧视觉审计；Build/CI 成功不等于视觉通过。
 - 每期同时产出 **3:4 竖封面 + 4:3 横封面**，两张必须分别排版、分别审计。
-- canonical 片尾只复用，不重绘。
-- GitHub 保存源码、规则与发布记录；ChatGPT Library 每期长期只保留 `final.mp4 + 两张封面`。
+- **横版品牌层固定复用**：EP002 云端最终成片是唯一金标；正文水印、左上角 header、横版 canonical outro 不逐期重画。
+- 横版正文左上角使用 `/7BYTE/brand/header-horizontal.png`；横版片尾使用 `/7BYTE/brand/outro-horizontal-canonical.mp4`。
+- 竖版片尾使用 `/7BYTE/brand/outro-canonical.mp4`。
+- GitHub 保存源码、规则与发布记录；ChatGPT Library 每期长期只保留 `final.mp4 + 两张封面`，品牌 Library 单独保存固定 canonical 资产。
