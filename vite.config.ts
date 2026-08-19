@@ -9,6 +9,7 @@ export default defineConfig({
     motionCanvas({
       project: [
         './episodes/002-wifi-full-signal/src/project.ts',
+        './episodes/003-bandwidth-vs-download-speed/src/project.ts',
       ],
     }),
   ],
