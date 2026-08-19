@@ -2,21 +2,39 @@
 
 ## 状态
 - 平台：抖音
-- 状态：**待发布 / 最终审阅版已就绪**
+- 状态：**V5 人工审阅中 / 尚未覆盖最终发布文件**
 - 发布日期：
 - 发布链接：
 
-## 最终视频
-- 最终审阅版：`Final Review`
+## V5 审阅视频
 - 画布：1920×1080 / 16:9
 - 帧率：60fps
-- 总时长：约 54.538s（正文 + canonical 片尾）
-- 字幕路线：`7BYTE Auto Subtitle Skill`，直接使用最终 TTS timing；Hook 问题句主动抑制字幕
-- 最终 SRT/ASS：工作产物，不长期保存
-- AI 人声：`zh-CN-YunyangNeural`，最终旁白约 49.584s
-- 正文稳定态：保持最终模型覆盖完整旁白，随后进入 canonical 片尾
-- 固定片尾：`/7BYTE/brand/outro-canonical.mp4`，横版中按高度等比居中适配，两侧留黑；不拉伸、不裁主体、不重绘
-- 成片长期存储：`/7BYTE/EP003/final.mp4`
+- 总时长：`50.216667s`
+- 正文：`0–45.592s`
+- 横版 canonical 片尾：`45.592s` 起
+- AI 人声：`zh-CN-YunyangNeural`
+- 固定品牌句：`这里是 7BYTE，把计算机讲简单一点。`，cue start = `45.592s`，与横版片尾同帧起步
+- 字幕路线：最终 TTS timing；Hook 与固定品牌句主动抑制普通字幕
+- 当前审阅文件：本地 `EP003-v5-review.mp4`；用户确认前不覆盖 `/7BYTE/EP003/final.mp4`
+
+## 横版固定品牌层
+
+本期 V5 开始以 **EP002 云端最终成片作为唯一横版视觉金标**：
+
+- 正文品牌背景：`#0F100E`
+- 中央 `7BYTE` 水印：使用 `shared/brand/horizontal-video-chrome.ts` 固定参数，不再逐期修改
+- 左上角品牌头：`/7BYTE/brand/header-horizontal.png`
+  - 来自 EP002 云端最终成片的实际透明裁切，不是重新绘制
+  - 最终 1920×1080 合成坐标：`left=28px, top=18px`
+  - 固定尺寸：`278×76`
+  - 不新增额外外框、横线、角标或 episode 信息
+- 横版片尾：`/7BYTE/brand/outro-horizontal-canonical.mp4`
+  - 1920×1080 / 60fps
+  - 主体保持 canonical 比例
+  - 左右背景使用同一 `#0F100E`，禁止黑边 / 竖版插入感
+- 竖版 canonical 继续保留：`/7BYTE/brand/outro-canonical.mp4`
+
+长期规范见 `shared/brand/horizontal-video-brand-lock.md`。
 
 ## 封面
 - 竖封面：`/7BYTE/EP003/cover-vertical-3x4.png`（1080×1440 / 3:4）
@@ -44,49 +62,56 @@
 发布时按抖音实际页面选项处理，不在仓库预设平台侧状态。
 
 ## 发布前检查
-- [x] 最终成片 1920×1080 / 16:9 / 60fps
-- [x] `project.meta`、capture 与最终正文几何一致；canonical 片尾按规则等比适配到同一最终画布
+- [x] V5 审阅成片 1920×1080 / 16:9 / 60fps
 - [x] 单一正确 Yunyang 旁白，无叠音
 - [x] TTS timing 已成为 scene 时间轴 source of truth
-- [x] 字幕使用真实 TTS timing；横版单行优先，技术 token 完整
+- [x] 字幕使用真实 TTS timing；技术 token 完整
 - [x] Hook 大标题与字幕无重复堆叠
-- [x] 8 个 bit 数量与布局正确
+- [x] 8 个 bit 数量与布局正确，所有容器内部对齐已修正
 - [x] `1000 Mbps ÷ 8 = 125 MB/s` 表达准确清晰
 - [x] `≈100 MB/s` 仅作为实际下载示意，不表达成固定承诺值
+- [x] 现实因素已从纯文字 pill 恢复为可识别的服务器 → 协议层 → 下载任务 / 设备 UI
 - [x] Shot 边界已用精确 seek 复核，无空档、叠影、旧单位残留或提前泄漏
-- [x] 正文结尾保持最终模型，没有 loop 回 Hook
-- [x] canonical 固定片尾正确拼接、未拉伸、未裁主体、未重绘
-- [x] 最终带声音 / 字幕 / 片尾版本已生成并实际审阅全片 contact sheet 与 body→outro 边界帧
-- [x] 竖 3:4 封面完成独立布局和原尺寸 / 50% / 25% 缩略图审计
-- [x] 横 4:3 封面完成独立布局和原尺寸 / 50% / 25% 缩略图审计
-- [x] 封面使用权威头像，无 episode 编号 / 系列标签 / 无意义角标
-- [x] 标题 / 简介 / 话题已冻结
-- [x] ChatGPT Library `/7BYTE/EP003/` 只保留最终成片 + 两张最终封面
+- [x] 正文结尾没有 loop 回 Hook
+- [x] V5 正文水印使用 EP002 固定参数
+- [x] V5 左上角使用 EP002 云端提取的 canonical header，没有额外重绘 chrome
+- [x] V5 横版片尾无黑色侧边栏 / 竖版嵌入感
+- [x] `body end == 45.592s == 品牌口播 start == 横版片尾 start`
+- [x] 竖 3:4 与横 4:3 封面已分别完成三档缩略图 QA
+- [ ] 用户确认 V5
+- [ ] 用户确认后覆盖 `/7BYTE/EP003/final.mp4`
+- [ ] 用户确认后再做 PR 最终收尾 / 合并决定
 
 ## 关键制作复盘
 
 ### V1 → V2：边界与信息层级
-- 首轮渲染发现 Shot 1→2 / Shot 2→3 有 fade-to-empty 空档，Shot 3→4 / Shot 4→5 有两套画面同时存在的 muddy frame。
-- 本期这些 shot 没有必须连续的同一语义对象，因此改成干净的 semantic cut，动画只发生在 shot 内部。
-- Shot 4 的圆头进度线在 `end=0` 时曾提前露出绿色小点，后改为显式 opacity lifecycle。
-- 顶部句子型标题收敛为 `单位换算 / 理论换算 vs 实际下载 / 换算关系`，避免把画面做成第二套字幕。
-- `8 bit = 1 Byte` 的单元、Byte 外框与等式放大，成为本期唯一核心视觉记忆。
+- 首轮实际渲染发现 Shot 1→2 / Shot 2→3 有 fade-to-empty 空档，Shot 3→4 / Shot 4→5 有 muddy overlap。
+- 改为干净 semantic cut；圆头进度线增加显式 opacity lifecycle。
+- `8 bit = 1 Byte` 视觉整体放大。
+
+### V2 → V4：布局与 UI 识别
+- 用户发现多个框内文字默认落在左上角。根因是容器只有尺寸/边框，没有显式 layout 对齐。
+- 所有信息卡、bit 单元和 badge 改为显式 `layout + alignItems + justifyContent`。
+- “协议开销 / 服务器 / 设备”不再只是文字标签，改为服务器 → TCP/TLS/IP → 下载任务 / 设备 UI。
+- 品牌口播移动到 canonical outro 起点。
+
+### V4 → V5：品牌一致性锁定
+- V4 左上角虽然“像 EP002”，但仍是重新绘制的近似组件，存在额外外框 / 线条，违反品牌一致性。
+- 片尾用黑色 padding 适配竖版 canonical，导致明显的竖视频嵌入感。
+- V5 改为：**EP002 云端最终成片 = 唯一金标**。
+- 左上角直接使用从 EP002 最终成片提取的 canonical PNG。
+- 正文基础色和水印参数回到 EP002 原值。
+- 新增长期横版 canonical 片尾，使用同色背景而不是黑色 padding。
+- 横版品牌层正式沉淀为 `shared/brand/horizontal-video-brand-lock.md`，以后不允许逐期重新设计。
 
 ### 审计工具修正
-首次自动边界图暴露出 WebM 快速 seek 会落到邻近关键帧。`scripts/audit-video-visual.sh` 已改为打开输入后再 `-ss` 精确 seek；以后 owner/boundary gate 不再用不精确关键帧代替真实边界。
-
-### 封面 QA
-- 3:4 与 4:3 从一开始就分别布局，没有通过裁切互转。
-- 第一版竖封面发现等宽字体无法正确显示全角问号，已在最终交付前修复并重新做三档缩略图检查。
-- 最终封面只保留主问题与 `1000 Mbps → ÷8 → 125 MB/s` 一个核心关系。
+WebM 边界帧必须使用精确 seek，不能依赖关键帧近似；`scripts/audit-video-visual.sh` 已修正。
 
 ## 本期实验变量
 
-与 EP002 相比，本期主动测试：
+本期最终得到的结论不是“越少对象越好”，而是：
 
-**更短时长 + 更少对象 + 数字 / 单位驱动的单核心解释 + 降低复杂拓扑与 handoff 数量。**
-
-目标不是继续增加动画复杂度，而是验证成熟后的 7BYTE 视觉系统能否用更简单的结构获得更强理解效率。
+**减少无关对象，但保留可识别 UI；内容层可以每期变化，品牌 chrome 必须固定。**
 
 ## 发布后数据
 
