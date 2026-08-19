@@ -9,7 +9,7 @@ on:
       - .github/workflows/ep003-v4-ui-review.yml
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   render:
@@ -20,6 +20,17 @@ jobs:
         uses: actions/checkout@v4
         with:
           ref: feat/ep003-bandwidth-vs-download-speed
+
+      - name: Publish review run id
+        shell: bash
+        run: |
+          mkdir -p episodes/003-bandwidth-vs-download-speed/work
+          printf '%s\n' "$GITHUB_RUN_ID" > episodes/003-bandwidth-vs-download-speed/work/v4-review-run-id.txt
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/003-bandwidth-vs-download-speed/work/v4-review-run-id.txt
+          git commit -m "chore(ep003): publish temporary V4 review run id"
+          git push origin HEAD:feat/ep003-bandwidth-vs-download-speed
 
       - name: Setup Node
         uses: actions/setup-node@v4
