@@ -1,6 +1,8 @@
 # 7BYTE 固定视频工作流
 
-这是后续每一期的默认流程。除非明确升级品牌/流程，否则不要重新发明一套。
+这是后续每一期的默认流程。除非用户明确要求升级品牌/流程，否则不要重新发明一套。
+
+开始任何横版 episode 前，除了本文件外，**必须读取 `shared/brand/horizontal-video-brand-lock.md`**。EP002 云端最终成片是横版品牌层的唯一视觉金标。
 
 ## 1. 每期必须有 GitHub 记录
 
@@ -20,12 +22,7 @@
 
 ## 3. 先确定画幅与空间契约
 
-在写 scene 前读取 `skills/layout-safety.md`，先确定：
-
-- 正文画布。
-- 主视觉区。
-- 字幕保留区。
-- 平台 UI 避让区。
+在写 scene 前读取 `skills/layout-safety.md`，先确定正文画布、主视觉区、字幕保留区、平台 UI 避让区。
 
 当前默认：**关系型、链路型、对比型解释优先 16:9 / 1920×1080 / 60fps**。只有内容天然适合手机 UI 或单列纵向叙事时，才明确改回竖版。
 
@@ -46,7 +43,7 @@
 - 一次只突出一个主运动对象。
 - 动画必须帮助解释因果。
 - Scene 必须遵守主视觉区 / 字幕区的空间契约。
-- 每个 UI 容器必须显式声明内部布局；有边框和宽高不等于子文字会自动居中。具体按 `skills/layout-safety.md` 的容器对齐规则执行。
+- 每个 UI 容器必须显式声明内部布局；有边框和宽高不等于子文字会自动居中。
 - 多节点图优先稳定 Layout；大的拓扑变化优先切换独立 shot，不让一组节点同时乱移动、缩放、改尺寸。
 - 所有 connector 必须绑定节点几何，禁止手工悬空线段。
 - `project.meta`、capture viewport、最终输出尺寸必须一致；不一致直接失败。
@@ -55,40 +52,29 @@
 
 减少复杂度时，只删除**无关拓扑、重复解释、没有语义的装饰对象和不必要 handoff**。
 
-不得把本来能提供识别和记忆的实体全部退化成文字 pill。若旁白明确提到服务器、设备、下载器、浏览器、路由器等对象，且这些对象有助于理解关系，优先用简洁的程序化 UI / 图标 / 状态组件表达，而不是只画一个写着名称的框。
+不得把本来能提供识别和记忆的实体全部退化成文字 pill。若旁白明确提到服务器、设备、下载器、浏览器、路由器等对象，且这些对象有助于理解关系，优先用简洁的程序化 UI / 图标 / 状态组件表达。
 
 判断标准：画面对象数量可以少，但观众仍应能一眼认出“这是什么、它和谁发生关系”。
 
-### 固定正文品牌锚点
+### 横版品牌层是固定组件，不属于单期设计
 
-- 正文默认保留左上角的品牌锚点，视觉语言参考已冻结成片：**权威猫头像 + `7BYTE>_` + 绿色短下划线**。
-- 品牌锚点属于全片 chrome，不因为“本期更简洁”而删除。
-- 使用 `/7BYTE/brand/avatar.png` 作为权威头像；不得用临时猫图标、重绘近似头像或文字占位替代最终成片。
-- 位置和尺寸可以为安全区微调，但不得与标题、平台 UI、字幕冲突。
+横版视频的背景色、水印、左上角品牌头与片尾全部按 `shared/brand/horizontal-video-brand-lock.md` 执行。
 
-### 固定背景水印
+硬规则：
 
-- 正文背景默认保留一个**非常淡的 `7BYTE` 大字水印**，作为品牌识别的一部分。
-- 水印必须是最底层背景元素，先于所有 UI / 卡片 / connector / 字幕渲染；禁止作为后期顶层文字直接压在内容上。
-- 横版基准可使用大号居中 `7BYTE`，暖白或中性灰，参考不透明度约 `2–3%`；宁可偏淡，不抢主视觉。
-- 水印不需要动画，不进入 canonical 片尾，不额外附带 Logo、编号、标签或口号。
-- 如果某个 shot 的主体正好覆盖水印，允许自然遮挡；不要为了“看见水印”移动正文。
+- **背景和水印**：使用 `shared/brand/horizontal-video-chrome.ts` 的固定参数，不逐期修改。
+- **左上角品牌头**：最终合成时直接 overlay `/7BYTE/brand/header-horizontal.png`，固定在 `1920×1080` 的 `(28px, 18px)`，尺寸 `278×76`。不得在 scene 内重画近似版本，不新增额外线条、外框或标签。
+- **header owner 唯一**：scene 只负责正文内容和水印，最终 composite 只叠一份 canonical header。
+- **横版片尾**：直接 append `/7BYTE/brand/outro-horizontal-canonical.mp4`；禁止每期重新把竖版片尾适配成横版。
+- **竖版片尾**：继续使用 `/7BYTE/brand/outro-canonical.mp4`。
 
 ## 6. 画面文字规则
 
 旁白 + 字幕负责完整句子。Motion Canvas 里的文字负责帮助理解视觉结构。
 
-优先使用：
-- 实体名。
-- 状态。
-- 关系标签。
-- 决策结果。
-- 简短模型 / 图例。
+优先使用：实体名、状态、关系标签、决策结果、简短模型 / 图例。
 
-默认删除：
-- 当前字幕的同义复述。
-- 一直变化的全局 headline。
-- “标题句 + 说明句 + 字幕句”三遍说同一件事。
+默认删除：当前字幕的同义复述、一直变化的全局 headline、“标题句 + 说明句 + 字幕句”三遍说同一件事。
 
 若 Hook 标题已经完整呈现当前口播，可在这一 cue 抑制字幕，避免同屏重复。
 
@@ -105,28 +91,29 @@
 
 剪映「识别字幕」仍可作为替代路线，但两者二选一，不重复长期保存。
 
-## 8. 固定片尾
+## 8. 固定片尾与品牌句
 
-唯一权威片尾：`/7BYTE/brand/outro-canonical.mp4`。
+横版唯一权威片尾：`/7BYTE/brand/outro-horizontal-canonical.mp4`。
 
-规则：直接复用，不重新生成、不根据描述复刻。若正文为横版，canonical 片尾只做**等比适配/留黑边**，不拉伸、不裁内容、不重绘。
+竖版唯一权威片尾：`/7BYTE/brand/outro-canonical.mp4`。
+
+两者都直接复用，不重新生成、不根据描述复刻。
 
 正文必须在明确的 body end 停止；最终 trim 后再拼 canonical。严禁播放器 loop 后把开头重新录进结尾。
 
 如果口播最后一句是固定品牌句 `这里是 7BYTE，把计算机讲简单一点。`：
 
-- 这句默认属于 **canonical outro**，不是正文最后一镜。
-- body end 必须对齐该句 cue 的 start。
-- canonical outro 的第一帧有效动画必须与该 cue 同步出现；若 canonical 文件自带静态/黑场 pre-roll，可只 trim 这段 pre-roll，不改动片尾主体动画。
+- 这句属于 **canonical outro**，不是正文最后一镜。
+- `body end == 该句 cue start == canonical outro start`。
 - 该品牌句默认抑制普通字幕，避免与片尾自身文字重复。
+- 禁止“品牌句在正文里已经说完 → 再切片尾”。
+- 禁止“片尾已经开始 → 过一段时间才说品牌句”。
 
-禁止“品牌句在正文里已经说完 → 再切无声片尾”。
+横版片尾背景必须和正文品牌背景融为同色。**任何黑色左右边栏、明显的竖视频嵌入感，均视为阻断发布问题。**
 
 ## 9. 两张固定封面
 
-每期必须同时准备：
-- 竖封面：3:4。
-- 横封面：4:3。
+每期必须同时准备：竖封面 3:4、横封面 4:3。
 
 固定：权威头像 + 7BYTE、黑/炭灰、暖白、少量 `#D8FF68`。
 
@@ -146,8 +133,6 @@
 scripts/audit-video-visual.sh final.mp4 visual-audit
 ```
 
-生成 contact sheet 和开头/结尾边界帧后，由人或视觉模型实际看图。
-
 必须检查：
 - 0–1 秒是否有孤立线条 / 未初始化元素。
 - 每次 shot 切换是否有上一镜头残留、黑闪或不必要重叠。
@@ -156,14 +141,15 @@ scripts/audit-video-visual.sh final.mp4 visual-audit
 - 所有框内文字/图标是否按设计对齐，而不是默认落在左上角。
 - 画面文字是否只是在重复字幕。
 - 字幕是否进入主视觉区。
-- 背景 `7BYTE` 水印是否足够淡、处于底层、没有压住 UI / 字幕或抢注意力。
-- 左上角品牌锚点是否存在且使用权威头像。
+- `7BYTE` 水印是否与固定参数一致，而不只是“看起来差不多”。
+- 横版正文左上角是否为 `/7BYTE/brand/header-horizontal.png` 的唯一 owner，且位置/尺寸固定。
 - 最复杂帧是否信息过密，同时是否仍保留可识别 UI / 实体而非退化成纯文字标签。
 - 正文最后 2 秒是否保持正确结论画面。
-- body → canonical 片尾之间是否出现开头回放。
+- `body end - 1 frame` 与 `body end + 1 frame` 是否完成干净 ownership 切换。
 - 固定品牌口播与 canonical outro 是否同帧起步。
+- 横版片尾两侧背景是否与中心同色，没有黑边和竖版插入感。
 
-任一失败都回到 scene/layout 修复，然后**重新渲染 + 重新抽帧审计**。不得只在最后用遮罩补掉错误。
+任一失败都回到 scene/layout 或 final composite 修复，然后**重新渲染 + 重新抽帧审计**。
 
 ## 11. 发布信息
 
@@ -180,11 +166,12 @@ scripts/audit-video-visual.sh final.mp4 visual-audit
 - [ ] 主视觉没有进入字幕保留带。
 - [ ] 字幕没有覆盖正文，且技术词/断句/宽度已检查。
 - [ ] 画面文字没有充当第二套字幕。
-- [ ] 左上角权威品牌锚点存在且未被简化方案删除。
-- [ ] 正文背景水印足够淡且不干扰信息层级。
+- [ ] 横版水印与 `HORIZONTAL_BRAND.watermark` 完全一致。
+- [ ] 横版左上角使用 canonical header，且没有第二套近似 header。
 - [ ] 正文结尾没有 loop 回开头。
-- [ ] canonical 片尾正确、未拉伸。
+- [ ] 横版使用 `outro-horizontal-canonical.mp4`；竖版使用 `outro-canonical.mp4`。
 - [ ] 若有固定品牌口播，其 cue 与 canonical outro 起点同步。
+- [ ] 片尾背景无黑色侧边栏 / 竖版嵌入感。
 - [ ] 已生成并实际审阅 visual audit contact sheet。
 - [ ] 竖 3:4 + 横 4:3 两张封面。
 - [ ] 标题、简介、话题已记录。
@@ -192,7 +179,7 @@ scripts/audit-video-visual.sh final.mp4 visual-audit
 ## 13. 最小长期存储
 
 ### 每期 ChatGPT 文件库
-只保留：
+
 ```text
 /7BYTE/EPxxx/
 ├─ final.mp4
@@ -201,11 +188,13 @@ scripts/audit-video-visual.sh final.mp4 visual-audit
 ```
 
 ### 品牌 ChatGPT 文件库
-只保留：
+
 ```text
 /7BYTE/brand/
 ├─ avatar.png
-└─ outro-canonical.mp4
+├─ header-horizontal.png
+├─ outro-canonical.mp4
+└─ outro-horizontal-canonical.mp4
 ```
 
 默认不长期保存 preview、中间视频、旧封面、TTS 试听、review JSON、ASR verbose JSON、临时 WAV/WebM、视觉审计截图、重复 reference、ZIP 备份和最终 SRT（除非确实需要跨软件复剪）。
