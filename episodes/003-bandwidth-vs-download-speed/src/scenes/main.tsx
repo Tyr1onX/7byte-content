@@ -211,30 +211,21 @@ export default makeScene2D(function* (view) {
           </Rect>
         </Layout>
 
-        <Txt
-          y={-155}
-          text={'8 个 bit，组成 1 个 Byte'}
-          fill={C.text}
-          fontFamily={FONT}
-          fontSize={38}
-          fontWeight={720}
-        />
-
         <Layout
           ref={bitRow}
-          y={20}
+          y={5}
           layout
           direction={'row'}
-          gap={18}
+          gap={16}
           alignItems={'center'}
         >
           {bitCells.map((cell, index) => (
             <Rect
               ref={cell}
               key={`bit-${index}`}
-              width={72}
-              height={72}
-              radius={16}
+              width={90}
+              height={90}
+              radius={18}
               fill={C.raised}
               stroke={C.border}
               lineWidth={2}
@@ -245,7 +236,7 @@ export default makeScene2D(function* (view) {
                 text={'b'}
                 fill={C.accent}
                 fontFamily={MONO}
-                fontSize={30}
+                fontSize={36}
                 fontWeight={800}
               />
             </Rect>
@@ -254,9 +245,9 @@ export default makeScene2D(function* (view) {
 
         <Rect
           ref={byteFrame}
-          y={22}
-          width={790}
-          height={168}
+          y={8}
+          width={940}
+          height={210}
           radius={28}
           fill={'rgba(0,0,0,0)'}
           stroke={C.accent}
@@ -265,25 +256,25 @@ export default makeScene2D(function* (view) {
           scale={0.96}
         >
           <Rect
-            y={104}
-            width={180}
-            height={48}
+            y={128}
+            width={210}
+            height={52}
             radius={16}
             fill={C.accentDark}
             stroke={'#46572A'}
             lineWidth={2}
           >
-            <Txt text={'1 Byte'} fill={C.accent} fontFamily={MONO} fontSize={24} fontWeight={800} />
+            <Txt text={'1 Byte'} fill={C.accent} fontFamily={MONO} fontSize={26} fontWeight={800} />
           </Rect>
         </Rect>
 
         <Txt
           ref={unitEquation}
-          y={230}
+          y={255}
           text={'8 bit = 1 Byte'}
           fill={C.accent}
           fontFamily={MONO}
-          fontSize={42}
+          fontSize={48}
           fontWeight={800}
           opacity={0}
         />
@@ -293,7 +284,7 @@ export default makeScene2D(function* (view) {
       <Layout ref={conversion} width={1920} height={1080} opacity={0}>
         <Txt
           y={-330}
-          text={'换成下载软件的单位，要先除以 8'}
+          text={'单位换算'}
           fill={C.text}
           fontFamily={FONT}
           fontSize={46}
@@ -369,7 +360,7 @@ export default makeScene2D(function* (view) {
       <Layout ref={reality} width={1920} height={1080} opacity={0}>
         <Txt
           y={-340}
-          text={'实际下载通常还会低于理论值'}
+          text={'理论换算 vs 实际下载'}
           fill={C.text}
           fontFamily={FONT}
           fontSize={46}
@@ -414,12 +405,13 @@ export default makeScene2D(function* (view) {
             stroke={C.accent}
             lineWidth={18}
             lineCap={'round'}
+            opacity={0}
             end={0}
           />
         </Rect>
 
         <Layout ref={factors} y={245} layout direction={'row'} gap={22} alignItems={'center'} opacity={0}>
-          {['协议开销', '服务器', '网络链路', '设备'].map(label => (
+          {['协议开销', '服务器', '设备'].map(label => (
             <Rect
               key={label}
               width={230}
@@ -439,7 +431,7 @@ export default makeScene2D(function* (view) {
       <Layout ref={takeaway} width={1920} height={1080} opacity={0}>
         <Txt
           y={-330}
-          text={'Mbps 和 MB/s，不是同一个单位'}
+          text={'换算关系'}
           fill={C.text}
           fontFamily={FONT}
           fontSize={50}
@@ -528,38 +520,38 @@ export default makeScene2D(function* (view) {
         hookCapitalB().fill(C.accent, 0.24, easeInOutCubic),
       ),
     ),
-    delay(phase(0, 1) - 0.34, hook().opacity(0, 0.34, easeInOutCubic)),
   );
 
-  // Phase 2 — bit vs Byte.
+  // Phase 2 — bit vs Byte. Hard semantic cut; motion happens inside the shot.
+  hook().opacity(0);
+  unitShot().opacity(1);
   yield* all(
     waitFor(phase(1, 2)),
-    unitShot().opacity(1, 0.30, easeInOutCubic),
     ...bitCells.map((cell, index) =>
       delay(
-        0.95 + index * 0.055,
+        0.82 + index * 0.055,
         all(
           cell().opacity(1, 0.18, easeInOutCubic),
           cell().scale(1, 0.22, easeInOutCubic),
         ),
       ),
     ),
-    delay(2.15, bitRow().gap(10, 0.72, easeInOutCubic)),
+    delay(1.95, bitRow().gap(10, 0.72, easeInOutCubic)),
     delay(
-      2.55,
+      2.35,
       all(
         byteFrame().opacity(1, 0.32, easeInOutCubic),
         byteFrame().scale(1, 0.36, easeInOutCubic),
       ),
     ),
-    delay(3.25, unitEquation().opacity(1, 0.28, easeInOutCubic)),
-    delay(phase(1, 2) - 0.34, unitShot().opacity(0, 0.34, easeInOutCubic)),
+    delay(3.05, unitEquation().opacity(1, 0.28, easeInOutCubic)),
   );
 
   // Phase 3 — 1000 ÷ 8 = 125.
+  unitShot().opacity(0);
+  conversion().opacity(1);
   yield* all(
     waitFor(phase(2, 3)),
-    conversion().opacity(1, 0.30, easeInOutCubic),
     all(
       conversionLeft().opacity(1, 0.34, easeInOutCubic),
       conversionLeft().scale(1, 0.34, easeInOutCubic),
@@ -579,25 +571,31 @@ export default makeScene2D(function* (view) {
       ),
     ),
     delay(3.15, theoryBadge().opacity(1, 0.28, easeInOutCubic)),
-    delay(phase(2, 3) - 0.34, conversion().opacity(0, 0.34, easeInOutCubic)),
   );
 
   // Phase 4 — Theory vs actual.
+  conversion().opacity(0);
+  reality().opacity(1);
   yield* all(
     waitFor(phase(3, 4)),
-    reality().opacity(1, 0.30, easeInOutCubic),
     theoryCard().opacity(1, 0.34, easeInOutCubic),
     delay(0.75, actualCard().opacity(1, 0.34, easeInOutCubic)),
-    delay(1.30, actualBar().end(0.80, 0.92, easeInOutCubic)),
+    delay(
+      1.30,
+      all(
+        actualBar().opacity(1, 0.18, easeInOutCubic),
+        actualBar().end(0.80, 0.92, easeInOutCubic),
+      ),
+    ),
     delay(1.75, actualValue().opacity(1, 0.30, easeInOutCubic)),
     delay(2.60, factors().opacity(1, 0.34, easeInOutCubic)),
-    delay(phase(3, 4) - 0.34, reality().opacity(0, 0.34, easeInOutCubic)),
   );
 
   // Phase 5 — Final model.
+  reality().opacity(0);
+  takeaway().opacity(1);
   yield* all(
     waitFor(phase(4, 5)),
-    takeaway().opacity(1, 0.30, easeInOutCubic),
     finalLeft().opacity(1, 0.34, easeInOutCubic),
     delay(
       0.75,
