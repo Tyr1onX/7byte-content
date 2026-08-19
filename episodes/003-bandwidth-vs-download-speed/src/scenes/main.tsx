@@ -27,9 +27,8 @@ const C = {
 const FONT = 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif';
 const MONO = '"JetBrains Mono", Consolas, monospace';
 
-// Provisional V1 timing for composition preview only.
-// Replace with final Yunyang TTS cue boundaries before final animation alignment.
-const T = [0, 5.4, 15.2, 24.8, 35.5, 43.5];
+// Final phase boundaries derived from zh-CN-YunyangNeural TTS timing (script v2).
+const T = [0, 8.53, 16.314, 32.19, 40.051, 49.535];
 const phase = (from: number, to: number) => T[to] - T[from];
 
 export default makeScene2D(function* (view) {
@@ -362,7 +361,7 @@ export default makeScene2D(function* (view) {
           lineWidth={2}
           opacity={0}
         >
-          <Txt text={'理论上限'} fill={C.muted} fontFamily={FONT} fontSize={23} fontWeight={650} />
+          <Txt text={'理论换算值'} fill={C.muted} fontFamily={FONT} fontSize={23} fontWeight={650} />
         </Rect>
       </Layout>
 
