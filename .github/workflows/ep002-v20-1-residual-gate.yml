@@ -1,0 +1,91 @@
+name: ep002-v20-1-residual-gate
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ep002-v20-1-residual-gate.yml
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Publish run id early
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan ep002-v20-1-render-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
+          git add preview/run-id.txt
+          git commit -m "chore: publish EP002 V20.1 run id"
+          git push origin HEAD:ep002-v20-1-render-previews --force
+
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/ep002-wifi-full-signal
+
+      - name: Retire Shot 3 parent earlier
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('episodes/002-wifi-full-signal/src/scenes/main-v20.tsx')
+          s = p.read_text(encoding='utf-8')
+          old = "    delay(1.05, chain().opacity(0, 0.18)),"
+          new = "    delay(0.32, chain().opacity(0, 0.22, easeInOutCubic)),"
+          if old not in s:
+              raise SystemExit('V20 delayed chain retirement not found')
+          p.write_text(s.replace(old, new, 1), encoding='utf-8')
+          PY
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/002-wifi-full-signal/src/scenes/main-v20.tsx
+          git commit -m "fix(ep002): retire topology residue before diagnosis settles"
+          git push origin HEAD:feat/ep002-wifi-full-signal
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - run: npm run build:pages
+        env:
+          GITHUB_PAGES: 'true'
+      - name: Start preview
+        run: |
+          rm -rf .capture-site
+          mkdir -p .capture-site/7byte-content
+          cp -a dist/. .capture-site/7byte-content/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site >/tmp/v20-1-http.log 2>&1 &
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/7byte-content/ >/dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/v20-1-http.log
+          exit 1
+      - name: Capture 60fps
+        run: node scripts/capture-pages-video.mjs
+        env:
+          CAPTURE_URL: http://127.0.0.1:4173/7byte-content/?capture=1
+          CAPTURE_DURATION_MS: '62500'
+          CAPTURE_FPS: '60'
+          CAPTURE_BITRATE: '20000000'
+          CAPTURE_WIDTH: '1920'
+          CAPTURE_HEIGHT: '1080'
+          CAPTURE_OUTPUT: output/ep002-v20-1-silent-60fps.webm
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ep002-v20-1-silent-60fps
+          path: output/ep002-v20-1-silent-60fps.webm
+          retention-days: 2
