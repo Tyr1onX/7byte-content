@@ -27,8 +27,8 @@ const C = {
 const FONT = 'Inter, "PingFang SC", "Microsoft YaHei", sans-serif';
 const MONO = '"JetBrains Mono", Consolas, monospace';
 
-// Final phase boundaries derived from zh-CN-YunyangNeural TTS timing (script v2).
-const T = [0, 8.53, 16.314, 32.19, 40.051, 49.535];
+// Phase boundaries follow final TTS; body holds the final model to 50.0s so video outlives the 49.584s narration.
+const T = [0, 8.53, 16.314, 32.19, 40.051, 50.0];
 const phase = (from: number, to: number) => T[to] - T[from];
 
 export default makeScene2D(function* (view) {
