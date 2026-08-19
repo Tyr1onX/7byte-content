@@ -1,0 +1,13 @@
+{
+  "extends": "@motion-canvas/2d/tsconfig.project.json",
+  "compilerOptions": {
+    "baseUrl": "."
+  },
+  "include": [
+    "src/**/*.d.ts",
+    "episodes/**/*.ts",
+    "episodes/**/*.tsx",
+    "shared/**/*.ts",
+    "shared/**/*.tsx"
+  ]
+}

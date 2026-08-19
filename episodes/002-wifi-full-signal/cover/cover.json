@@ -1,0 +1,9 @@
+{
+  "title": "Wi-Fi 明明满格，为什么还是上不了网？",
+  "accent": "满格",
+  "support": "满格只代表手机和路由器这一小段信号很好",
+  "hero": "phone-router-broken-internet",
+  "vertical_ratio": "3:4",
+  "horizontal_ratio": "4:3",
+  "forbidden_chrome": ["EP002", "episode number", "category label", "corner badge"]
+}

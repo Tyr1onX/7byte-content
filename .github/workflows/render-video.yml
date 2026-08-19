@@ -3,19 +3,31 @@ name: render-video
 on:
   push:
     branches:
-      - main
+      - 'feat/**'
     paths:
-      - .github/workflows/render-video.yml
+      - '.github/workflows/render-video.yml'
+      - 'episodes/**'
+      - 'scripts/**'
+      - 'vite.config.ts'
+      - 'package.json'
   workflow_dispatch:
     inputs:
       ref:
         description: Branch, tag, or SHA to render
         required: true
-        default: feat/bootstrap-7byte-studio
+        default: feat/ep002-wifi-full-signal
       duration_ms:
         description: Capture duration in milliseconds
         required: true
-        default: '100500'
+        default: '58500'
+      width:
+        description: Output width
+        required: true
+        default: '1920'
+      height:
+        description: Output height
+        required: true
+        default: '1080'
 
 permissions:
   contents: write
@@ -25,35 +37,21 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - name: Resolve render ref
+      - name: Resolve render configuration
         id: render
         shell: bash
         run: |
           if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
             echo "duration_ms=${{ inputs.duration_ms }}" >> "$GITHUB_OUTPUT"
+            echo "width=${{ inputs.width }}" >> "$GITHUB_OUTPUT"
+            echo "height=${{ inputs.height }}" >> "$GITHUB_OUTPUT"
           else
-            echo "ref=feat/bootstrap-7byte-studio" >> "$GITHUB_OUTPUT"
-            echo "duration_ms=100500" >> "$GITHUB_OUTPUT"
+            echo "ref=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+            echo "duration_ms=58500" >> "$GITHUB_OUTPUT"
+            echo "width=1920" >> "$GITHUB_OUTPUT"
+            echo "height=1080" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Checkout workflow branch
-        uses: actions/checkout@v4
-        with:
-          ref: main
-
-      - name: Publish run id early
-        shell: bash
-        run: |
-          git config user.name "7BYTE Preview Bot"
-          git config user.email "actions@users.noreply.github.com"
-          git switch --orphan render-previews
-          git rm -rf . >/dev/null 2>&1 || true
-          mkdir -p preview
-          printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
-          git add preview/run-id.txt
-          git commit -m "chore: publish 60fps render run id"
-          git push origin HEAD:render-previews --force
 
       - name: Checkout episode source
         uses: actions/checkout@v4
@@ -85,7 +83,6 @@ jobs:
           mkdir -p .capture-site/7byte-content
           cp -a dist/. .capture-site/7byte-content/
           python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site > /tmp/7byte-http.log 2>&1 &
-          echo $! > /tmp/7byte-http.pid
           for i in {1..60}; do
             if curl --fail --silent http://127.0.0.1:4173/7byte-content/ > /dev/null; then
               exit 0
@@ -102,15 +99,28 @@ jobs:
           CAPTURE_DURATION_MS: ${{ steps.render.outputs.duration_ms }}
           CAPTURE_FPS: '60'
           CAPTURE_BITRATE: '20000000'
-          CAPTURE_OUTPUT: output/ep001-silent-60fps.webm
+          CAPTURE_WIDTH: ${{ steps.render.outputs.width }}
+          CAPTURE_HEIGHT: ${{ steps.render.outputs.height }}
+          CAPTURE_OUTPUT: output/silent-60fps.webm
 
-      - name: Record workflow run id
-        run: printf '%s\n' "$GITHUB_RUN_ID" > output/run-id.txt
+      - name: Publish run id
+        shell: bash
+        run: |
+          printf '%s\n' "$GITHUB_RUN_ID" > output/run-id.txt
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan render-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          cp output/run-id.txt preview/run-id.txt
+          git add preview/run-id.txt
+          git commit -m "chore: publish render run id"
+          git push origin HEAD:render-previews --force
 
       - name: Upload silent video
         uses: actions/upload-artifact@v4
         with:
-          name: ep001-silent-video-60fps
+          name: episode-silent-video-60fps
           path: output/
           if-no-files-found: error
           retention-days: 7

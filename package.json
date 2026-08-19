@@ -1,0 +1,25 @@
+{
+  "name": "7byte-content",
+  "private": true,
+  "version": "0.1.0",
+  "description": "7BYTE programmatic motion graphics and episode design workspace",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1 --port 9000",
+    "build": "tsc --noEmit && vite build",
+    "build:pages": "npm run build && node scripts/create-pages-preview.mjs && vite build --config vite.pages.config.ts"
+  },
+  "dependencies": {
+    "@motion-canvas/2d": "3.17.2",
+    "@motion-canvas/core": "3.17.2"
+  },
+  "devDependencies": {
+    "@motion-canvas/player": "3.17.2",
+    "@motion-canvas/ui": "3.17.2",
+    "@motion-canvas/vite-plugin": "3.17.2",
+    "typescript": "^5.2.2",
+    "vite": "^4.5.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

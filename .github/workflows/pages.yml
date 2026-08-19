@@ -44,7 +44,6 @@ jobs:
           elif [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
             echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
           else
-            # Main only owns the Pages deployment. Preview source stays on the episode branch.
             echo "ref=feat/bootstrap-7byte-studio" >> "$GITHUB_OUTPUT"
           fi
 
