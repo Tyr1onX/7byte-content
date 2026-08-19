@@ -1,0 +1,262 @@
+name: ep002-v20-diagnostic-fix
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/ep002-v20-diagnostic-fix.yml
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout main for run id
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Publish run id early
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan ep002-v20-render-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
+          git add preview/run-id.txt
+          git commit -m "chore: publish EP002 V20 render run id"
+          git push origin HEAD:ep002-v20-render-previews --force
+
+      - name: Checkout EP002 source
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ep002-wifi-full-signal
+
+      - name: Build V20 source fix
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          src = Path('episodes/002-wifi-full-signal/src/scenes/main-v19.tsx')
+          s = src.read_text(encoding='utf-8')
+
+          old_decl = '''  const handoffDevice = createRef<Rect>();
+          const diagnostic = createRef<Layout>();
+          const diagTitle = createRef<Txt>();
+          const diagWeb = createRef<Rect>();
+          const diagYourLabel = createRef<Layout>();
+          const diagOther = createRef<Rect>();'''
+          new_decl = '''  const handoffDevice = createRef<Rect>();
+          const handoffTitle = createRef<Txt>();
+          const handoffStatus = createRef<Txt>();
+          const diagnostic = createRef<Layout>();
+          const diagTitle = createRef<Txt>();
+          const diagWeb = createRef<Rect>();
+          const diagOther = createRef<Rect>();'''
+          if old_decl not in s:
+              raise SystemExit('V19 declaration block not found')
+          s = s.replace(old_decl, new_decl, 1)
+
+          old_handoff = '''      {/* Persistent device used to bridge topology into diagnosis. */}
+          <Rect ref={handoffDevice} x={-760} y={-30} width={166} height={184} radius={30} fill={'#141512'} stroke={C.border} lineWidth={2} opacity={0}>
+            <Icon icon={'lucide:smartphone'} y={-26} size={70} color={C.text} />
+            <Txt y={48} text={'设备'} fill={C.text} fontFamily={FONT} fontSize={24} fontWeight={720} />
+          </Rect>'''
+          new_handoff = '''      {/* Handoff proxy: exact Shot 3 geometry, but with a complete lifecycle. */}
+          <Rect ref={handoffDevice} x={-760} y={-30} width={166} height={184} radius={30} fill={'#141512'} stroke={C.border} lineWidth={2} opacity={0}>
+            <Icon icon={'lucide:smartphone'} y={-26} size={70} color={C.text} />
+            <Txt ref={handoffTitle} y={48} text={'设备'} fill={C.text} fontFamily={FONT} fontSize={24} fontWeight={720} />
+            <Txt ref={handoffStatus} y={79} text={'× 上不了网'} fill={C.danger} fontFamily={FONT} fontSize={17} fontWeight={700} opacity={0} />
+          </Rect>'''
+          if old_handoff not in s:
+              raise SystemExit('V19 handoff block not found')
+          s = s.replace(old_handoff, new_handoff, 1)
+
+          old_diag = '''        <Rect ref={diagWeb} x={-520} y={-70} width={330} height={180} radius={26} fill={C.surface} stroke={C.border} lineWidth={2}>
+            <Icon icon={'lucide:globe-2'} y={-42} size={52} color={C.blue} />
+            <Txt y={25} text={'换一个网站'} fill={C.text} fontFamily={FONT} fontSize={27} fontWeight={700} />
+            <Txt y={66} text={'仍然打不开'} fill={C.danger} fontFamily={FONT} fontSize={21} fontWeight={700} />
+          </Rect>
+
+          <Layout ref={diagYourLabel} x={-250} y={145} layout direction={'column'} gap={8} alignItems={'center'} opacity={0}>
+            <Txt text={'你的设备'} fill={C.text} fontFamily={FONT} fontSize={27} fontWeight={720} />
+            <Txt text={'× 上不了网'} fill={C.danger} fontFamily={FONT} fontSize={22} fontWeight={700} />
+          </Layout>
+
+          <Icon icon={'lucide:arrow-right'} x={40} y={-30} size={46} color={C.muted} />
+
+          <Rect ref={diagOther} x={350} y={-20} width={310} height={220} radius={28} fill={C.surface} stroke={C.border} lineWidth={2} opacity={0}>'''
+          new_diag = '''        <Rect ref={diagWeb} x={-565} y={-20} width={320} height={200} radius={26} fill={C.surface} stroke={C.border} lineWidth={2}>
+            <Icon icon={'lucide:globe-2'} y={-48} size={52} color={C.blue} />
+            <Txt y={22} text={'换一个网站'} fill={C.text} fontFamily={FONT} fontSize={27} fontWeight={700} />
+            <Txt y={66} text={'仍然打不开'} fill={C.danger} fontFamily={FONT} fontSize={21} fontWeight={700} />
+          </Rect>
+
+          <Icon icon={'lucide:arrow-right'} x={-350} y={-20} size={42} color={C.muted} />
+          <Icon icon={'lucide:arrow-right'} x={80} y={-20} size={42} color={C.muted} />
+
+          <Rect ref={diagOther} x={350} y={-20} width={310} height={220} radius={28} fill={C.surface} stroke={C.border} lineWidth={2} opacity={0}>'''
+          if old_diag not in s:
+              raise SystemExit('V19 diagnostic left block not found')
+          s = s.replace(old_diag, new_diag, 1)
+
+          old_transition = '''  // 37.869–45.063 — V19 object handoff: the same device survives into diagnosis.
+          handoffDevice().position([-760, -30]);
+          handoffDevice().scale(1);
+          yield* all(
+            waitFor(phase(7, 8)),
+            handoffDevice().opacity(1, 0.08),
+            chainPhone().opacity(0, 0.08),
+            chainRouter().opacity(0, 0.30),
+            chainIsp().opacity(0, 0.30),
+            chainDns().opacity(0, 0.30),
+            chainServer().opacity(0, 0.30),
+            c1().opacity(0, 0.24),
+            c2().opacity(0, 0.24),
+            c3().opacity(0, 0.24),
+            c4().opacity(0, 0.24),
+            delay(0.12, diagnostic().opacity(1, 0.34, easeInOutCubic)),
+            delay(
+              0.12,
+              all(
+                handoffDevice().position([-250, -20], 0.92, easeInOutCubic),
+                handoffDevice().scale(1.18, 0.92, easeInOutCubic),
+              ),
+            ),
+            delay(0.62, diagYourLabel().opacity(1, 0.28, easeInOutCubic)),
+            delay(0.72, diagOther().opacity(1, 0.30, easeInOutCubic)),
+            delay(1.05, chain().opacity(0, 0.18)),
+          );'''
+          new_transition = '''  // 37.869–45.063 — V20 ownership handoff: one semantic device, one visible owner.
+          handoffDevice().position([-760, -30]);
+          handoffDevice().scale(1);
+          handoffTitle().text('你的设备');
+          handoffStatus().opacity(0);
+          yield* all(
+            waitFor(phase(7, 8)),
+            // Pixel-aligned ownership transfer is intentionally kept under ~3 frames at 60fps.
+            handoffDevice().opacity(1, 0.04),
+            chainPhone().opacity(0, 0.04),
+            chainRouter().opacity(0, 0.30),
+            chainIsp().opacity(0, 0.30),
+            chainDns().opacity(0, 0.30),
+            chainServer().opacity(0, 0.30),
+            c1().opacity(0, 0.24),
+            c2().opacity(0, 0.24),
+            c3().opacity(0, 0.24),
+            c4().opacity(0, 0.24),
+            delay(0.12, diagnostic().opacity(1, 0.34, easeInOutCubic)),
+            delay(
+              0.12,
+              all(
+                handoffDevice().position([-125, -20], 0.92, easeInOutCubic),
+                handoffDevice().scale(1.18, 0.92, easeInOutCubic),
+              ),
+            ),
+            delay(0.54, handoffStatus().opacity(1, 0.24, easeInOutCubic)),
+            delay(0.72, diagOther().opacity(1, 0.30, easeInOutCubic)),
+            delay(1.05, chain().opacity(0, 0.18)),
+          );'''
+          if old_transition not in s:
+              raise SystemExit('V19 diagnostic transition not found')
+          s = s.replace(old_transition, new_transition, 1)
+
+          old_final = '''  // 49.005–52.882 — Keep motion continuity into the final explanation.
+          yield* all(
+            waitFor(phase(9, 10)),
+            diagnostic().opacity(0, 0.30),
+            handoffDevice().position([-430, -95], 0.68, easeInOutCubic),
+            handoffDevice().scale(0.90, 0.68, easeInOutCubic),
+            delay(0.18, takeaway().opacity(1, 0.36, easeInOutCubic)),
+            delay(0.72, handoffDevice().opacity(0, 0.24)),
+          );'''
+          new_final = '''  // 49.005–52.882 — Retire the handoff proxy before Shot 5 takes ownership.
+          yield* all(
+            waitFor(phase(9, 10)),
+            diagnostic().opacity(0, 0.28),
+            handoffDevice().opacity(0, 0.22, easeInOutCubic),
+            delay(0.30, takeaway().opacity(1, 0.36, easeInOutCubic)),
+          );
+          handoffStatus().opacity(0);'''
+          if old_final not in s:
+              raise SystemExit('V19 final transition not found')
+          s = s.replace(old_final, new_final, 1)
+
+          Path('episodes/002-wifi-full-signal/src/scenes/main-v20.tsx').write_text(s, encoding='utf-8')
+
+          project = Path('episodes/002-wifi-full-signal/src/project.ts')
+          p = project.read_text(encoding='utf-8')
+          if './scenes/main-v19?scene' not in p:
+              raise SystemExit('project.ts does not point to V19')
+          project.write_text(p.replace('./scenes/main-v19?scene', './scenes/main-v20?scene', 1), encoding='utf-8')
+
+          notes = Path('episodes/002-wifi-full-signal/design-notes.md')
+          n = notes.read_text(encoding='utf-8')
+          marker = '## V20 diagnostic ownership + residual guard'
+          if marker not in n:
+              n += '''\n\n## V20 diagnostic ownership + residual guard\n\n### Root cause fixed\n\nV19 introduced a root-level `handoffDevice` proxy to bridge Shot 3 into Shot 4. Because the proxy lived outside the `diagnostic` layout, fading `diagnostic` could not hide it. Shot 5 then appeared while the proxy was still alive for another 0.72s, creating a real cross-shot visual residue. The diagnostic left side also duplicated the same semantic object: the proxy card said `设备`, while a separate `diagYourLabel` below said `你的设备 / × 上不了网`. This split ownership caused crowding, weak hierarchy, and alignment drift.\n\n### Permanent guard rules\n\n1. **One semantic object, one visible owner.** A handoff proxy may exist only during transfer; target-scene labels/status belong inside that same object, never as a second detached representation.\n2. **Proxy lifecycle is mandatory:** spawn aligned with source → transfer ownership → become target representation or retire → opacity must be zero before the next shot introduces a replacement.\n3. **Root-level transition proxies are not covered by scene opacity.** Every root-level proxy must therefore have an explicit retirement animation and post-transition zero-opacity state.\n4. **Boundary-frame audit:** inspect at least `-3 / -1 / boundary / +1 / +3` frames for every scene handoff. Fail if a semantic object appears twice, a proxy survives after its owner scene, or a detached label remains.\n5. **No detached status labels for persistent objects.** Identity + state should travel together whenever the object itself is continuous.\n6. **Shot-end invariant:** every ephemeral transition ref must be invisible (`opacity = 0`) before the next shot's stable composition is fully visible.\n\nV20 folds `你的设备 / × 上不了网` into the persistent device card, balances the diagnostic flow as `换一个网站 → 你的设备 → 另一台设备`, and fully retires the proxy before the final Wi-Fi-vs-Internet model appears.\n'''
+          notes.write_text(n, encoding='utf-8')
+          PY
+
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/002-wifi-full-signal/src/scenes/main-v20.tsx episodes/002-wifi-full-signal/src/project.ts episodes/002-wifi-full-signal/design-notes.md
+          git commit -m "fix(ep002): remove diagnostic duplicate and handoff residue"
+          git push origin HEAD:feat/ep002-wifi-full-signal
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Chromium
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+
+      - name: Build
+        run: npm run build:pages
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Start preview
+        shell: bash
+        run: |
+          rm -rf .capture-site
+          mkdir -p .capture-site/7byte-content
+          cp -a dist/. .capture-site/7byte-content/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site > /tmp/7byte-http.log 2>&1 &
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/7byte-content/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/7byte-http.log
+          exit 1
+
+      - name: Capture 1920x1080 at 60fps
+        run: node scripts/capture-pages-video.mjs
+        env:
+          CAPTURE_URL: http://127.0.0.1:4173/7byte-content/?capture=1
+          CAPTURE_DURATION_MS: '62500'
+          CAPTURE_FPS: '60'
+          CAPTURE_BITRATE: '20000000'
+          CAPTURE_WIDTH: '1920'
+          CAPTURE_HEIGHT: '1080'
+          CAPTURE_OUTPUT: output/ep002-v20-silent-60fps.webm
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep002-v20-silent-60fps
+          path: output/ep002-v20-silent-60fps.webm
+          if-no-files-found: error
+          retention-days: 2
