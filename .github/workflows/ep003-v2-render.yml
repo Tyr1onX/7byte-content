@@ -1,0 +1,178 @@
+name: ep003-v2-render
+
+on:
+  push:
+    branches:
+      - feat/ep003-bandwidth-vs-download-speed
+    paths:
+      - .github/workflows/ep003-v2-render.yml
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout EP003 source
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ep003-bandwidth-vs-download-speed
+
+      - name: Publish run id early
+        shell: bash
+        run: |
+          mkdir -p episodes/003-bandwidth-vs-download-speed/work
+          printf '%s\n' "$GITHUB_RUN_ID" > episodes/003-bandwidth-vs-download-speed/work/render-run-id.txt
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/003-bandwidth-vs-download-speed/work/render-run-id.txt
+          git commit -m "chore(ep003): publish temporary V2 render run id"
+          git push origin HEAD:feat/ep003-bandwidth-vs-download-speed
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install render dependencies
+        run: |
+          npm install
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg
+
+      - name: Prepare isolated EP003 Pages player
+        shell: bash
+        run: |
+          cat > vite.config.ts <<'EOF'
+          import {defineConfig} from 'vite';
+          import motionCanvas from '@motion-canvas/vite-plugin';
+          const isGitHubPages = process.env.GITHUB_PAGES === 'true';
+          export default defineConfig({
+            base: isGitHubPages ? '/7byte-content/' : '/',
+            plugins: [motionCanvas({project: ['./episodes/003-bandwidth-vs-download-speed/src/project.ts']})],
+          });
+          EOF
+
+          cat > vite.pages.config.ts <<'EOF'
+          import {defineConfig} from 'vite';
+          const isGitHubPages = process.env.GITHUB_PAGES === 'true';
+          export default defineConfig({
+            root: 'pages-preview',
+            base: isGitHubPages ? '/7byte-content/' : '/',
+            build: {outDir: '../dist', emptyOutDir: false},
+          });
+          EOF
+
+          mkdir -p pages-preview
+          cat > pages-preview/index.html <<'EOF'
+          <!doctype html>
+          <html lang="zh-CN">
+            <head>
+              <meta charset="UTF-8" />
+              <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+              <title>7BYTE · EP003 V2 Preview</title>
+              <style>
+                * { box-sizing: border-box; }
+                html, body { margin: 0; width: 100%; height: 100%; background: #090a08; overflow: hidden; }
+                body { display: grid; place-items: center; }
+                .frame { position: relative; width: min(96vw, calc(96vh * 16 / 9)); aspect-ratio: 16 / 9; overflow: hidden; background: #111210; }
+                motion-canvas-player { display: block; width: 100%; height: 100%; }
+                #status { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; background: rgba(17,18,16,.96); color: #f3f1e8; font-family: Inter, sans-serif; }
+                #status[data-state="ready"] { opacity: 0; pointer-events: none; }
+              </style>
+              <script src="./project-manifest.js"></script>
+            </head>
+            <body>
+              <div class="frame">
+                <motion-canvas-player id="player"></motion-canvas-player>
+                <div id="status" data-state="loading">正在加载 EP003 V2…</div>
+              </div>
+              <script type="module" src="/main.ts"></script>
+            </body>
+          </html>
+          EOF
+
+          cat > pages-preview/main.ts <<'EOF'
+          import '@motion-canvas/player';
+          declare global {
+            interface Window {
+              __SEVENBYTE_PROJECT_PATH__?: string;
+              __SEVENBYTE_START_CAPTURE_PLAYBACK__?: () => void;
+            }
+          }
+          const player = document.querySelector('#player') as HTMLElement | null;
+          const status = document.querySelector('#status') as HTMLElement | null;
+          const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+          async function boot() {
+            if (!player) throw new Error('motion-canvas-player not found');
+            await customElements.whenDefined('motion-canvas-player');
+            const projectPath = window.__SEVENBYTE_PROJECT_PATH__;
+            if (!projectPath) throw new Error('project manifest missing');
+            const projectUrl = new URL(projectPath, document.baseURI).href;
+            const module = await import(/* @vite-ignore */ projectUrl);
+            if (!module?.default) throw new Error('project bundle has no default export');
+            player.setAttribute('src', projectUrl);
+            const deadline = Date.now() + 15000;
+            while (Date.now() < deadline) {
+              const overlay = player.shadowRoot?.querySelector('.overlay') as HTMLElement | null;
+              if (overlay?.classList.contains('state-ready')) {
+                window.__SEVENBYTE_START_CAPTURE_PLAYBACK__ = () => overlay.dispatchEvent(new MouseEvent('click', {bubbles: true, composed: true}));
+                if (status) status.dataset.state = 'ready';
+                return;
+              }
+              if (overlay?.classList.contains('state-error')) throw new Error('Motion Canvas Player entered state-error');
+              await delay(100);
+            }
+            throw new Error('Motion Canvas Player ready timeout');
+          }
+          void boot().catch(error => {
+            console.error(error);
+            if (status) status.textContent = String(error);
+          });
+          EOF
+
+      - name: Build isolated preview
+        run: npm run build:pages
+        env:
+          GITHUB_PAGES: 'true'
+
+      - name: Start local preview
+        shell: bash
+        run: |
+          rm -rf .capture-site
+          mkdir -p .capture-site/7byte-content
+          cp -a dist/. .capture-site/7byte-content/
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory .capture-site > /tmp/7byte-http.log 2>&1 &
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/7byte-content/ > /dev/null; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/7byte-http.log
+          exit 1
+
+      - name: Capture EP003 V2 body
+        run: node scripts/capture-pages-video.mjs
+        env:
+          CAPTURE_URL: http://127.0.0.1:4173/7byte-content/?capture=1
+          CAPTURE_DURATION_MS: '49500'
+          CAPTURE_FPS: '60'
+          CAPTURE_BITRATE: '20000000'
+          CAPTURE_WIDTH: '1920'
+          CAPTURE_HEIGHT: '1080'
+          CAPTURE_OUTPUT: output/ep003-v2-silent-60fps.webm
+
+      - name: Generate V2 visual audit
+        run: bash scripts/audit-video-visual.sh output/ep003-v2-silent-60fps.webm output/visual-audit '8.530,16.314,32.190,40.051'
+
+      - name: Upload V2 render and audit
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep003-v2-render-audit
+          path: output/
+          if-no-files-found: warn
+          retention-days: 3
