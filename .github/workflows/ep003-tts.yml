@@ -1,0 +1,91 @@
+name: ep003-tts
+
+on:
+  push:
+    branches:
+      - feat/ep003-bandwidth-vs-download-speed
+    paths:
+      - .github/workflows/ep003-tts.yml
+      - episodes/003-bandwidth-vs-download-speed/script.md
+
+permissions:
+  contents: write
+
+jobs:
+  synthesize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: feat/ep003-bandwidth-vs-download-speed
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Edge TTS
+        run: pip install edge-tts
+
+      - name: Generate Yunyang narration and timing
+        shell: bash
+        run: |
+          mkdir -p output episodes/003-bandwidth-vs-download-speed/work
+          cat > output/narration.txt <<'EOF'
+          1000M 宽带，为什么下载软件里只有 100MB/s 左右？
+
+          是不是运营商把你的网速缩水了？
+
+          大多数时候，不是。
+
+          关键就在这两个单位：Mbps 和 MB/s。
+
+          小写的 b 是 bit，大写的 B 是 Byte。
+
+          而 8 个 bit，才等于 1 个 Byte。
+
+          所以运营商说的 1000 Mbps，换成下载软件常见的单位，要先除以 8。
+
+          1000 除以 8，等于 125。
+
+          也就是说，千兆宽带的理论下载上限，大约是 125 MB/s。
+
+          真实下载还会有协议开销，也会受到服务器、网络链路和设备的影响，所以实际速度通常还会再低一些。
+
+          所以看到 100MB/s 左右，并不代表你的千兆宽带只剩了十分之一。
+
+          记住：Mbps 和 MB/s，差的不只是一个大小写，换算还要除以 8。
+
+          这里是 7BYTE，把计算机讲简单一点。
+          EOF
+
+          edge-tts \
+            --voice zh-CN-YunyangNeural \
+            --rate=-3% \
+            --pitch=+0Hz \
+            --text "$(cat output/narration.txt)" \
+            --write-media output/ep003-yunyang.mp3 \
+            --write-subtitles output/ep003-yunyang.vtt
+
+          cp output/ep003-yunyang.vtt episodes/003-bandwidth-vs-download-speed/work/narration.vtt
+          printf '%s\n' "$GITHUB_RUN_ID" > episodes/003-bandwidth-vs-download-speed/work/tts-run-id.txt
+
+      - name: Upload narration artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ep003-yunyang-narration
+          path: output/
+          if-no-files-found: error
+          retention-days: 7
+
+      - name: Publish timing to working branch
+        shell: bash
+        run: |
+          git config user.name "7BYTE Preview Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add episodes/003-bandwidth-vs-download-speed/work/narration.vtt \
+                  episodes/003-bandwidth-vs-download-speed/work/tts-run-id.txt
+          git commit -m "chore(ep003): publish temporary TTS timing"
+          git push origin HEAD:feat/ep003-bandwidth-vs-download-speed
