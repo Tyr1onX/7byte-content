@@ -1,0 +1,73 @@
+name: ep003-freeze-brand-chrome
+
+on:
+  push:
+    branches:
+      - feat/ep003-bandwidth-vs-download-speed
+    paths:
+      - .github/workflows/ep003-freeze-brand-chrome.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/ep003-bandwidth-vs-download-speed
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Apply canonical horizontal chrome
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+
+          p = Path('episodes/003-bandwidth-vs-download-speed/src/scenes/main.tsx')
+          s = p.read_text()
+
+          s = s.replace(
+          """import {\n  Circle,\n  Icon,\n  Layout,\n  Line,\n  Rect,\n  Txt,\n  makeScene2D,\n} from '@motion-canvas/2d';""",
+          """import {\n  Icon,\n  Img,\n  Layout,\n  Line,\n  Rect,\n  Txt,\n  makeScene2D,\n} from '@motion-canvas/2d';"""
+          )
+
+          core = """import {\n  all,\n  createRef,\n  delay,\n  easeInOutCubic,\n  waitFor,\n} from '@motion-canvas/core';"""
+          replacement = core + """\nimport {\n  HORIZONTAL_BRAND,\n  HORIZONTAL_HEADER_DATA_URI,\n} from '../../../../shared/brand/horizontal-video-chrome';"""
+          if core not in s:
+              raise SystemExit('core import anchor missing')
+          s = s.replace(core, replacement, 1)
+
+          old_palette = """const C = {\n  bg: '#111210',\n  surface: '#1B1D1A',\n  raised: '#242620',\n  border: '#3A3D35',\n  text: '#F3F1E8',\n  muted: '#A7AAA1',\n  accent: '#D8FF68',\n  accentDark: '#202812',\n  blue: '#72A7FF',\n  danger: '#FF6B67',\n};"""
+          new_palette = """const C = {\n  bg: HORIZONTAL_BRAND.background,\n  surface: HORIZONTAL_BRAND.surface,\n  raised: HORIZONTAL_BRAND.raised,\n  border: HORIZONTAL_BRAND.border,\n  text: HORIZONTAL_BRAND.text,\n  muted: HORIZONTAL_BRAND.muted,\n  accent: HORIZONTAL_BRAND.accent,\n  accentDark: HORIZONTAL_BRAND.accentDark,\n  blue: '#72A7FF',\n  danger: '#FF6B67',\n};"""
+          if old_palette not in s:
+              raise SystemExit('palette anchor missing')
+          s = s.replace(old_palette, new_palette, 1)
+
+          old_chrome = """      <Txt\n        text={'7BYTE'}\n        y={8}\n        fill={C.text}\n        opacity={0.022}\n        fontFamily={MONO}\n        fontSize={250}\n        fontWeight={800}\n        letterSpacing={18}\n      />\n\n      {/* Persistent brand chrome — mirrors the EP002 final-video language. */}\n      <Rect\n        x={-785}\n        y={-455}\n        width={300}\n        height={76}\n        radius={22}\n        fill={'#141512'}\n        stroke={C.border}\n        lineWidth={1.5}\n        layout\n        direction={'row'}\n        alignItems={'center'}\n        justifyContent={'start'}\n        gap={14}\n        padding={[10, 16]}\n      >\n        <Circle width={50} height={50} fill={'#0D0E0C'} stroke={C.accent} lineWidth={2}>\n          <Icon icon={'lucide:cat'} size={31} color={C.text} />\n        </Circle>\n        <Layout layout direction={'column'} gap={5} alignItems={'start'} justifyContent={'center'}>\n          <Txt text={'7BYTE>_'} fill={C.text} fontFamily={MONO} fontSize={25} fontWeight={780} />\n          <Rect width={96} height={4} radius={2} fill={C.accent} />\n        </Layout>\n      </Rect>"""
+
+          new_chrome = """      {/* Canonical EP002 watermark: fixed across horizontal episodes. */}\n      <Txt\n        text={HORIZONTAL_BRAND.watermark.text}\n        x={HORIZONTAL_BRAND.watermark.x}\n        y={HORIZONTAL_BRAND.watermark.y}\n        fill={C.text}\n        opacity={HORIZONTAL_BRAND.watermark.opacity}\n        fontFamily={MONO}\n        fontSize={HORIZONTAL_BRAND.watermark.fontSize}\n        fontWeight={HORIZONTAL_BRAND.watermark.fontWeight}\n        letterSpacing={HORIZONTAL_BRAND.watermark.letterSpacing}\n      />\n\n      {/* Exact header raster derived from the EP002 cloud final; do not redraw it per episode. */}\n      <Img\n        src={HORIZONTAL_HEADER_DATA_URI}\n        x={HORIZONTAL_BRAND.header.x}\n        y={HORIZONTAL_BRAND.header.y}\n        width={HORIZONTAL_BRAND.header.width}\n        height={HORIZONTAL_BRAND.header.height}\n      />"""
+          if old_chrome not in s:
+              raise SystemExit('chrome anchor missing')
+          s = s.replace(old_chrome, new_chrome, 1)
+
+          p.write_text(s)
+          PY
+
+      - name: Validate patched source
+        run: |
+          npm install
+          npm run build
+
+      - name: Commit canonical chrome
+        shell: bash
+        run: |
+          git config user.name '7BYTE Preview Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add episodes/003-bandwidth-vs-download-speed/src/scenes/main.tsx
+          git commit -m 'fix(ep003): reuse exact EP002 horizontal chrome'
+          git push origin HEAD:feat/ep003-bandwidth-vs-download-speed
