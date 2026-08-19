@@ -6,7 +6,6 @@ on:
       - feat/ep003-bandwidth-vs-download-speed
     paths:
       - .github/workflows/ep003-tts.yml
-      - episodes/003-bandwidth-vs-download-speed/script.md
 
 permissions:
   contents: write
@@ -34,29 +33,23 @@ jobs:
         run: |
           mkdir -p output episodes/003-bandwidth-vs-download-speed/work
           cat > output/narration.txt <<'EOF'
-          1000M 宽带，为什么下载软件里只有 100MB/s 左右？
+          1000M 宽带，为什么下载软件里却只有每秒 100 兆左右？
 
-          是不是运营商把你的网速缩水了？
+          不是网速少了九成，关键是单位不一样。
 
-          大多数时候，不是。
+          宽带里的小写 b 是 bit，下载速度里的大写 B 是 Byte。
 
-          关键就在这两个单位：Mbps 和 MB/s。
+          8 个 bit，才等于 1 个 Byte。
 
-          小写的 b 是 bit，大写的 B 是 Byte。
+          所以 1000 兆比特每秒，换成兆字节每秒，要先除以 8。
 
-          而 8 个 bit，才等于 1 个 Byte。
+          1000 除以 8，就是 125。
 
-          所以运营商说的 1000 Mbps，换成下载软件常见的单位，要先除以 8。
+          也就是说，千兆宽带换成下载速度的单位，理论上大约是每秒 125 兆字节。
 
-          1000 除以 8，等于 125。
+          实际还会有协议开销，也会受服务器和设备影响，所以看到每秒 100 兆左右，并不奇怪。
 
-          也就是说，千兆宽带的理论下载上限，大约是 125 MB/s。
-
-          真实下载还会有协议开销，也会受到服务器、网络链路和设备的影响，所以实际速度通常还会再低一些。
-
-          所以看到 100MB/s 左右，并不代表你的千兆宽带只剩了十分之一。
-
-          记住：Mbps 和 MB/s，差的不只是一个大小写，换算还要除以 8。
+          记住：小写 b 和大写 B 不是一个单位，换算时别忘了除以 8。
 
           这里是 7BYTE，把计算机讲简单一点。
           EOF
