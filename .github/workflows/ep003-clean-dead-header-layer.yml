@@ -1,6 +1,6 @@
 name: ep003-clean-dead-header-layer
 
-# retrigger after brand-rule commits
+# final retrigger after V5 docs are frozen
 on:
   push:
     branches:
