@@ -1,0 +1,56 @@
+name: ep003-clean-dead-header-layer
+
+on:
+  push:
+    branches:
+      - feat/ep003-bandwidth-vs-download-speed
+    paths:
+      - .github/workflows/ep003-clean-dead-header-layer.yml
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: feat/ep003-bandwidth-vs-download-speed
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Remove non-authoritative scene header layer
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('episodes/003-bandwidth-vs-download-speed/src/scenes/main.tsx')
+          s = p.read_text()
+          s = s.replace("  Img,\n", "")
+          s = s.replace(
+              "import {\n  HORIZONTAL_BRAND,\n  HORIZONTAL_HEADER_DATA_URI,\n} from '../../../../shared/brand/horizontal-video-chrome';",
+              "import {HORIZONTAL_BRAND} from '../../../../shared/brand/horizontal-video-chrome';",
+          )
+          block = """\n      {/* Exact header raster derived from the EP002 cloud final; do not redraw it per episode. */}\n      <Img\n        src={HORIZONTAL_HEADER_DATA_URI}\n        x={HORIZONTAL_BRAND.header.x}\n        y={HORIZONTAL_BRAND.header.y}\n        width={HORIZONTAL_BRAND.header.width}\n        height={HORIZONTAL_BRAND.header.height}\n      />\n"""
+          if block not in s:
+              raise SystemExit('header Img block missing')
+          s = s.replace(block, "\n      {/* Canonical top-left header is applied once during final composition. */}\n", 1)
+          p.write_text(s)
+          PY
+
+      - name: Validate source
+        run: |
+          npm install
+          npm run build
+
+      - name: Commit cleanup
+        shell: bash
+        run: |
+          git config user.name '7BYTE Preview Bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git add episodes/003-bandwidth-vs-download-speed/src/scenes/main.tsx
+          git commit -m 'refactor(ep003): make final composite own canonical header'
+          git push origin HEAD:feat/ep003-bandwidth-vs-download-speed
