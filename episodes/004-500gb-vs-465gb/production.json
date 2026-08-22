@@ -4,6 +4,7 @@
   "script": "episodes/004-500gb-vs-465gb/script-tts.txt",
   "timingModule": "episodes/004-500gb-vs-465gb/src/production-timing.ts",
   "voice": "zh-CN-YunyangNeural",
+  "rate": "-2%",
   "width": 1920,
   "height": 1080,
   "fps": 60,
