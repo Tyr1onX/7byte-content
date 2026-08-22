@@ -26,7 +26,7 @@ on:
       - 'episodes/**/production.json'
 
 permissions:
-  contents: read
+  contents: write
 
 concurrency:
   group: 7byte-production-${{ github.ref }}
@@ -94,6 +94,28 @@ jobs:
           echo "fps=$FPS" >> "$GITHUB_OUTPUT"
           echo "padding=$PADDING" >> "$GITHUB_OUTPUT"
           echo "Building $EPISODE from ${{ steps.source.outputs.ref }}"
+
+      - name: Publish production run pointer
+        shell: bash
+        run: |
+          git config user.name "7BYTE Production Bot"
+          git config user.email "actions@users.noreply.github.com"
+          git switch --orphan production-previews
+          git rm -rf . >/dev/null 2>&1 || true
+          mkdir -p preview
+          printf '%s\n' "$GITHUB_RUN_ID" > preview/run-id.txt
+          printf '%s\n' '${{ steps.episode.outputs.episode }}' > preview/episode.txt
+          printf '%s\n' '${{ steps.source.outputs.ref }}' > preview/source-ref.txt
+          printf '%s\n' 'running' > preview/status.txt
+          git add preview
+          git commit -m "chore: publish production run pointer"
+          git push origin HEAD:production-previews --force
+
+      - name: Restore episode source after pointer publish
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.source.outputs.ref }}
+          clean: true
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -220,6 +242,7 @@ jobs:
         run: |
           {
             echo "episode=${{ steps.episode.outputs.episode }}"
+            echo "run_id=$GITHUB_RUN_ID"
             echo "ref=${{ steps.source.outputs.ref }}"
             echo "voice=${{ steps.episode.outputs.voice }}"
             echo "rate=${{ steps.episode.outputs.rate }}"
