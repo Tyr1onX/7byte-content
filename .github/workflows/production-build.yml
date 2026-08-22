@@ -136,7 +136,7 @@ jobs:
           pip install edge-tts
           sudo apt-get update
           sudo apt-get install -y ffmpeg fonts-noto-cjk
-          npx playwright install --with-deps chromium
+          npx playwright install chromium
 
       - name: Prepare canonical horizontal header
         shell: bash
@@ -151,7 +151,7 @@ jobs:
           python scripts/generate-edge-tts.py \
             --script '${{ steps.episode.outputs.script }}' \
             --voice '${{ steps.episode.outputs.voice }}' \
-            --rate '${{ steps.episode.outputs.rate }}' \
+            --rate='${{ steps.episode.outputs.rate }}' \
             --audio output/narration.mp3 \
             --word-timing output/word-timing.json \
             --vtt output/narration.vtt
