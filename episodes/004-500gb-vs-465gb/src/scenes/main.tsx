@@ -132,7 +132,7 @@ export default makeScene2D(function* (view) {
             <Txt text={'465'} fill={C.text} fontFamily={MONO} fontSize={96} fontWeight={850} />
             <Txt text={'GB'} fill={C.blue} fontFamily={MONO} fontSize={44} fontWeight={800} />
           </Layout>
-          <Rect width={440} height={20} radius={10} fill={C.raised} stroke={C.border} lineWidth={1} layout alignItems={'flex-start'}>
+          <Rect width={440} height={20} radius={10} fill={C.raised} stroke={C.border} lineWidth={1} layout alignItems={'start'}>
             <Rect width={408} height={14} radius={7} fill={C.accent} />
           </Rect>
         </Rect>
@@ -183,7 +183,7 @@ export default makeScene2D(function* (view) {
           gap={22}
         >
           <Icon icon={'lucide:database'} size={56} color={C.accent} />
-          <Layout layout direction={'column'} gap={8} alignItems={'flex-start'} justifyContent={'center'}>
+          <Layout layout direction={'column'} gap={8} alignItems={'start'} justifyContent={'center'}>
             <Txt text={'500,000,000,000'} fill={C.text} fontFamily={MONO} fontSize={56} fontWeight={820} />
             <Txt text={'Bytes · 同一堆真实数据'} fill={C.muted} fontFamily={FONT} fontSize={25} fontWeight={600} />
           </Layout>
