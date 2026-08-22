@@ -9,6 +9,7 @@ export default defineConfig({
   root: path.resolve(root, 'production-player'),
   base: './',
   build: {
+    target: 'esnext',
     outDir: path.resolve(root, 'dist-production'),
     emptyOutDir: true,
   },
