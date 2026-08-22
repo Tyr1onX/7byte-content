@@ -1,4 +1,5 @@
 {
+  "pipelineVersion": 1,
   "episode": "004-500gb-vs-465gb",
   "project": "./episodes/004-500gb-vs-465gb/src/project.ts",
   "script": "episodes/004-500gb-vs-465gb/script-tts.txt",
