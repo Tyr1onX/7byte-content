@@ -11,10 +11,17 @@ const config = JSON.parse(await fs.readFile(path.join(episodeDir, 'production.js
 const vtt = await fs.readFile(vttPath, 'utf8');
 
 const timeToSeconds = value => {
-  const parts = value.trim().split(':').map(Number);
-  if (parts.length === 3) return parts[0] * 3600 + parts[1] * 60 + parts[2];
-  if (parts.length === 2) return parts[0] * 60 + parts[1];
-  throw new Error(`Invalid VTT timestamp: ${value}`);
+  const normalized = value.trim().replace(',', '.');
+  const match = normalized.match(/^(?:(\d+):)?(\d{1,2}):(\d{1,2})(?:\.(\d+))?$/);
+  if (!match) throw new Error(`Invalid VTT timestamp: ${JSON.stringify(value)}`);
+
+  const hours = Number(match[1] ?? 0);
+  const minutes = Number(match[2]);
+  const seconds = Number(match[3]);
+  const fraction = match[4] ? Number(`0.${match[4]}`) : 0;
+  const result = hours * 3600 + minutes * 60 + seconds + fraction;
+  if (!Number.isFinite(result)) throw new Error(`Non-finite VTT timestamp: ${JSON.stringify(value)}`);
+  return result;
 };
 
 const cues = [];
@@ -65,8 +72,8 @@ for (const marker of config.phaseMarkers ?? []) {
 
 const T = [0, ...markerStarts];
 for (let i = 1; i < T.length; i += 1) {
-  if (!(T[i] > T[i - 1])) {
-    throw new Error(`Production timing must be strictly increasing: ${JSON.stringify(T)}`);
+  if (!Number.isFinite(T[i]) || !(T[i] > T[i - 1])) {
+    throw new Error(`Production timing must be finite and strictly increasing: ${JSON.stringify(T)}`);
   }
 }
 
