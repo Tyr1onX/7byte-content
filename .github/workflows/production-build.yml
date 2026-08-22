@@ -17,6 +17,7 @@ on:
       - '.github/workflows/production-build.yml'
       - 'production-player/**'
       - 'vite.production.config.ts'
+      - 'vite.production-player.config.ts'
       - 'scripts/generate-edge-tts.py'
       - 'scripts/write-production-manifest.mjs'
       - 'scripts/update-production-timing.mjs'
@@ -175,7 +176,18 @@ jobs:
         env:
           SEVENBYTE_PROJECT: ${{ steps.episode.outputs.project }}
         run: |
+          # Build exactly one Motion Canvas project from the repository root.
           npx vite build --config vite.production.config.ts
+
+          # Build the browser player shell separately so Motion Canvas cannot
+          # reinterpret the shell's Vite root as the project-entry root.
+          npx vite build --config vite.production-player.config.ts
+
+          # Keep the complete Motion Canvas bundle tree together because its
+          # generated project chunk may import sibling virtual/settings chunks.
+          mkdir -p dist-production/motion
+          cp -R dist-production-project/. dist-production/motion/
+
           node scripts/write-production-manifest.mjs dist-production
           test -f dist-production/index.html
           test -f dist-production/project-manifest.json

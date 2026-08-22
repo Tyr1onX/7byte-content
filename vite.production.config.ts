@@ -1,4 +1,3 @@
-import fs from 'node:fs';
 import path from 'node:path';
 import {defineConfig} from 'vite';
 import motionCanvas from '@motion-canvas/vite-plugin';
@@ -9,30 +8,20 @@ if (!project) {
 }
 
 const root = process.cwd();
-const playerRoot = path.resolve(root, 'production-player');
-const selectedProject = path.resolve(playerRoot, 'selected-project.ts');
-const targetProject = path.resolve(root, project);
-const importPath = path.relative(playerRoot, targetProject).split(path.sep).join('/');
-const normalizedImport = importPath.startsWith('.') ? importPath : `./${importPath}`;
 
-// Motion Canvas uses the project entry path when naming Rollup chunks. Keep the plugin
-// entry stable and relative, then let that entry re-export the selected episode project.
-fs.writeFileSync(
-  selectedProject,
-  `export {default} from ${JSON.stringify(normalizedImport)};\n`,
-  'utf8',
-);
-
+// Motion Canvas resolves project entry paths from the repository/config context,
+// not from an arbitrary Vite player root. Build the selected episode bundle here,
+// then merge it into the standalone production player in the workflow.
 export default defineConfig({
-  root: playerRoot,
+  root,
   base: './',
   plugins: [
     motionCanvas({
-      project: ['./selected-project.ts'],
+      project,
     }),
   ],
   build: {
-    outDir: path.resolve(root, 'dist-production'),
+    outDir: path.resolve(root, 'dist-production-project'),
     emptyOutDir: true,
   },
 });
