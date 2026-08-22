@@ -26,6 +26,7 @@ on:
       - 'scripts/audit-video-visual.sh'
       - 'shared/brand/assets/header-horizontal.png.b64'
       - 'shared/brand/assets/header-horizontal.png.b64.part*'
+      - 'shared/brand/assets/outro-horizontal-canonical.mp4'
       - 'episodes/**/production.json'
 
 permissions:
@@ -140,14 +141,29 @@ jobs:
           sudo apt-get install -y ffmpeg fonts-noto-cjk
           npx playwright install chromium
 
-      - name: Prepare canonical horizontal header
+      - name: Prepare canonical horizontal brand assets
         shell: bash
         run: |
           mkdir -p output
+
           cat shared/brand/assets/header-horizontal.png.b64.part* | base64 --decode > output/header-horizontal.png
           file output/header-horizontal.png
           test "$(stat -c%s output/header-horizontal.png)" -eq 12057
           ffmpeg -v error -i output/header-horizontal.png -f null -
+
+          OUTRO='shared/brand/assets/outro-horizontal-canonical.mp4'
+          test -s "$OUTRO"
+          test "$(stat -c%s "$OUTRO")" -eq 125386
+          test "$(sha256sum "$OUTRO" | cut -d' ' -f1)" = '108db6384810b9545bc2ea369282b423df0ee5e5d5541cc06ebffc167d3bd2fb'
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$OUTRO")" -eq 1920
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 "$OUTRO")" -eq 1080
+          test "$(ffprobe -v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=nw=1:nk=1 "$OUTRO")" = '60/1'
+          OUTRO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$OUTRO")
+          awk -v d="$OUTRO_DURATION" 'BEGIN { if (d < 4.61 || d > 4.63) exit 1 }'
+          AUDIO_COUNT=$(ffprobe -v error -select_streams a -show_entries stream=index -of csv=p=0 "$OUTRO" | wc -l)
+          test "$AUDIO_COUNT" -eq 0
+          ffmpeg -v error -i "$OUTRO" -f null -
+          echo "Canonical outro: ${OUTRO_DURATION}s"
 
       - name: Generate final Yunyang narration and word timing
         shell: bash
@@ -249,15 +265,51 @@ jobs:
             -movflags +faststart \
             output/body-review.mp4
 
-      - name: Visual audit
+      - name: Append canonical horizontal outro
         shell: bash
         run: |
-          BOUNDARIES=$(node -p "require('./output/timing.json').shotBoundaries.join(',')")
-          bash scripts/audit-video-visual.sh output/body-review.mp4 output/visual-audit "$BOUNDARIES"
+          BODY_END=$(node -p "require('./output/timing.json').bodyEnd")
+          OUTRO='shared/brand/assets/outro-horizontal-canonical.mp4'
+          OUTRO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$OUTRO")
+          FINAL_DURATION=$(awk -v b="$BODY_END" -v o="$OUTRO_DURATION" 'BEGIN {printf "%.6f", b+o}')
+          echo "Outro starts at ${BODY_END}s; final duration ${FINAL_DURATION}s"
+
+          ffmpeg -y \
+            -i output/body-review.mp4 \
+            -i "$OUTRO" \
+            -i output/narration.mp3 \
+            -filter_complex "[0:v]setpts=PTS-STARTPTS,fps=${{ steps.episode.outputs.fps }},scale=${{ steps.episode.outputs.width }}:${{ steps.episode.outputs.height }},setsar=1[v0];[1:v]setpts=PTS-STARTPTS,fps=${{ steps.episode.outputs.fps }},scale=${{ steps.episode.outputs.width }}:${{ steps.episode.outputs.height }},setsar=1[v1];[v0][v1]concat=n=2:v=1:a=0[v]" \
+            -map '[v]' -map 2:a:0 \
+            -t "$FINAL_DURATION" \
+            -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
+            -c:a aac -b:a 192k \
+            -movflags +faststart \
+            output/final-review.mp4
+
+          test -s output/final-review.mp4
+          FINAL_WIDTH=$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 output/final-review.mp4)
+          FINAL_HEIGHT=$(ffprobe -v error -select_streams v:0 -show_entries stream=height -of default=nw=1:nk=1 output/final-review.mp4)
+          FINAL_FPS=$(ffprobe -v error -select_streams v:0 -show_entries stream=avg_frame_rate -of default=nw=1:nk=1 output/final-review.mp4)
+          FINAL_ACTUAL=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 output/final-review.mp4)
+          FINAL_AUDIO=$(ffprobe -v error -select_streams a:0 -show_entries stream=codec_name -of default=nw=1:nk=1 output/final-review.mp4)
+          test "$FINAL_WIDTH" -eq '${{ steps.episode.outputs.width }}'
+          test "$FINAL_HEIGHT" -eq '${{ steps.episode.outputs.height }}'
+          test "$FINAL_FPS" = '${{ steps.episode.outputs.fps }}/1'
+          test -n "$FINAL_AUDIO"
+          awk -v actual="$FINAL_ACTUAL" -v expected="$FINAL_DURATION" 'BEGIN {delta=actual-expected; if (delta<0) delta=-delta; if (delta>0.05) exit 1}'
+
+      - name: Visual audit final review
+        shell: bash
+        run: |
+          BOUNDARIES=$(node -p "((t)=>[...t.shotBoundaries,t.bodyEnd].join(','))(require('./output/timing.json'))")
+          bash scripts/audit-video-visual.sh output/final-review.mp4 output/visual-audit "$BOUNDARIES"
 
       - name: Write production report
         shell: bash
         run: |
+          OUTRO='shared/brand/assets/outro-horizontal-canonical.mp4'
+          OUTRO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$OUTRO")
+          FINAL_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 output/final-review.mp4)
           {
             echo "episode=${{ steps.episode.outputs.episode }}"
             echo "run_id=$GITHUB_RUN_ID"
@@ -266,9 +318,11 @@ jobs:
             echo "rate=${{ steps.episode.outputs.rate }}"
             echo "canvas=${{ steps.episode.outputs.width }}x${{ steps.episode.outputs.height }}"
             echo "fps=${{ steps.episode.outputs.fps }}"
-            node -e "const t=require('./output/timing.json'); console.log('body_end='+t.bodyEnd); console.log('audio_duration='+t.audioDuration); console.log('shot_boundaries='+t.shotBoundaries.join(','));"
+            node -e "const t=require('./output/timing.json'); console.log('body_end='+t.bodyEnd); console.log('outro_start='+t.bodyEnd); console.log('audio_duration='+t.audioDuration); console.log('shot_boundaries='+t.shotBoundaries.join(','));"
             echo "brand_header=canonical EP002 raster"
-            echo "outro=not appended in body-review; append /7BYTE/brand/outro-horizontal-canonical.mp4 only after visual approval"
+            echo "outro=canonical embedded horizontal asset"
+            echo "outro_duration=${OUTRO_DURATION}"
+            echo "final_duration=${FINAL_DURATION}"
           } > output/production-report.txt
           cat output/production-report.txt
 
@@ -278,6 +332,7 @@ jobs:
         with:
           name: 7byte-${{ steps.episode.outputs.episode }}-production-review
           path: |
+            output/final-review.mp4
             output/body-review.mp4
             output/body-silent.webm
             output/header-horizontal.png
