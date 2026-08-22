@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：制作中
-- 版本：V1
+- 状态：最终审阅中
+- 版本：V2
 - 发布日期：
 - 发布链接：
 
@@ -11,10 +11,18 @@
 - 画布：`1920×1080 / 16:9`
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
+- Voice rate：`-5%`（V2 按人工反馈轻微放慢）
 - Timing：Production Build 根据最终 TTS/VTT 与 `production.json.phaseMarkers` 回填
+- V2 body end / outro start：`52.801958s`
+- V2 final duration：`57.416667s`
 - 横版 header：canonical `/7BYTE/brand/header-horizontal.png`
 - 横版 outro：canonical `/7BYTE/brand/outro-horizontal-canonical.mp4`
 - 品牌句与 outro 同帧起步
+
+## V2 人工反馈修正
+- 恢复 `0–10s` Hook 的完整字幕；V1 的缺失不是设计意图，而是 `suppressSubtitleBeforePhase` 配置导致。
+- Yunyang 从 `-2%` 调整为 `-5%`，只轻微放慢，给公式与单位换算更多消化时间。
+- 文案、镜头结构、品牌层和封面方向不变。
 
 ## 暂定发布标题
 `500GB 硬盘，为什么电脑只显示 465GB？`
@@ -29,14 +37,14 @@
 **5–20 秒中段留存。** 品牌层、画幅和总体视觉语言保持冻结。
 
 ## 发布前检查
-- [ ] 最终 TTS timing 回填
-- [ ] 5–20 秒至少有两次明确认知推进
-- [ ] Hook 不重复字幕
-- [ ] Windows / SSD UI 可识别
-- [ ] `GB / GiB` 表达准确
-- [ ] 视觉审计通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 3:4 + 4:3 两张封面分别审计
+- [x] 最终 TTS timing 回填
+- [x] 5–20 秒至少有两次明确认知推进
+- [x] Hook 字幕完整且不与主视觉冲突
+- [x] Windows / SSD UI 可识别
+- [x] `GB / GiB` 表达准确
+- [x] 视觉审计通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 3:4 + 4:3 两张封面分别审计
 - [ ] 用户人工确认最终成片
 
 ## 发布后数据
