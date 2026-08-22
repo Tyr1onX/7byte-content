@@ -25,6 +25,7 @@ on:
       - 'scripts/capture-pages-video.mjs'
       - 'scripts/audit-video-visual.sh'
       - 'shared/brand/assets/header-horizontal.png.b64'
+      - 'shared/brand/assets/header-horizontal.png.b64.part*'
       - 'episodes/**/production.json'
 
 permissions:
@@ -143,8 +144,10 @@ jobs:
         shell: bash
         run: |
           mkdir -p output
-          base64 --decode shared/brand/assets/header-horizontal.png.b64 > output/header-horizontal.png
+          cat shared/brand/assets/header-horizontal.png.b64.part* | base64 --decode > output/header-horizontal.png
           file output/header-horizontal.png
+          test "$(stat -c%s output/header-horizontal.png)" -eq 12057
+          ffmpeg -v error -i output/header-horizontal.png -f null -
 
       - name: Generate final Yunyang narration and word timing
         shell: bash
@@ -270,11 +273,14 @@ jobs:
           cat output/production-report.txt
 
       - name: Upload production review package
+        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: 7byte-${{ steps.episode.outputs.episode }}-production-review
           path: |
             output/body-review.mp4
+            output/body-silent.webm
+            output/header-horizontal.png
             output/narration.mp3
             output/narration.vtt
             output/word-timing.json
@@ -282,5 +288,5 @@ jobs:
             output/timing.json
             output/production-report.txt
             output/visual-audit/
-          if-no-files-found: error
+          if-no-files-found: warn
           retention-days: 7
