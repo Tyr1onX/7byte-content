@@ -1,0 +1,247 @@
+name: 7BYTE Production Build
+
+on:
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: Branch, tag, or SHA to build
+        required: true
+        default: main
+      episode:
+        description: Episode directory name, e.g. 004-500gb-vs-465gb
+        required: true
+  push:
+    branches:
+      - 'feat/**'
+    paths:
+      - '.github/workflows/production-build.yml'
+      - 'production-player/**'
+      - 'vite.production.config.ts'
+      - 'scripts/write-production-manifest.mjs'
+      - 'scripts/update-production-timing.mjs'
+      - 'scripts/vtt-to-ass.mjs'
+      - 'scripts/capture-pages-video.mjs'
+      - 'scripts/audit-video-visual.sh'
+      - 'shared/brand/assets/header-horizontal.png.b64'
+      - 'episodes/**/production.json'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 7byte-production-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Resolve source ref
+        id: source
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ inputs.ref }}" >> "$GITHUB_OUTPUT"
+          else
+            echo "ref=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Checkout episode source
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ steps.source.outputs.ref }}
+
+      - name: Resolve episode
+        id: episode
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            EPISODE='${{ inputs.episode }}'
+          else
+            CONFIG=$(find episodes -mindepth 2 -maxdepth 2 -name production.json | sort | tail -n 1)
+            if [ -z "$CONFIG" ]; then
+              echo "No episode production.json found" >&2
+              exit 1
+            fi
+            EPISODE=$(basename "$(dirname "$CONFIG")")
+          fi
+
+          DIR="episodes/$EPISODE"
+          CONFIG="$DIR/production.json"
+          test -f "$CONFIG"
+
+          PROJECT=$(node -p "require('./$CONFIG').project")
+          SCRIPT=$(node -p "require('./$CONFIG').script")
+          VOICE=$(node -p "require('./$CONFIG').voice")
+          RATE=$(node -p "require('./$CONFIG').rate || '-2%'")
+          WIDTH=$(node -p "require('./$CONFIG').width")
+          HEIGHT=$(node -p "require('./$CONFIG').height")
+          FPS=$(node -p "require('./$CONFIG').fps")
+          PADDING=$(node -p "require('./$CONFIG').capturePaddingMs || 700")
+
+          test -f "$PROJECT"
+          test -f "$SCRIPT"
+
+          echo "episode=$EPISODE" >> "$GITHUB_OUTPUT"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+          echo "project=$PROJECT" >> "$GITHUB_OUTPUT"
+          echo "script=$SCRIPT" >> "$GITHUB_OUTPUT"
+          echo "voice=$VOICE" >> "$GITHUB_OUTPUT"
+          echo "rate=$RATE" >> "$GITHUB_OUTPUT"
+          echo "width=$WIDTH" >> "$GITHUB_OUTPUT"
+          echo "height=$HEIGHT" >> "$GITHUB_OUTPUT"
+          echo "fps=$FPS" >> "$GITHUB_OUTPUT"
+          echo "padding=$PADDING" >> "$GITHUB_OUTPUT"
+          echo "Building $EPISODE from ${{ steps.source.outputs.ref }}"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install production dependencies
+        shell: bash
+        run: |
+          npm install
+          npm install --no-save playwright
+          pip install edge-tts
+          sudo apt-get update
+          sudo apt-get install -y ffmpeg fonts-noto-cjk
+          npx playwright install --with-deps chromium
+
+      - name: Prepare canonical horizontal header
+        shell: bash
+        run: |
+          mkdir -p output
+          base64 --decode shared/brand/assets/header-horizontal.png.b64 > output/header-horizontal.png
+          file output/header-horizontal.png
+
+      - name: Generate final Yunyang narration
+        shell: bash
+        run: |
+          edge-tts \
+            --voice '${{ steps.episode.outputs.voice }}' \
+            --rate='${{ steps.episode.outputs.rate }}' \
+            --text "$(cat '${{ steps.episode.outputs.script }}')" \
+            --write-media output/narration.mp3 \
+            --write-subtitles output/narration.vtt
+          test -s output/narration.mp3
+          test -s output/narration.vtt
+
+      - name: Derive phase timing from final TTS
+        shell: bash
+        run: |
+          node scripts/update-production-timing.mjs \
+            '${{ steps.episode.outputs.dir }}' \
+            output/narration.vtt
+          cat output/timing.json
+
+      - name: Validate Motion Canvas source with final timing
+        run: npm run build
+
+      - name: Build isolated production player
+        shell: bash
+        env:
+          SEVENBYTE_PROJECT: ${{ steps.episode.outputs.project }}
+        run: |
+          npx vite build --config vite.production.config.ts
+          node scripts/write-production-manifest.mjs dist-production
+          test -f dist-production/index.html
+          test -f dist-production/project-manifest.json
+
+      - name: Start isolated production player
+        shell: bash
+        run: |
+          python3 -m http.server 4173 --bind 127.0.0.1 --directory dist-production > /tmp/7byte-production-http.log 2>&1 &
+          for i in {1..60}; do
+            if curl --fail --silent http://127.0.0.1:4173/ > /dev/null; then
+              exit 0
+            fi
+            sleep 1
+          done
+          cat /tmp/7byte-production-http.log
+          exit 1
+
+      - name: Capture body at final timing
+        shell: bash
+        run: |
+          BODY_END=$(node -p "require('./output/timing.json').bodyEnd")
+          CAPTURE_MS=$(node -e "const t=require('./output/timing.json'); const p=${{ steps.episode.outputs.padding }}; console.log(Math.ceil(t.bodyEnd*1000+p))")
+          echo "Body end: ${BODY_END}s; capture: ${CAPTURE_MS}ms"
+          CAPTURE_URL='http://127.0.0.1:4173/?capture=1' \
+          CAPTURE_DURATION_MS="$CAPTURE_MS" \
+          CAPTURE_FPS='${{ steps.episode.outputs.fps }}' \
+          CAPTURE_BITRATE='20000000' \
+          CAPTURE_WIDTH='${{ steps.episode.outputs.width }}' \
+          CAPTURE_HEIGHT='${{ steps.episode.outputs.height }}' \
+          CAPTURE_OUTPUT='output/body-silent.webm' \
+            node scripts/capture-pages-video.mjs
+
+      - name: Generate and validate subtitles
+        shell: bash
+        run: |
+          node scripts/vtt-to-ass.mjs \
+            '${{ steps.episode.outputs.dir }}' \
+            output/narration.vtt \
+            output/timing.json \
+            output/subtitles.ass
+          node scripts/validate-ass-subtitles.mjs output/subtitles.ass
+
+      - name: Assemble branded body review
+        shell: bash
+        run: |
+          BODY_END=$(node -p "require('./output/timing.json').bodyEnd")
+          ffmpeg -y \
+            -i output/body-silent.webm \
+            -i output/header-horizontal.png \
+            -i output/narration.mp3 \
+            -filter_complex "[0:v]fps=${{ steps.episode.outputs.fps }},scale=${{ steps.episode.outputs.width }}:${{ steps.episode.outputs.height }},subtitles=output/subtitles.ass[v0];[v0][1:v]overlay=28:18:format=auto[v]" \
+            -map '[v]' -map 2:a:0 \
+            -t "$BODY_END" \
+            -c:v libx264 -preset medium -crf 18 -pix_fmt yuv420p \
+            -c:a aac -b:a 192k \
+            -movflags +faststart \
+            output/body-review.mp4
+
+      - name: Visual audit
+        shell: bash
+        run: |
+          BOUNDARIES=$(node -p "require('./output/timing.json').shotBoundaries.join(',')")
+          bash scripts/audit-video-visual.sh output/body-review.mp4 output/visual-audit "$BOUNDARIES"
+
+      - name: Write production report
+        shell: bash
+        run: |
+          {
+            echo "episode=${{ steps.episode.outputs.episode }}"
+            echo "ref=${{ steps.source.outputs.ref }}"
+            echo "voice=${{ steps.episode.outputs.voice }}"
+            echo "rate=${{ steps.episode.outputs.rate }}"
+            echo "canvas=${{ steps.episode.outputs.width }}x${{ steps.episode.outputs.height }}"
+            echo "fps=${{ steps.episode.outputs.fps }}"
+            node -e "const t=require('./output/timing.json'); console.log('body_end='+t.bodyEnd); console.log('audio_duration='+t.audioDuration); console.log('shot_boundaries='+t.shotBoundaries.join(','));"
+            echo "brand_header=canonical EP002 raster"
+            echo "outro=not appended in body-review; append /7BYTE/brand/outro-horizontal-canonical.mp4 only after visual approval"
+          } > output/production-report.txt
+          cat output/production-report.txt
+
+      - name: Upload production review package
+        uses: actions/upload-artifact@v4
+        with:
+          name: 7byte-${{ steps.episode.outputs.episode }}-production-review
+          path: |
+            output/body-review.mp4
+            output/narration.mp3
+            output/narration.vtt
+            output/subtitles.ass
+            output/timing.json
+            output/production-report.txt
+            output/visual-audit/
+          if-no-files-found: error
+          retention-days: 7
