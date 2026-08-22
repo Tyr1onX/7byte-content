@@ -17,6 +17,7 @@ on:
       - '.github/workflows/production-build.yml'
       - 'production-player/**'
       - 'vite.production.config.ts'
+      - 'scripts/generate-edge-tts.py'
       - 'scripts/write-production-manifest.mjs'
       - 'scripts/update-production-timing.mjs'
       - 'scripts/vtt-to-ass.mjs'
@@ -144,24 +145,26 @@ jobs:
           base64 --decode shared/brand/assets/header-horizontal.png.b64 > output/header-horizontal.png
           file output/header-horizontal.png
 
-      - name: Generate final Yunyang narration
+      - name: Generate final Yunyang narration and word timing
         shell: bash
         run: |
-          edge-tts \
+          python scripts/generate-edge-tts.py \
+            --script '${{ steps.episode.outputs.script }}' \
             --voice '${{ steps.episode.outputs.voice }}' \
-            --rate='${{ steps.episode.outputs.rate }}' \
-            --text "$(cat '${{ steps.episode.outputs.script }}')" \
-            --write-media output/narration.mp3 \
-            --write-subtitles output/narration.vtt
+            --rate '${{ steps.episode.outputs.rate }}' \
+            --audio output/narration.mp3 \
+            --word-timing output/word-timing.json \
+            --vtt output/narration.vtt
           test -s output/narration.mp3
           test -s output/narration.vtt
+          test -s output/word-timing.json
 
       - name: Derive phase timing from final TTS
         shell: bash
         run: |
           node scripts/update-production-timing.mjs \
             '${{ steps.episode.outputs.dir }}' \
-            output/narration.vtt
+            output/word-timing.json
           cat output/timing.json
 
       - name: Validate Motion Canvas source with final timing
@@ -262,6 +265,7 @@ jobs:
             output/body-review.mp4
             output/narration.mp3
             output/narration.vtt
+            output/word-timing.json
             output/subtitles.ass
             output/timing.json
             output/production-report.txt
