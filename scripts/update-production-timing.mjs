@@ -9,7 +9,9 @@ if (!episodeDir || !wordTimingPath) {
 
 const config = JSON.parse(await fs.readFile(path.join(episodeDir, 'production.json'), 'utf8'));
 const wordTiming = JSON.parse(await fs.readFile(wordTimingPath, 'utf8'));
+const script = String(wordTiming.script ?? '');
 const words = wordTiming.words ?? [];
+if (!script) throw new Error('WordBoundary timing JSON does not contain the source script.');
 if (!words.length) throw new Error('No WordBoundary timing entries found.');
 
 const normalize = value => value
@@ -17,28 +19,64 @@ const normalize = value => value
   .replace(/[，。！？、；：“”‘’：,.!?;:'"()（）\-—…]/g, '')
   .toLowerCase();
 
+// Keep a reversible map from normalized text positions back to raw script
+// character offsets. WordBoundary entries already contain rawStart/rawEnd
+// values produced from this same script, so phase markers can be anchored to
+// the exact spoken word instead of incorrectly treating character offsets as
+// WordBoundary array indexes.
+const normalizedChars = [];
+const rawIndexes = [];
+for (let rawIndex = 0; rawIndex < script.length; rawIndex += 1) {
+  const normalized = normalize(script[rawIndex]);
+  if (!normalized) continue;
+  for (const char of normalized) {
+    normalizedChars.push(char);
+    rawIndexes.push(rawIndex);
+  }
+}
+const normalizedScript = normalizedChars.join('');
+
 const markerStarts = [];
+const markerDetails = [];
+let searchFrom = 0;
+
 for (const marker of config.phaseMarkers ?? []) {
   const wanted = normalize(marker);
-  let matched = null;
+  if (!wanted) throw new Error(`Phase marker becomes empty after normalization: ${marker}`);
 
-  for (let i = 0; i < words.length; i += 1) {
-    let joined = '';
-    for (let j = i; j < words.length && joined.length <= wanted.length + 24; j += 1) {
-      joined += normalize(words[j].text ?? '');
-      if (joined.includes(wanted)) {
-        matched = Number(words[i].start);
-        break;
-      }
-      if (joined.length > wanted.length + 24) break;
-    }
-    if (matched !== null) break;
+  const normalizedOffset = normalizedScript.indexOf(wanted, searchFrom);
+  if (normalizedOffset < 0) {
+    throw new Error(`Phase marker not found in source script: ${marker}`);
+  }
+  const rawMarkerStart = rawIndexes[normalizedOffset];
+  searchFrom = normalizedOffset + wanted.length;
+
+  let matchedWord = words.find(word => {
+    const rawStart = Number(word.rawStart);
+    const rawEnd = Number(word.rawEnd);
+    return Number.isFinite(rawStart) && Number.isFinite(rawEnd) && rawStart <= rawMarkerStart && rawMarkerStart < rawEnd;
+  });
+
+  if (!matchedWord) {
+    matchedWord = words.find(word => {
+      const rawStart = Number(word.rawStart);
+      return Number.isFinite(rawStart) && rawStart >= rawMarkerStart;
+    });
   }
 
-  if (matched === null || !Number.isFinite(matched)) {
-    throw new Error(`Phase marker not found in WordBoundary timing: ${marker}`);
+  const matched = Number(matchedWord?.start);
+  if (!matchedWord || !Number.isFinite(matched)) {
+    throw new Error(`Phase marker has no aligned WordBoundary entry: ${marker}`);
   }
+
   markerStarts.push(matched);
+  markerDetails.push({
+    marker,
+    rawStart: rawMarkerStart,
+    word: matchedWord.text,
+    wordRawStart: matchedWord.rawStart,
+    start: matched,
+  });
 }
 
 const T = [0, ...markerStarts];
@@ -60,6 +98,7 @@ const result = {
   shotBoundaries: T.slice(1, -1),
   audioDuration,
   wordCount: words.length,
+  markers: markerDetails,
 };
 await fs.mkdir('output', {recursive: true});
 await fs.writeFile('output/timing.json', JSON.stringify(result, null, 2) + '\n', 'utf8');
