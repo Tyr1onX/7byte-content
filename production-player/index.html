@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>7BYTE Production Player</title>
+    <style>
+      html, body {
+        margin: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        background: #0F100E;
+      }
+      body {
+        display: grid;
+        place-items: center;
+      }
+      motion-canvas-player {
+        display: block;
+        width: 100vw;
+        height: 100vh;
+      }
+      #status {
+        position: fixed;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        opacity: 0;
+        pointer-events: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="status" data-state="loading" aria-hidden="true"></div>
+    <motion-canvas-player id="player"></motion-canvas-player>
+    <script type="module" src="/main.ts"></script>
+  </body>
+</html>

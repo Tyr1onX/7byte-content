@@ -1,0 +1,17 @@
+{
+  "episode": "EP004",
+  "title": "500GB 硬盘，为什么只剩 465GB？",
+  "subtitle": "少掉的 35GB 去哪了？",
+  "primaryVisual": "500GB → 465GB",
+  "accentTokens": ["500GB", "465GB"],
+  "vertical": {
+    "ratio": "3:4",
+    "size": "1080x1440"
+  },
+  "horizontal": {
+    "ratio": "4:3",
+    "size": "1440x1080"
+  },
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "两张封面分别布局。主视觉只保留硬盘/磁盘实体和 500→465，不在封面解释 1000/1024/GiB。"
+}
