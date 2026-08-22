@@ -24,9 +24,10 @@ on:
       - 'scripts/vtt-to-ass.mjs'
       - 'scripts/capture-pages-video.mjs'
       - 'scripts/audit-video-visual.sh'
+      - 'scripts/reconstruct-canonical-outro.py'
       - 'shared/brand/assets/header-horizontal.png.b64'
       - 'shared/brand/assets/header-horizontal.png.b64.part*'
-      - 'shared/brand/assets/outro-horizontal-canonical.mp4'
+      - 'shared/brand/assets/outro-horizontal-canonical.mp4.b64.part*'
       - 'episodes/**/production.json'
 
 permissions:
@@ -151,8 +152,8 @@ jobs:
           test "$(stat -c%s output/header-horizontal.png)" -eq 12057
           ffmpeg -v error -i output/header-horizontal.png -f null -
 
-          OUTRO='shared/brand/assets/outro-horizontal-canonical.mp4'
-          test -s "$OUTRO"
+          python scripts/reconstruct-canonical-outro.py
+          OUTRO='output/outro-horizontal-canonical.mp4'
           test "$(stat -c%s "$OUTRO")" -eq 125386
           test "$(sha256sum "$OUTRO" | cut -d' ' -f1)" = '108db6384810b9545bc2ea369282b423df0ee5e5d5541cc06ebffc167d3bd2fb'
           test "$(ffprobe -v error -select_streams v:0 -show_entries stream=width -of default=nw=1:nk=1 "$OUTRO")" -eq 1920
@@ -195,18 +196,10 @@ jobs:
         env:
           SEVENBYTE_PROJECT: ${{ steps.episode.outputs.project }}
         run: |
-          # Build exactly one Motion Canvas project from the repository root.
           npx vite build --config vite.production.config.ts
-
-          # Build the browser player shell separately so Motion Canvas cannot
-          # reinterpret the shell's Vite root as the project-entry root.
           npx vite build --config vite.production-player.config.ts
-
-          # Keep the complete Motion Canvas bundle tree together because its
-          # generated project chunk may import sibling virtual/settings chunks.
           mkdir -p dist-production/motion
           cp -R dist-production-project/. dist-production/motion/
-
           node scripts/write-production-manifest.mjs dist-production
           test -f dist-production/index.html
           test -f dist-production/project-manifest.json
@@ -269,7 +262,7 @@ jobs:
         shell: bash
         run: |
           BODY_END=$(node -p "require('./output/timing.json').bodyEnd")
-          OUTRO='shared/brand/assets/outro-horizontal-canonical.mp4'
+          OUTRO='output/outro-horizontal-canonical.mp4'
           OUTRO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$OUTRO")
           FINAL_DURATION=$(awk -v b="$BODY_END" -v o="$OUTRO_DURATION" 'BEGIN {printf "%.6f", b+o}')
           echo "Outro starts at ${BODY_END}s; final duration ${FINAL_DURATION}s"
@@ -307,7 +300,7 @@ jobs:
       - name: Write production report
         shell: bash
         run: |
-          OUTRO='shared/brand/assets/outro-horizontal-canonical.mp4'
+          OUTRO='output/outro-horizontal-canonical.mp4'
           OUTRO_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 "$OUTRO")
           FINAL_DURATION=$(ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 output/final-review.mp4)
           {
@@ -320,7 +313,7 @@ jobs:
             echo "fps=${{ steps.episode.outputs.fps }}"
             node -e "const t=require('./output/timing.json'); console.log('body_end='+t.bodyEnd); console.log('outro_start='+t.bodyEnd); console.log('audio_duration='+t.audioDuration); console.log('shot_boundaries='+t.shotBoundaries.join(','));"
             echo "brand_header=canonical EP002 raster"
-            echo "outro=canonical embedded horizontal asset"
+            echo "outro=canonical reconstructed exact bytes"
             echo "outro_duration=${OUTRO_DURATION}"
             echo "final_duration=${FINAL_DURATION}"
           } > output/production-report.txt
@@ -336,6 +329,7 @@ jobs:
             output/body-review.mp4
             output/body-silent.webm
             output/header-horizontal.png
+            output/outro-horizontal-canonical.mp4
             output/narration.mp3
             output/narration.vtt
             output/word-timing.json
