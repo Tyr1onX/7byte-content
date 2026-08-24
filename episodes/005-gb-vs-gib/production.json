@@ -1,0 +1,23 @@
+{
+  "pipelineVersion": 1,
+  "episode": "005-gb-vs-gib",
+  "project": "./episodes/005-gb-vs-gib/src/project.ts",
+  "script": "episodes/005-gb-vs-gib/script-tts.txt",
+  "timingModule": "episodes/005-gb-vs-gib/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "其实标准早就统一了",
+    "Windows为什么还常写GB",
+    "1998年",
+    "但软件习惯没有一起改",
+    "所以没统一的不是定义",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 0,
+  "suppressSubtitleAtOrAfterPhase": 6
+}

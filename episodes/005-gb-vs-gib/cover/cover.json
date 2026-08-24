@@ -1,0 +1,17 @@
+{
+  "episode": "EP005",
+  "title": "同样是 1GB，为什么有两种算法？",
+  "subtitle": "标准其实早就统一了",
+  "primaryVisual": "GB ≠ GiB",
+  "accentTokens": ["1GB", "GiB"],
+  "vertical": {
+    "ratio": "3:4",
+    "size": "1080x1440"
+  },
+  "horizontal": {
+    "ratio": "4:3",
+    "size": "1440x1080"
+  },
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "封面只表达 GB 与 GiB 两种尺子的冲突；不塞 1998、1024³、IEC 等解释细节。两张比例分别布局与审计。"
+}
