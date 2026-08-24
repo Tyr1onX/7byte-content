@@ -346,7 +346,7 @@ export default makeScene2D(function* (view) {
           fill={C.surface}
           stroke={C.border}
           lineWidth={2}
-          opacity={0}
+          opacity={1}
           scale={0.96}
           layout
           direction={'row'}
