@@ -168,7 +168,7 @@ export default makeScene2D(function* (view) {
           fill={C.accentDark}
           stroke={'#46572A'}
           lineWidth={2}
-          opacity={0}
+          opacity={1}
           layout
           alignItems={'center'}
           justifyContent={'center'}

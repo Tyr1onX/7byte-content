@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 3,
+  "contentRevision": 4,
   "episode": "005-gb-vs-gib",
   "project": "./episodes/005-gb-vs-gib/src/project.ts",
   "script": "episodes/005-gb-vs-gib/script-tts.txt",
