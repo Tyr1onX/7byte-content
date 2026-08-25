@@ -37,18 +37,21 @@
 
 需要复用上一期经验时，优先读取上一期 `design-notes.md` 与 `publish.md`，不要从旧版本 scene 文件或临时渲染分支倒推工作流。
 
+**不要因为仓库新增了 `shared/visual/ai-still-image-workflow.md` 就自动读取或改造视频制作链路。** 抖音现有 Motion Canvas、字幕、镜头、封面、品牌锁是成熟默认流程；只有 `shared/platforms/douyin.md` 和当前任务明确要求静态 AI 图片实验时，才按该平台边界显式调用。
+
 ### C. 小红书
 
 读取：
 
 1. `docs/architecture.md`
 2. `shared/platforms/xiaohongshu.md`
-3. 当前 episode 的 `core.md`（若存在）或 `idea.md`
-4. `episodes/<episode>/platforms/xiaohongshu/` 下已经存在的文件
+3. `shared/visual/ai-still-image-workflow.md`
+4. 当前 episode 的 `core.md`（若存在）或 `idea.md`
+5. `episodes/<episode>/platforms/xiaohongshu/` 下已经存在的文件
 
 除非任务明确需要复用视频成品或视觉资产，否则**不要读取** Motion Canvas、字幕、横版视频品牌锁、镜头动画等视频规则。
 
-小红书创作方法默认参考外部 `SpaceZephyr/creator-buddy` 的 `xhs-Skills`；外部 Skill 负责方法，仓库只保存 7BYTE 自己已经确认的定位、平台规则、成品和数据结论。不要把整个外部 Skill 仓库复制进本仓库。
+小红书创作方法默认参考外部 `SpaceZephyr/creator-buddy` 的 `xhs-Skills`；静态视觉模板默认参考外部 `freestylefly/awesome-gpt-image-2` 的 `gpt-image-2-style-library`。外部 Skill 负责方法和模板选择，仓库只保存 7BYTE 自己已经确认的定位、平台规则、品牌约束、成品和数据结论。不要把整个外部 Skill 仓库复制进本仓库。
 
 ### D. 微信视频号
 
@@ -59,7 +62,7 @@
 3. 当前 episode 的 core / idea
 4. 当前 episode 的视频成品与 `platforms/wechat-channels/`（仅当任务需要）
 
-视频号默认复用成熟视频母版，不因为平台存在就重做一遍动画。
+视频号默认复用成熟视频母版，不因为平台存在或共享 Image2 工具存在就重做一遍动画或视觉系统。
 
 ### E. 微信公众号
 
@@ -70,7 +73,7 @@
 3. 当前 episode 的 core / idea
 4. `platforms/wechat-official/` 已有文件
 
-公众号是深度长文适配层，不要求每个选题都同步。
+公众号是深度长文适配层，不要求每个选题都同步。只有任务明确需要 AI 头图 / 文内解释图时，再额外读取 `shared/visual/ai-still-image-workflow.md`。
 
 ### F. 数据复盘
 
@@ -112,11 +115,21 @@ episodes/<episode>/platforms/<platform>/
 platforms/xiaohongshu/
 ├─ note.md
 ├─ cards.md
+├─ visual-brief.md
 ├─ publish.md
 └─ metrics.md
 ```
 
 不是每个平台、每一期都必须创建这些文件；有真实需求时再建。
+
+### Shared capability：共享能力不是共享风格
+
+`shared/visual/` 保存的是可跨平台复用的**能力、品牌资产使用原则与检查流程**，不是要求所有平台长得一样。
+
+- 平台必须在自己的 `shared/platforms/<platform>.md` 中显式接入某项共享能力。
+- 一个平台注册的视觉实验不得自动污染其他平台。
+- 跨平台优先复用知识、品牌资产、解释经验；配色、构图密度、动画语法、CTA、页码等由平台自己决定。
+- 已验证成熟的生产链路优先保持稳定，新工具先作为增量能力使用，而不是替换已有系统。
 
 ### 历史兼容
 
@@ -173,6 +186,8 @@ EP001–EP004 等既有 episode 的 `idea.md`、`script.md`、`storyboard.md` �
 ## 视觉禁区（视频）
 
 除非某一期有明确理由，不要默认使用：蓝紫渐变、玻璃拟态、霓虹 glow、背景粒子、无意义赛博网格、发光小球代替数据包、频繁 zoom/旋转、0.2 秒级的快速飞入。
+
+**该禁区仍然是视频默认规则。小红书静态图即使正在测试高对比蓝色 / glow 等风格，也不得反向修改这里。**
 
 ## 动画判断标准
 
