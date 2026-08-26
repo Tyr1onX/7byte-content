@@ -1,0 +1,17 @@
+{
+  "episode": "EP006",
+  "title": "16GB 内存，为什么开机就占一半？",
+  "subtitle": "什么都没开，内存去哪了？",
+  "primaryVisual": "16GB memory bar with 7.4GB in use and Available/Standby contrast",
+  "accentTokens": ["16GB", "7.4GB"],
+  "vertical": {
+    "ratio": "3:4",
+    "size": "1080x1440"
+  },
+  "horizontal": {
+    "ratio": "4:3",
+    "size": "1440x1080"
+  },
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "封面只表达‘16GB 刚开机已用接近一半’这一冲突。主视觉用任务管理器式内存条，不塞 kernel/driver/standby 的解释细节；3:4 与 4:3 分别布局和审计。"
+}
