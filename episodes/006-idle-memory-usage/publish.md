@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：制作中
-- 版本：Production Candidate
+- 状态：生产审计通过 / 待用户最终确认
+- 版本：V3 Final Candidate
 - 发布日期：
 - 发布链接：
 
@@ -12,7 +12,12 @@
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
+- Production Build：`32920971663`，全绿通过
+- Source：`5ad40744955de82517d45ff4d2caad6ea8649b15`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
+- 正文结束 / canonical outro 起点：约 `37.078s`
+- 最终成片时长：约 `41.70s`
+- 核心反转（Standby 属于 Available）起点：约 `22.368s`
 - 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical `/7BYTE/brand/header-horizontal.png`
 - 横版 outro：canonical `/7BYTE/brand/outro-horizontal-canonical.mp4`
@@ -38,23 +43,23 @@
 
 ## 本期实验变量
 
-1. **时长压缩**：EP005 为 50s+；EP006 目标最终约 40s，把核心反转提前到正文约 20–24 秒前。
-2. **发布节奏**：本期成片完成后按“中间空两天再发”的节奏发布，用于和 EP005 的隔一天节奏做后续样本比较。
+1. **时长压缩**：EP005 为 50s+；EP006 最终压缩至约 `41.70s`，核心反转提前至约 `22.37s`。
+2. **发布节奏**：本期按“中间空两天再发”的节奏发布，用于和 EP005 的隔一天节奏做后续样本比较。
 
 除以上两项外，横版品牌层、Yunyang `-5%`、字幕路线和整体 Motion 语言保持稳定。
 
 ## 发布前检查
-- [ ] 最终 TTS timing 回填
-- [ ] Hook 前 3–5 秒问题成立
-- [ ] `In Use / Available / Standby` 表达准确
-- [ ] Standby 明确属于 Available，不误说成全部计入已使用
-- [ ] 进程列表与整机占用关系没有过度简化
-- [ ] 核心反转在目标时间内出现
-- [ ] 字幕与主视觉不冲突
-- [ ] 视觉审计通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 品牌句与 canonical outro 同帧开始
-- [ ] 3:4 + 4:3 两张封面分别审计
+- [x] 最终 TTS timing 回填
+- [x] Hook 前 3–5 秒问题成立
+- [x] `In Use / Available / Standby` 表达准确
+- [x] Standby 明确属于 Available，不误说成全部计入已使用
+- [x] 进程列表与整机占用关系没有过度简化
+- [x] 核心反转在目标时间内出现
+- [x] 字幕与主视觉不冲突
+- [x] 视觉审计通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 品牌句与 canonical outro 同帧开始
+- [x] 3:4 + 4:3 两张封面分别审计
 - [ ] 用户人工确认最终成片
 
 ## 发布后数据
