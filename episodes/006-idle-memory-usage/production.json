@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 1,
+  "contentRevision": 2,
   "episode": "006-idle-memory-usage",
   "project": "./episodes/006-idle-memory-usage/src/project.ts",
   "script": "episodes/006-idle-memory-usage/script-tts.txt",
@@ -12,10 +12,10 @@
   "fps": 60,
   "capturePaddingMs": 700,
   "phaseMarkers": [
-    "因为这个已使用",
-    "再看下面的缓存",
-    "但这部分待机内存",
-    "所以别看到开机占了一半",
+    "因为已使用不只算你打开的软件",
+    "再看缓存",
+    "但待机内存属于可用",
+    "所以别只盯开机占了多少",
     "这里是7BYTE"
   ],
   "suppressSubtitleBeforePhase": 1,
