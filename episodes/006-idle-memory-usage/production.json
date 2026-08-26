@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 2,
+  "contentRevision": 3,
   "episode": "006-idle-memory-usage",
   "project": "./episodes/006-idle-memory-usage/src/project.ts",
   "script": "episodes/006-idle-memory-usage/script-tts.txt",
