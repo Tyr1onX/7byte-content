@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 3,
+  "contentRevision": 4,
   "episode": "007-shutdown-usb-power",
   "project": "./episodes/007-shutdown-usb-power/src/project.ts",
   "script": "episodes/007-shutdown-usb-power/script-tts.txt",
@@ -12,11 +12,11 @@
   "fps": 60,
   "capturePaddingMs": 700,
   "phaseMarkers": [
-    "多数情况不是",
-    "台式机只要还插着电",
-    "主供电停了",
+    "关机不等于断电",
+    "台式机插着电时",
+    "部分USB口还能有电",
     "不想让它亮",
-    "切断交流电",
+    "彻底断电",
     "这里是7BYTE"
   ],
   "suppressSubtitleBeforePhase": 1,
