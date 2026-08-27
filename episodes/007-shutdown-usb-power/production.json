@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 2,
+  "contentRevision": 3,
   "episode": "007-shutdown-usb-power",
   "project": "./episodes/007-shutdown-usb-power/src/project.ts",
   "script": "episodes/007-shutdown-usb-power/script-tts.txt",
@@ -16,7 +16,7 @@
     "台式机只要还插着电",
     "主供电停了",
     "不想让它亮",
-    "切断交流电后",
+    "切断交流电",
     "这里是7BYTE"
   ],
   "suppressSubtitleBeforePhase": 1,
