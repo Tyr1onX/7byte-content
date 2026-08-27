@@ -12,6 +12,7 @@ export default defineConfig({
         './episodes/003-bandwidth-vs-download-speed/src/project.ts',
         './episodes/004-500gb-vs-465gb/src/project.ts',
         './episodes/005-gb-vs-gib/src/project.ts',
+        './episodes/006-idle-memory-usage/src/project.ts',
       ],
     }),
   ],

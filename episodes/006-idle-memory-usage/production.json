@@ -1,0 +1,23 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 3,
+  "episode": "006-idle-memory-usage",
+  "project": "./episodes/006-idle-memory-usage/src/project.ts",
+  "script": "episodes/006-idle-memory-usage/script-tts.txt",
+  "timingModule": "episodes/006-idle-memory-usage/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "因为已使用不只算你打开的软件",
+    "再看缓存",
+    "但待机内存属于可用",
+    "所以别只盯开机占了多少",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 5
+}
