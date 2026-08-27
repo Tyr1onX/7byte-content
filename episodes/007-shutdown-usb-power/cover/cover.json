@@ -1,0 +1,17 @@
+{
+  "episode": "EP007",
+  "title": "电脑都关机了，为什么鼠标还亮着？",
+  "subtitle": "关机 ≠ 物理断电",
+  "primaryVisual": "dark powered-off PC with glowing USB mouse and a small standby-power path",
+  "accentTokens": ["关机", "还亮着"],
+  "vertical": {
+    "ratio": "3:4",
+    "size": "1080x1440"
+  },
+  "horizontal": {
+    "ratio": "4:3",
+    "size": "1440x1080"
+  },
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "封面只表达‘电脑已经关机但鼠标仍亮’这一矛盾。不要在封面解释 +5VSB / ErP；用黑屏主机 + 发光鼠标作为唯一主视觉关系。3:4 与 4:3 分别布局审计。"
+}
