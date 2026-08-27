@@ -170,7 +170,7 @@ export default makeScene2D(function* (view) {
       </Layout>
 
       <Layout ref={usb} width={1920} height={1080} opacity={0}>
-        <Txt y={-345} text={'这路待机电，会留给“必须醒着”的部分'} fill={C.text} fontFamily={FONT} fontSize={52} fontWeight={820} />
+        <Txt y={-345} text={'待机电会留给部分待机功能'} fill={C.text} fontFamily={FONT} fontSize={54} fontWeight={820} />
         <Rect x={-650} y={-35} width={390} height={330} radius={34} fill={C.surface} stroke={C.border} lineWidth={2}
           layout direction={'column'} alignItems={'center'} justifyContent={'center'} gap={20}>
           <Icon icon={'lucide:circuit-board'} size={78} color={C.blue} />
