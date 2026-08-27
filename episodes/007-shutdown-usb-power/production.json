@@ -1,0 +1,24 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 1,
+  "episode": "007-shutdown-usb-power",
+  "project": "./episodes/007-shutdown-usb-power/src/project.ts",
+  "script": "episodes/007-shutdown-usb-power/script-tts.txt",
+  "timingModule": "episodes/007-shutdown-usb-power/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "多数情况不是",
+    "桌面机只要电源还接着市电",
+    "主供电关了",
+    "如果不想让它亮",
+    "真正完全断电",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 6
+}
