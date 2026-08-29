@@ -13,6 +13,7 @@ export default defineConfig({
         './episodes/004-500gb-vs-465gb/src/project.ts',
         './episodes/005-gb-vs-gib/src/project.ts',
         './episodes/006-idle-memory-usage/src/project.ts',
+        './episodes/007-shutdown-usb-power/src/project.ts',
       ],
     }),
   ],
