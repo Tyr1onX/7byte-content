@@ -1,0 +1,23 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 2,
+  "episode": "008-deleted-files-recovery",
+  "project": "./episodes/008-deleted-files-recovery/src/project.ts",
+  "script": "episodes/008-deleted-files-recovery/script-tts.txt",
+  "timingModule": "episodes/008-deleted-files-recovery/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "因为删除通常不是",
+    "新数据覆盖前",
+    "机械硬盘上尤其常见",
+    "SSD更难恢复",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 5
+}

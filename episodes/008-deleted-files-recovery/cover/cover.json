@@ -1,0 +1,17 @@
+{
+  "episode": "EP008",
+  "title": "文件删了，为什么还能恢复？",
+  "subtitle": "删除 ≠ 立刻抹掉",
+  "primaryVisual": "a deleted file card above a row of data blocks that remain visible, with one recovery scan frame finding them",
+  "accentTokens": ["删了", "还能恢复"],
+  "vertical": {
+    "ratio": "3:4",
+    "size": "1080x1440"
+  },
+  "horizontal": {
+    "ratio": "4:3",
+    "size": "1440x1080"
+  },
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "封面只表达‘文件已经删除但底层数据块仍可能存在’这一矛盾。不要在封面堆 HDD / SSD / TRIM 细节。3:4 与 4:3 分别布局和缩略图审计。"
+}
