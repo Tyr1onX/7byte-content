@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：制作中
-- 版本：V1 Production Candidate
+- 状态：生产审计通过 / 待用户最终确认
+- 版本：V1 Final Candidate
 - 发布日期：
 - 发布链接：
 
@@ -12,8 +12,15 @@
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
-- Production Build：待回填
+- Production Build：`33353078839`，全绿通过
+- Source：`8bb06dc9cfa15caf772941eb920b8ac419b4322f`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
+- Hook → 安全弹出解释：约 `6.355s`
+- Windows 10 1809 / Quick removal：约 `12.211s`
+- “正在复制 / Better performance”风险场景：约 `25.987s`
+- 行动结论：约 `31.105s`
+- 正文结束 / canonical outro 起点：约 `35.091s`
+- 最终成片时长：约 `39.70s`
 - 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical `/7BYTE/brand/header-horizontal.png`
 - 横版 outro：canonical `/7BYTE/brand/outro-horizontal-canonical.mp4`
@@ -39,21 +46,22 @@
 
 ## 本期实验
 - 保持约 `48h` 发布节奏。
-- 不再把“核心答案约 3 秒进入”当作合格 Hook；本期第一句直接给新信息：`直接拔 U 盘，不一定会坏。`
-- 目标：把反常识结果推进到第 `1s` 内，重点修复 EP008 的 0–2 秒流失。
+- 不再把“核心答案约 3 秒进入”当作合格 Hook；第一稳定帧和第一句直接给新信息：`直接拔 U 盘，不一定会坏。`
+- 重点测试：反常识结论在第 1 秒内可见，是否能修复 EP008 的 0–2 秒流失。
+- 本期没有为追求 30 秒强行删掉 Windows 1809 / Quick removal 的关键边界；完整成片约 `39.70s`，但前端信息密度明显高于 EP008。
 
 ## 发布前检查
-- [ ] 最终 TTS timing 回填
+- [x] 最终 TTS timing 回填
 - [x] 第 1 秒内已经出现新信息，而不是只问问题
 - [x] Quick removal / Better performance 表述与微软文档一致
 - [x] 不把 Quick removal 说成绝对安全
 - [x] 正在写入时不建议直接断开
-- [ ] 字幕与主视觉不冲突
-- [ ] 视觉审计通过
-- [ ] shot boundary / body end ownership 审计通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 品牌句与 canonical outro 同帧开始
-- [ ] 3:4 + 4:3 两张封面分别审计
+- [x] 字幕与主视觉不冲突
+- [x] 视觉审计通过
+- [x] shot boundary / body end ownership 审计通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 品牌句与 canonical outro 同帧开始
+- [x] 3:4 + 4:3 两张封面分别完成原尺寸 / 50% / 25% 审计
 - [ ] 用户人工确认最终成片
 
 ## 发布后数据
