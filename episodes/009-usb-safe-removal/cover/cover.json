@@ -1,0 +1,17 @@
+{
+  "episode": "EP009",
+  "title": "U盘真的不能直接拔吗？",
+  "subtitle": "真正危险的是：还在写",
+  "primaryVisual": "USB flash drive being unplugged while a write-progress bar is still active",
+  "accentTokens": ["直接拔", "还在写"],
+  "vertical": {
+    "ratio": "3:4",
+    "size": "1080x1440"
+  },
+  "horizontal": {
+    "ratio": "4:3",
+    "size": "1440x1080"
+  },
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "封面只表达‘直接拔 U 盘’与‘正在写入’之间的冲突。不要在封面塞 Quick removal / 1809 / 缓存定义。3:4 与 4:3 分别布局审计。"
+}

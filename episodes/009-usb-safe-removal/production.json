@@ -1,0 +1,23 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 1,
+  "episode": "009-usb-safe-removal",
+  "project": "./episodes/009-usb-safe-removal/src/project.ts",
+  "script": "episodes/009-usb-safe-removal/script-tts.txt",
+  "timingModule": "episodes/009-usb-safe-removal/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "安全弹出就是",
+    "从Windows10版本1809开始",
+    "但正在复制文件",
+    "所以最稳妥",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 5
+}
