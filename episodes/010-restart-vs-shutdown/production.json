@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 1,
+  "contentRevision": 2,
   "episode": "010-restart-vs-shutdown",
   "project": "./episodes/010-restart-vs-shutdown/src/project.ts",
   "script": "episodes/010-restart-vs-shutdown/script-tts.txt",
@@ -14,8 +14,8 @@
   "phaseMarkers": [
     "如果开启了“快速启动”",
     "下次开机",
-    "但“重启”不走快速启动",
-    "所以遇到驱动异常",
+    "而“重启”不走快速启动",
+    "所以驱动异常",
     "平时关机没问题",
     "这里是7BYTE"
   ],
