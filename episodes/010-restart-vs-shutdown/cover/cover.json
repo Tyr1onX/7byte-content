@@ -1,0 +1,11 @@
+{
+  "episode": "EP010",
+  "title": "电脑卡了，为什么重启更管用？",
+  "subtitle": "重启反而可能更彻底",
+  "primaryVisual": "Windows power menu split into Shutdown / Restart, with Restart highlighted as FULL BOOT and Shutdown connected to a hiberfil restore path",
+  "accentTokens": ["重启", "更彻底"],
+  "vertical": {"ratio": "3:4", "size": "1080x1440"},
+  "horizontal": {"ratio": "4:3", "size": "1440x1080"},
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "封面只表达‘关机再开’和‘重启’不是同一条系统路径。不要塞 Fast Startup 定义。3:4 与 4:3 分别布局审计。"
+}
