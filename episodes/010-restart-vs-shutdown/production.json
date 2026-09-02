@@ -1,0 +1,24 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 1,
+  "episode": "010-restart-vs-shutdown",
+  "project": "./episodes/010-restart-vs-shutdown/src/project.ts",
+  "script": "episodes/010-restart-vs-shutdown/script-tts.txt",
+  "timingModule": "episodes/010-restart-vs-shutdown/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "如果开启了“快速启动”",
+    "下次开机",
+    "但“重启”不走快速启动",
+    "所以遇到驱动异常",
+    "平时关机没问题",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 6
+}
