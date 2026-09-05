@@ -1,0 +1,11 @@
+{
+  "episode": "EP011",
+  "title": "100W充电器会把手机充坏吗？",
+  "subtitle": "100W ≠ 强制100W",
+  "primaryVisual": "large USB-C charger card labeled 100W MAX pointing to a smartphone card labeled 25W LIMIT, with a negotiated power badge stopping near 25W",
+  "accentTokens": ["100W", "不会硬塞"],
+  "vertical": {"ratio": "3:4", "size": "1080x1440"},
+  "horizontal": {"ratio": "4:3", "size": "1440x1080"},
+  "brandAvatar": "/7BYTE/brand/avatar.png",
+  "notes": "封面只表达‘充电器上限不等于手机实际收到的功率’。不要塞 USB PD 定义；3:4 与 4:3 分别布局审计。"
+}
