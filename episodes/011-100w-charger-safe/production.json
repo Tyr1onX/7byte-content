@@ -1,0 +1,24 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 1,
+  "episode": "011-100w-charger-safe",
+  "project": "./episodes/011-100w-charger-safe/src/project.ts",
+  "script": "episodes/011-100w-charger-safe/script-tts.txt",
+  "timingModule": "episodes/011-100w-charger-safe/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "一百瓦只是充电器的最大能力",
+    "以 USB PD 为例",
+    "之后才按协商结果输出",
+    "电量、温度和线材",
+    "所以正规大功率充电器",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 6
+}
