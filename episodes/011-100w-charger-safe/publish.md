@@ -2,7 +2,7 @@
 
 ## 状态
 - 平台：抖音
-- 状态：制作中
+- 状态：V1 Review / 待人工确认
 - 版本：V1 Candidate
 - 发布日期：
 - 发布链接：
@@ -12,7 +12,16 @@
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
+- Production Build：`33960478138`，全绿通过
+- Source：`cf4e82d4f149ea7b45451a1f223e9641ad1a79b0`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
+- `100W = 最大能力`：约 `5.605s`
+- `USB PD：先协商`：约 `8.566s`
+- `协商完成再输出`：约 `17.066s`
+- `电量 / 温度 / 线材`：约 `19.842s`
+- 最终行动结论：约 `23.592s`
+- 正文结束 / canonical outro 起点：约 `31.315s`
+- 最终成片时长：约 `35.93s`
 - 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical horizontal header
 - 横版 outro：canonical horizontal outro
@@ -39,16 +48,16 @@
 - 目标：2s 跳出重新压回 `<30%`，5s 播放率回到 `>50%` 附近；若仍失败，下一期优先调整选题冲突而不是继续微调开场措辞。
 
 ## 发布前检查
-- [ ] 最终 TTS timing 回填
-- [ ] 第一稳定帧已有 `100W / 25W / ≈25W` 的完整冲突
-- [ ] USB PD Source / Sink / Request 表述核对
-- [ ] 不把 100W 说成固定输出
-- [ ] 不把私有快充兼容性说成绝对
-- [ ] 字幕与主视觉不冲突
-- [ ] 视觉审计通过
-- [ ] shot boundary / body end ownership 审计通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 品牌句与 canonical outro 同帧开始
+- [x] 最终 TTS timing 回填
+- [x] 第一稳定帧已有 `100W / 25W / ≈25W` 的完整冲突
+- [x] USB PD Source / Sink / Request 表述核对
+- [x] 不把 100W 说成固定输出
+- [x] 不把私有快充兼容性说成绝对
+- [x] 字幕与主视觉不冲突
+- [x] 视觉审计通过
+- [x] shot boundary / body end ownership 审计通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 品牌句与 canonical outro 同帧开始
 - [ ] 3:4 + 4:3 双封面完成原尺寸 / 50% / 25% 审计
 - [ ] 用户人工确认最终成片
 
