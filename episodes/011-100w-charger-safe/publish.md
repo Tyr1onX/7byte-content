@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V1 Review / 待人工确认
-- 版本：V1 Candidate
+- 状态：最终确认 / 待发布
+- 版本：V1 Final
 - 发布日期：
 - 发布链接：
 
@@ -58,8 +58,8 @@
 - [x] shot boundary / body end ownership 审计通过
 - [x] canonical header / watermark / outro 完全复用
 - [x] 品牌句与 canonical outro 同帧开始
-- [ ] 3:4 + 4:3 双封面完成原尺寸 / 50% / 25% 审计
-- [ ] 用户人工确认最终成片
+- [x] 3:4 + 4:3 双封面完成原尺寸 / 50% / 25% 审计
+- [x] 用户人工确认最终成片
 
 ## 发布后数据
 
