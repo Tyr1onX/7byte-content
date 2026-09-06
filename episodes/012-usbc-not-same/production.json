@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 1,
+  "contentRevision": 2,
   "episode": "012-usbc-not-same",
   "project": "./episodes/012-usbc-not-same/src/project.ts",
   "script": "episodes/012-usbc-not-same/script-tts.txt",
@@ -12,11 +12,11 @@
   "fps": 60,
   "capturePaddingMs": 700,
   "phaseMarkers": [
-    "因为 Type-C 主要规定的是连接器",
-    "数据可能只是 USB 2.0",
-    "想输出画面",
-    "充电则要看 USB PD",
-    "所以买拓展坞",
+    "因为 Type-C 是连接器规格",
+    "数据可能是 USB 2.0",
+    "想出画面",
+    "充电还要看 USB PD",
+    "买拓展坞前",
     "这里是7BYTE"
   ],
   "suppressSubtitleBeforePhase": 1,
