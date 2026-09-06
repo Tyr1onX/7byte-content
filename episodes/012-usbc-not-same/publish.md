@@ -2,7 +2,7 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V2 制作中
+- 状态：V2 Final Candidate / 待用户最终确认
 - 版本：V2 Candidate
 - 发布日期：
 - 发布链接：
@@ -12,7 +12,16 @@
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
+- Production Build：`34016966156`，全绿通过
+- Source：`bfd46c78102a6f05e1b746e7773464d37f6c9d82`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
+- `USB-C = CONNECTOR` 核心反转：约 `4.776s`
+- 数据能力对比：约 `8.895s`
+- 显示能力：约 `14.118s`
+- USB PD / 线材：约 `20.408s`
+- 行动结论：约 `24.868s`
+- 正文结束 / canonical outro 起点：约 `31.026s`
+- 最终成片时长：约 `35.65s`
 - 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical horizontal header
 - 横版 outro：canonical horizontal outro
@@ -36,22 +45,22 @@
 - 继续约 `48h` 发布节奏。
 - EP011 当前约 20h：播放 `1121`、2s 跳出 `27.81%`、5s 完播 `42.99%`、完播率 `3.28%`、平均播放约 `7s`。
 - EP012 锁定“第一帧具体冲突 + 5秒内第二次信息推进”，并主动压缩正文时长。
-- V1 Production Build `34016598306` 全绿，但正文约 `37.42s`、完整成片约 `42.03s`，与本期“压缩 5s 后流失空间”的实验目标冲突，因此不作为最终候选。
-- V2 删除重复修饰和非必要铺垫，不改变技术结论与视觉结构。
+- V1 Production Build `34016598306` 全绿，但正文约 `37.42s`、完整成片约 `42.03s`，与本期实验目标冲突，因此不作为最终候选。
+- V2 Production Build `34016966156` 将正文压到约 `31.03s`，完整成片约 `35.65s`；技术结论与视觉结构不变。
 - 目标：2s 跳出保持 `<30%`；5s 播放率提升到 `>50%`；平均播放占比回到 `>25%`。
 
 ## 发布前检查
-- [ ] 最终 V2 TTS timing 回填
+- [x] 最终 V2 TTS timing 回填
 - [x] 第一稳定帧已有 `DISPLAY ✓ / NO SIGNAL ×` 完整冲突
 - [x] `USB-C ≠ USB 3.2 / USB4 / USB PD` 表述核对
 - [x] DisplayPort Alt Mode / USB4 显示能力边界核对
 - [x] 不把所有 USB-C 都说成支持视频
 - [x] 线材能力表述不过度绝对化
-- [ ] 字幕与主视觉不冲突
-- [ ] 视觉审计通过
-- [ ] shot boundary / body end ownership 审计通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 品牌句与 canonical outro 同帧开始
+- [x] 字幕与主视觉不冲突
+- [x] 视觉审计通过
+- [x] shot boundary / body end ownership 审计通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 品牌句与 canonical outro 同帧开始
 - [x] 3:4 + 4:3 双封面完成原尺寸 / 50% / 25% 审计
 - [ ] 用户人工确认最终成片
 
