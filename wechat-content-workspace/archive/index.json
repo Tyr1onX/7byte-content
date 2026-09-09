@@ -1,0 +1,49 @@
+{
+  "account": "闻舟会用",
+  "updated_at": "2026-09-09",
+  "note": "旧稿来自此前聊天与文件库。发布状态只在用户后台最终确认，仓库不擅自标记已发布。",
+  "items": [
+    {
+      "title": "微信越来越占空间？先清这3处，重要聊天别乱删",
+      "path": "archive/2026-09/2026-09-01_微信越来越占空间先清这3处重要聊天别乱删.md",
+      "source_file": "闻舟会用-01-微信空间清理.md",
+      "status": "recovered_needs_publish_status_check"
+    },
+    {
+      "title": "不会打字也没关系，直接给豆包“打个电话”就行",
+      "path": "archive/2026-09/2026-09-02_不会打字也没关系直接给豆包打个电话就行.md",
+      "source_file": "闻舟会用-02-不会打字直接和豆包说.docx",
+      "status": "recovered_needs_publish_status_check"
+    },
+    {
+      "title": "有人让你打开“屏幕共享”，先挂电话：不管他说自己是谁",
+      "path": "archive/2026-09/2026-09-03_有人让你打开屏幕共享先挂电话.md",
+      "source_file": "闻舟会用-03-屏幕共享先挂电话-稳定版.docx",
+      "status": "recovered_needs_publish_status_check"
+    },
+    {
+      "title": "微信字体太小怎么调大？这2个地方一起调",
+      "path": "archive/2026-09/2026-09-04_微信字体太小怎么调大这2个地方一起调.md",
+      "source_file": "微信字体太小怎么调大？这2个地方一起调.docx",
+      "status": "recovered_needs_publish_status_check"
+    },
+    {
+      "title": "微信消息不提醒怎么办？先检查这4个地方",
+      "path": "archive/2026-09/2026-09-05_微信消息不提醒怎么办先检查这4个地方.md",
+      "source_file": "微信消息不提醒怎么办？先检查这4个地方.docx",
+      "status": "recovered_needs_publish_status_check"
+    },
+    {
+      "title": "微信转账转错人了怎么办？先看这3种情况",
+      "path": "archive/2026-09/2026-09-06_微信转账转错人了怎么办先看这3种情况.md",
+      "source_file": "微信转账转错人了怎么办？先看这3种情况.docx",
+      "status": "recovered_needs_publish_status_check"
+    },
+    {
+      "title": "路边的花不认识？拍张照片，豆包就能告诉你",
+      "path": "archive/2026-09/2026-09-07_路边的花不认识拍张照片豆包就能告诉你.md",
+      "source_file": "路边的花不认识？拍张照片，豆包就能告诉你.docx",
+      "status": "recovered_needs_publish_status_check"
+    }
+  ]
+}
