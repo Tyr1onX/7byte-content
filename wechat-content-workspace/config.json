@@ -13,6 +13,12 @@
     "filename_rule": "文件名必须与文章标题完全一致。",
     "source_footer": "不在正文末尾展示资料来源。"
   },
+  "wechat_api": {
+    "token": "/cgi-bin/token",
+    "upload_cover": "/cgi-bin/material/add_material?type=image",
+    "upload_article_image": "/cgi-bin/media/uploadimg",
+    "add_draft": "/cgi-bin/draft/add"
+  },
   "wechat_draft_defaults": {
     "show_cover_pic": 0,
     "need_open_comment": 0,
@@ -21,7 +27,9 @@
     "original_notice": "本文为原创内容，未经授权请勿转载。"
   },
   "secrets": {
+    "access_token": "WECHAT_MP_ACCESS_TOKEN 环境变量读取，可选",
     "appid": "WECHAT_MP_APPID 环境变量读取",
-    "appsecret": "WECHAT_MP_APPSECRET 环境变量读取"
+    "appsecret": "WECHAT_MP_APPSECRET 环境变量读取",
+    "cover_media_id": "WECHAT_MP_COVER_MEDIA_ID 环境变量读取，可选"
   }
 }

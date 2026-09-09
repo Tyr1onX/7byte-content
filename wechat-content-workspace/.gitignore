@@ -1,0 +1,6 @@
+.env
+.env.*
+*.local.json
+access_token*.json
+__pycache__/
+*.pyc
