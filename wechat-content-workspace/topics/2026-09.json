@@ -1,0 +1,69 @@
+{
+  "month": "2026-09",
+  "account": "闻舟会用",
+  "principles": [
+    "解决一个具体问题",
+    "标题有搜索意图",
+    "内容直接可操作",
+    "避免争议选题",
+    "不制造焦虑"
+  ],
+  "recovered_topics": [
+    {
+      "no": 1,
+      "title": "微信越来越占空间？先清这3处，重要聊天别乱删",
+      "category": "手机微信技巧",
+      "source": "library: 闻舟会用-01-微信空间清理.md",
+      "status": "recovered"
+    },
+    {
+      "no": 2,
+      "title": "不会打字也没关系，直接给豆包“打个电话”就行",
+      "category": "AI生活应用",
+      "source": "library: 闻舟会用-02-不会打字直接和豆包说.docx",
+      "status": "recovered"
+    },
+    {
+      "no": 3,
+      "title": "有人让你打开“屏幕共享”，先挂电话：不管他说自己是谁",
+      "category": "防骗安全指南",
+      "source": "library: 闻舟会用-03-屏幕共享先挂电话-稳定版.docx",
+      "status": "recovered"
+    },
+    {
+      "no": 4,
+      "title": "微信字体太小怎么调大？这2个地方一起调",
+      "category": "手机微信技巧",
+      "source": "library: 微信字体太小怎么调大？这2个地方一起调.docx",
+      "status": "recovered"
+    },
+    {
+      "no": 5,
+      "title": "微信消息不提醒怎么办？先检查这4个地方",
+      "category": "手机微信技巧",
+      "source": "library: 微信消息不提醒怎么办？先检查这4个地方.docx",
+      "status": "recovered"
+    },
+    {
+      "no": 6,
+      "title": "微信转账转错人了怎么办？先看这3种情况",
+      "category": "防骗安全指南",
+      "source": "library: 微信转账转错人了怎么办？先看这3种情况.docx",
+      "status": "recovered"
+    },
+    {
+      "no": 7,
+      "title": "路边的花不认识？拍张照片，豆包就能告诉你",
+      "category": "AI生活应用",
+      "source": "library: 路边的花不认识？拍张照片，豆包就能告诉你.docx",
+      "status": "recovered"
+    }
+  ],
+  "next_candidates": [
+    "手机电量不耐用？先检查这几个设置",
+    "微信聊天记录太多？这样清理不丢重要内容",
+    "收到陌生短信链接，先别点",
+    "用高德地图出门导航，先学这几个按钮",
+    "网上挂号怎么操作？一步一步来"
+  ]
+}

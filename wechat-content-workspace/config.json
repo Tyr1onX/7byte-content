@@ -1,0 +1,27 @@
+{
+  "account": {
+    "name": "闻舟会用",
+    "description": "讲清手机应用、人工智能和数字生活里的新科技，让新东西真正用得上。",
+    "author": "一团"
+  },
+  "content_rules": {
+    "audience_expression": "面向不熟悉新科技的人，前台不长期强调老人或银发。",
+    "style": "短段落、步骤清楚、语气耐心、不制造焦虑、不引发争议。",
+    "docx_legacy_style": "单栏基础样式，禁表格、分栏、大色块。",
+    "cover_size": "1175x500",
+    "cover_ratio": "2.35:1",
+    "filename_rule": "文件名必须与文章标题完全一致。",
+    "source_footer": "不在正文末尾展示资料来源。"
+  },
+  "wechat_draft_defaults": {
+    "show_cover_pic": 0,
+    "need_open_comment": 0,
+    "only_fans_can_comment": 0,
+    "content_source_url": "",
+    "original_notice": "本文为原创内容，未经授权请勿转载。"
+  },
+  "secrets": {
+    "appid": "WECHAT_MP_APPID 环境变量读取",
+    "appsecret": "WECHAT_MP_APPSECRET 环境变量读取"
+  }
+}
