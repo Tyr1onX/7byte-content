@@ -2,7 +2,7 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V1 Candidate / 制作中
+- 状态：V1 Candidate / 待人工确认
 - 版本：V1 Candidate
 - 发布日期：
 - 发布链接：
@@ -11,12 +11,18 @@
 - 画布：1920×1080 / 60fps
 - Voice：zh-CN-YunyangNeural
 - Voice rate：-5%
-- Production Build：待运行
-- 最终 TTS timing：待回填
-- 最终成片时长：待回填
-- 成片长期存储：待生成
-- 竖版封面：待生成
-- 横版封面：待生成
+- Production Build：34288324415，全绿通过
+- Source ref：bf7b1dfff558ff2011e7c80433a080364c6ebb0b
+- 最终 TTS timing：0 / 2.933541 / 6.539458 / 11.631583 / 15.368416 / 20.355250 / 26.038833s
+- 正文结束 / canonical outro 起点：26.038833s
+- 最终成片时长：30.650000s
+- 字幕：最终 TTS WordBoundary → ASS，已校验并烧录
+- 横版品牌头：canonical EP002 raster
+- 横版片尾：canonical reconstructed exact bytes
+- 品牌句与片尾同帧起步
+- 成片长期存储：/7BYTE/EP013/final.mp4（本轮交付文件：EP013-delivery/final.mp4；长期文件库同步待确认）
+- 竖版封面：/7BYTE/EP013/cover-vertical-3x4.png（本轮交付文件：EP013-delivery/cover-vertical-3x4.png）
+- 横版封面：/7BYTE/EP013/cover-horizontal-4x3.png（本轮交付文件：EP013-delivery/cover-horizontal-4x3.png）
 
 ## 发布标题
 `无痕模式，真的不留记录？`
@@ -35,13 +41,13 @@
 - 对照EP012：933播放、2s跳出39.60%、5s完播28.40%、平均5.99秒。目标观察2s、5s和平均时长，不保证流量结果。
 
 ## 发布前检查
-- [ ] 最终 TTS timing 回填
-- [ ] 技术事实核对
-- [ ] 视觉审计与 shot boundary 通过
-- [ ] 字幕与主视觉不冲突
-- [ ] canonical header / watermark / outro 复用
-- [ ] 品牌句与片尾同帧开始
-- [ ] 两张封面原尺寸/50%/25%审计
+- [x] 最终 TTS timing 回填
+- [x] 技术事实核对
+- [x] 视觉审计与 shot boundary 通过
+- [x] 字幕与主视觉不冲突
+- [x] canonical header / watermark / outro 复用
+- [x] 品牌句与片尾同帧开始
+- [x] 两张封面原尺寸/50%/25%审计
 - [ ] 用户人工确认最终成片
 
 ## 发布后数据
