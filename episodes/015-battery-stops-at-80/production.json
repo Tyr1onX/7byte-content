@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 1,
+  "contentRevision": 2,
   "episode": "015-battery-stops-at-80",
   "project": "./episodes/015-battery-stops-at-80/src/project.ts",
   "script": "episodes/015-battery-stops-at-80/script-tts.txt",
@@ -12,8 +12,8 @@
   "fps": 60,
   "capturePaddingMs": 700,
   "phaseMarkers": [
-    "很多笔记本会开启",
-    "不同厂商阈值不同",
+    "很多笔记本会开",
+    "80%不是统一标准",
     "马上要出门",
     "这里是7BYTE"
   ],
