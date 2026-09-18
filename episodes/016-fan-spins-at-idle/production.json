@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 2,
+  "contentRevision": 3,
   "episode": "016-fan-spins-at-idle",
   "project": "./episodes/016-fan-spins-at-idle/src/project.ts",
   "script": "episodes/016-fan-spins-at-idle/script-tts.txt",
