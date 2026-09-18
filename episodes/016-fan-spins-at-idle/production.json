@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 1,
+  "contentRevision": 2,
   "episode": "016-fan-spins-at-idle",
   "project": "./episodes/016-fan-spins-at-idle/src/project.ts",
   "script": "episodes/016-fan-spins-at-idle/script-tts.txt",
@@ -13,7 +13,7 @@
   "capturePaddingMs": 700,
   "phaseMarkers": [
     "没窗口，不等于CPU没任务",
-    "想知道是谁",
+    "按Ctrl Shift Esc",
     "偶尔几分钟",
     "这里是7BYTE"
   ],
