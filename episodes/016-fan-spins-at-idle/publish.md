@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V3 Final Candidate / 待用户最终确认
-- 版本：V3 Final Candidate
+- 状态：V3 Final / 最终确认 / 待发布
+- 版本：V3 Final
 - 发布日期：
 - 发布链接：
 
@@ -23,9 +23,9 @@
 - 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical horizontal header
 - 横版 outro：canonical horizontal outro
-- 最终成片长期存储：`/7BYTE/EP016/final.mp4`（待用户确认后归档）
-- 竖版封面：`/7BYTE/EP016/cover-vertical-3x4.png`（待用户确认后归档）
-- 横版封面：`/7BYTE/EP016/cover-horizontal-4x3.png`（待用户确认后归档）
+- 最终成片长期存储：`/7BYTE/EP016/final.mp4`
+- 竖版封面：`/7BYTE/EP016/cover-vertical-3x4.png`
+- 横版封面：`/7BYTE/EP016/cover-horizontal-4x3.png`
 
 ## 发布标题
 `明明什么都没开，电脑风扇为什么突然狂转？`
@@ -59,7 +59,7 @@
 - [x] canonical header / watermark / outro 完全复用
 - [x] 品牌句与 canonical outro 同帧开始
 - [x] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
-- [ ] 用户人工确认最终成片
+- [x] 用户人工确认最终成片
 
 ## 发布后数据
 | 时间点 | 播放 | 点赞 | 评论 | 收藏 | 分享 | 2s跳出 | 5s完播 | 完播率 | 平均时长 | 新增粉丝 | 备注 |
