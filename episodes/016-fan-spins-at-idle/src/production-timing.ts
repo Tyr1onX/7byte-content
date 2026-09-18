@@ -1,2 +1,2 @@
-// Placeholder timing; Production Build replaces phase boundaries from final TTS WordBoundary output.
-export const T = [0, 5.0, 11.5, 17.0, 24.0] as const;
+// Final V3 timing from Production Build 35292278488 WordBoundary output.
+export const T = [0, 5.447375, 12.592125, 19.210541, 25.341458] as const;
