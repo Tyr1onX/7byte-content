@@ -1,0 +1,22 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 2,
+  "episode": "015-battery-stops-at-80",
+  "project": "./episodes/015-battery-stops-at-80/src/project.ts",
+  "script": "episodes/015-battery-stops-at-80/script-tts.txt",
+  "timingModule": "episodes/015-battery-stops-at-80/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "很多笔记本会开",
+    "80%不是统一标准",
+    "马上要出门",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 4
+}
