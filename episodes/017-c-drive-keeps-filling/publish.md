@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V1 Candidate / 待生产与人工确认
-- 版本：V1 Candidate
+- 状态：V2 Final Candidate / 待用户最终确认
+- 版本：V2 Final Candidate
 - 发布日期：
 - 发布链接：
 
@@ -12,13 +12,20 @@
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
-- Production Build：待运行
+- Production Build：`35482322414`，全绿通过
+- Source：`61e3b90ef7959e546129ab8b1befe7533137e149`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
+- Windows 更新 / 临时文件等来源进入：`4.513166s`
+- “设置 → 系统 → 存储”行动进入：`9.986833s`
+- 清理建议进入：`15.500000s`
+- 正文结束 / canonical outro 起点：`20.815125s`
+- 最终成片时长：`25.433333s`
+- 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical horizontal header
 - 横版 outro：canonical horizontal outro
-- 最终成片长期存储：`/7BYTE/EP017/final.mp4`（待确认后归档）
-- 竖版封面：`/7BYTE/EP017/cover-vertical-3x4.png`（待确认后归档）
-- 横版封面：`/7BYTE/EP017/cover-horizontal-4x3.png`（待确认后归档）
+- 最终成片长期存储：`/7BYTE/EP017/final.mp4`（待用户确认后归档）
+- 竖版封面：`/7BYTE/EP017/cover-vertical-3x4.png`（待用户确认后归档）
+- 横版封面：`/7BYTE/EP017/cover-horizontal-4x3.png`（待用户确认后归档）
 
 ## 发布标题
 `C盘明明没装新软件，为什么还是越来越满？`
@@ -36,22 +43,22 @@
 - 继续保持约 `48h` 发布节奏。
 - EP016 约44h：播放约 `1.03万`，但 2s 跳出 `38.77%`、5s 播放率 `27.10%`、平均播放 `5s`。
 - 保留“大众电脑异常现象”题材；第一句话直接交付答案，不再只做视觉冲突。
-- `设置 → 系统 → 存储` 的操作路径目标在第 `10s` 前进入。
-- 目标正文 `21–24s`，完整成片 `26–29s`。
+- V1 Production Build `35482147639` 全绿，但行动路径到 `11.316s`、完整成片 `29.80s`，未作为最终候选。
+- V2 Production Build `35482322414` 将“设置 → 系统 → 存储”提前到 `9.987s`，完整成片压到 `25.433s`。
 - 目标：2s 跳出 `<32%`；5s 播放率 `>35%`；平均播放 `>6.5s`。
 
 ## 发布前检查
-- [ ] 最终 TTS timing 回填
+- [x] 最终 V2 TTS timing 回填
 - [x] Windows Storage / Storage Sense / 更新空间事实核对
 - [x] 不把“系统与保留空间”称为垃圾文件
 - [x] 不建议直接删除 Windows 系统目录
 - [x] 第一稳定帧完整显示 NEW APPS: 0 / 80GB→8GB / 很多空间≠应用本体
-- [ ] 操作路径在 10s 前进入
-- [ ] 字幕与主视觉不冲突
-- [ ] 视觉审计与 shot boundary 通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 品牌句与 canonical outro 同帧开始
-- [ ] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
+- [x] 操作路径在 10s 前进入
+- [x] 字幕与主视觉不冲突
+- [x] 视觉审计与 shot boundary 通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 品牌句与 canonical outro 同帧开始
+- [x] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
 - [ ] 用户人工确认最终成片
 
 ## 发布后数据
