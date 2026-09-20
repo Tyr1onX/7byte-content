@@ -1,0 +1,22 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 2,
+  "episode": "017-c-drive-keeps-filling",
+  "project": "./episodes/017-c-drive-keeps-filling/src/project.ts",
+  "script": "episodes/017-c-drive-keeps-filling/script-tts.txt",
+  "timingModule": "episodes/017-c-drive-keeps-filling/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "更新、临时文件",
+    "想知道谁在长",
+    "再用临时文件",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 4
+}
