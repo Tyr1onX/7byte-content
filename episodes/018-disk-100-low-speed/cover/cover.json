@@ -1,0 +1,1 @@
+{"title":"磁盘100%，为什么只有几MB/s？","subtitle":"100% ≠ 跑满带宽","visual":"ACTIVE TIME 100% 与 TRANSFER 3.2 MB/s 并排形成唯一数字冲突；次级提示 Ctrl+Shift+Esc → DISK↓","vertical":{"width":1080,"height":1440},"horizontal":{"width":1440,"height":1080},"brand":"canonical avatar + 7BYTE","notes":"3:4 / 4:3 独立布局；缩小后一眼看懂 100% 与低MB/s冲突；原尺寸/50%/25%审计"}

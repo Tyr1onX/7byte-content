@@ -1,0 +1,22 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 1,
+  "episode": "018-disk-100-low-speed",
+  "project": "./episodes/018-disk-100-low-speed/src/project.ts",
+  "script": "episodes/018-disk-100-low-speed/script-tts.txt",
+  "timingModule": "episodes/018-disk-100-low-speed/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "这个100%",
+    "想查是谁",
+    "短时冲到100%",
+    "这里是7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 4
+}
