@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V3 Candidate / 待生产与人工确认
-- 版本：V3 Candidate
+- 状态：V3 Final Candidate / 待用户最终确认
+- 版本：V3 Final Candidate
 - 发布日期：
 - 发布链接：
 
@@ -14,13 +14,20 @@
 - Voice rate：`-5%`
 - V1 Production Build：`35936001016`，全绿但 final `35.467s`，主动淘汰
 - V2 Production Build：`35936454508`，全绿，body `22.355s` / final `26.967s`，但 Task Manager 到 `12.105s`，未作为最终候选
-- V3 Production Build：待运行
+- V3 Production Build：`35936830204`，全绿通过
+- Source：`1b659044d03c6bf0afa22fbb194a760ae1ddb590`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
+- “这个100%”机制解释进入：`3.552625s`
+- Task Manager 行动进入：`11.039458s`
+- 短时 / 持续判断进入：`15.315791s`
+- 正文结束 / canonical outro 起点：`21.288833s`
+- 最终成片时长：`25.900000s`
+- 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical horizontal header
 - 横版 outro：canonical horizontal outro
-- 最终成片长期存储：`/7BYTE/EP018/final.mp4`（待确认后归档）
-- 竖版封面：`/7BYTE/EP018/cover-vertical-3x4.png`（待确认后归档）
-- 横版封面：`/7BYTE/EP018/cover-horizontal-4x3.png`（待确认后归档）
+- 最终成片长期存储：`/7BYTE/EP018/final.mp4`
+- 竖版封面：`/7BYTE/EP018/cover-vertical-3x4.png`
+- 横版封面：`/7BYTE/EP018/cover-horizontal-4x3.png`
 
 ## 发布标题
 `任务管理器磁盘100%，为什么速度却只有几MB/s？`
@@ -39,21 +46,20 @@
 - 第一稳定帧换成强数字悖论：`ACTIVE TIME 100% / TRANSFER 3.2 MB/s`。
 - V1 因完整成片 `35.467s` 主动淘汰。
 - V2 final `26.967s` 已达时长目标，但 Task Manager 操作到 `12.105s`，继续压前半段。
-- V3 保留同一事实链，进一步缩短第一句与机制解释。
-- 目标：Task Manager 在 `11s` 前进入；完整成片约 `25–27s`。
+- V3 将机制解释提前到 `3.553s`，Task Manager 提前到 `11.039s`，final `25.900s`。
 - 数据目标：2s 跳出 `<35%`；5s 播放率 `>30%`；平均播放 `>6s`。
 
 ## 发布前检查
-- [ ] 最终 V3 TTS timing 回填
+- [x] 最终 V3 TTS timing 回填
 - [x] PhysicalDisk busy time / latency 事实核对
 - [x] 不把磁盘100%直接等同于硬盘损坏
 - [x] 不把100%说成“最高MB/s的100%”
 - [x] 第一稳定帧完整显示 100% / 3.2MB/s / 100%≠跑满带宽
-- [ ] Task Manager 操作在11s前进入
-- [ ] 字幕与主视觉不冲突
-- [ ] 视觉审计与 shot boundary 通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 品牌句与 canonical outro 同帧开始
+- [ ] Task Manager 操作严格早于11s（当前 `11.039s`，超目标约0.04s，接受为最终候选）
+- [x] 字幕与主视觉不冲突
+- [x] 视觉审计与 shot boundary 通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 品牌句与 canonical outro 同帧开始
 - [x] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
 - [ ] 用户人工确认最终成片
 
