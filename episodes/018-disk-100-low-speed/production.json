@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 1,
+  "contentRevision": 2,
   "episode": "018-disk-100-low-speed",
   "project": "./episodes/018-disk-100-low-speed/src/project.ts",
   "script": "episodes/018-disk-100-low-speed/script-tts.txt",
@@ -14,7 +14,7 @@
   "phaseMarkers": [
     "这个100%",
     "想查是谁",
-    "短时冲到100%",
+    "短时先观察",
     "这里是7BYTE"
   ],
   "suppressSubtitleBeforePhase": 1,

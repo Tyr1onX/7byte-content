@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V1 Candidate / 待生产与人工确认
-- 版本：V1 Candidate
+- 状态：V2 Candidate / 待生产与人工确认
+- 版本：V2 Candidate
 - 发布日期：
 - 发布链接：
 
@@ -12,7 +12,9 @@
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
-- Production Build：待运行
+- Production Build：V1 `35936001016` 全绿但主动淘汰；V2 待运行
+- V1 body end：`30.854625s`
+- V1 final：`35.466667s`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
 - 横版 header：canonical horizontal header
 - 横版 outro：canonical horizontal outro
@@ -35,13 +37,15 @@
 ## 本期实验
 - EP017 约84h：播放 `1147`、2s 跳出 `53.42%`、5s 播放率 `12.50%`、平均播放 `3s`。
 - 第一稳定帧换成强数字悖论：`ACTIVE TIME 100% / TRANSFER 3.2 MB/s`。
+- V1 Production Build `35936001016` 全绿，但完整成片 `35.467s`，未作为最终候选。
+- V2 主动压缩口播，保留同一事实链与同一视觉路线。
 - 第一答案在 2 秒内交付；指标差异解释尽量在 6 秒前完成。
 - Task Manager 操作目标在第 `11s` 前进入。
-- 正文目标 `21–23s`，完整成片 `26–28s`。
+- 目标完整成片 `26–28s`。
 - 目标：2s 跳出 `<35%`；5s 播放率 `>30%`；平均播放 `>6s`。
 
 ## 发布前检查
-- [ ] 最终 TTS timing 回填
+- [ ] 最终 V2 TTS timing 回填
 - [x] PhysicalDisk busy time / latency 事实核对
 - [x] 不把磁盘100%直接等同于硬盘损坏
 - [x] 不把100%说成“最高MB/s的100%”
@@ -51,7 +55,7 @@
 - [ ] 视觉审计与 shot boundary 通过
 - [ ] canonical header / watermark / outro 完全复用
 - [ ] 品牌句与 canonical outro 同帧开始
-- [ ] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
+- [x] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
 - [ ] 用户人工确认最终成片
 
 ## 发布后数据
