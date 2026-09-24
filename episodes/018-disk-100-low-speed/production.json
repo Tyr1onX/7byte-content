@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 2,
+  "contentRevision": 3,
   "episode": "018-disk-100-low-speed",
   "project": "./episodes/018-disk-100-low-speed/src/project.ts",
   "script": "episodes/018-disk-100-low-speed/script-tts.txt",
