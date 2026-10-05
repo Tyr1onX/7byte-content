@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 2,
+  "contentRevision": 3,
   "episode": "019-500mbps-game-lags",
   "project": "./episodes/019-500mbps-game-lags/src/project.ts",
   "script": "episodes/019-500mbps-game-lags/script-tts.txt",
@@ -12,7 +12,7 @@
   "fps": 60,
   "capturePaddingMs": 700,
   "phaseMarkers": [
-    "游戏响应看",
+    "Mbps看",
     "测速别只看Mbps",
     "下载再快",
     "这里是7BYTE"
