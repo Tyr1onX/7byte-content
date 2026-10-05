@@ -1,6 +1,6 @@
 {
   "pipelineVersion": 2,
-  "contentRevision": 4,
+  "contentRevision": 5,
   "episode": "019-500mbps-game-lags",
   "project": "./episodes/019-500mbps-game-lags/src/project.ts",
   "script": "episodes/019-500mbps-game-lags/script-tts.txt",
