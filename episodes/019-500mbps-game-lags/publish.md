@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V1 Production / 制作中
-- 版本：V1
+- 状态：V2 Production / 制作中
+- 版本：V2
 - 发布日期：
 - 发布链接：
 
@@ -12,12 +12,13 @@
 - 帧率：`60fps`
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
-- Production Build：待回填
+- V1 Production Build：`37260303320`，全绿但第一答案 `3.408s`、body `27.920s`、final `32.533s`，主动淘汰
+- V2 Production Build：待回填
 - Source：待回填
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
 - 第一答案结束目标：`<3s`
-- “想判断游戏网络”行动信息：待回填
-- “所以”结论进入：待回填
+- “测速别只看Mbps”行动信息：待回填
+- “下载再快”结论进入：待回填
 - 正文结束 / canonical outro 起点：待回填
 - 最终成片时长：待回填
 - 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
