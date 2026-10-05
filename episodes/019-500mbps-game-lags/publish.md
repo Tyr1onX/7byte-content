@@ -2,7 +2,7 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V5 Production / 制作中
+- 状态：V5 Final Candidate / 待人工确认
 - 版本：V5
 - 发布日期：
 - 发布链接：
@@ -14,14 +14,14 @@
 - Voice rate：`-5%`
 - V1 Production Build：`37260303320`，全绿但第一答案 `3.408s`、body `27.920s`、final `32.533s`，主动淘汰
 - V2 Production Build：`37260616494`，全绿；第一答案 `2.816s`、body `22.065s`、final `26.683s`，但字幕语义切分失败，主动淘汰\n- V3 Production Build：`37261080466`，全绿；第一答案 `2.816s`、body `23.236s`、final `27.850s`，但最后一条字幕仍发生未完成语义跨 cue，主动淘汰
-- V4 Production Build：`37261395617`，全绿；第一答案 `2.816s`、body `23.078s`、final `27.700s`，但字幕仍发生 `都会让游戏 / 更卡` 拆分，主动淘汰\n- V5 Production Build：待回填
-- Source：待回填
+- V4 Production Build：`37261395617`，全绿；第一答案 `2.816s`、body `23.078s`、final `27.700s`，但字幕仍发生 `都会让游戏 / 更卡` 拆分，主动淘汰\n- V5 Production Build：`37261660554`，全绿通过
+- Source：`1226c97692473e6469e150ec6d0927e16bc3ae22`
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
-- 第一答案结束目标：`<3s`
-- “测速别只看Mbps”行动信息：待回填
-- “下载再快”结论进入：待回填
-- 正文结束 / canonical outro 起点：待回填
-- 最终成片时长：待回填
+- 第一答案结束：`2.815791s`（目标 `<3s`，达标）
+- “测速别只看Mbps”行动信息：`10.868416s`
+- “下载再快”结论进入：`16.657875s`
+- 正文结束 / canonical outro 起点：`22.683541s`
+- 最终成片时长：`27.300000s`
 - 字幕：7BYTE Auto Subtitle Skill；Hook 与 canonical outro cue 抑制普通字幕
 - 横版 header：canonical horizontal header
 - 横版 outro：canonical horizontal outro
@@ -46,21 +46,21 @@
 - 延续 EP016/EP017 已知结论：大众现象有分发潜力，但前 2–5 秒必须更快交付价值。
 - 唯一实验变量：第一稳定帧 + 第一口播在前 3 秒直接给出 `500 Mbps ≠ 低延迟`。
 - V2 时长与首答均达标，但最终 ASS 出现紧密短语跨 cue 拆分，因此不因 Build 全绿而放行。
-- V3 主体视觉审计通过，但最后仍有 `都会影响 / 游戏体验` 的未完成语义拆分，继续拒绝。\n- V4 仍有 `都会让游戏 / 更卡` 的跨 cue 拆分，继续拒绝。\n- 数据目标：2s 跳出 `<35%`；5s 播放率 `>30%`；平均播放 `>6s`。
+- V3 主体视觉审计通过，但最后仍有 `都会影响 / 游戏体验` 的未完成语义拆分，继续拒绝。\n- V4 仍有 `都会让游戏 / 更卡` 的跨 cue 拆分，继续拒绝。\n- V5 最终 ASS 共 7 条正文 cue，全部为完整语义，无技术 token 拆分、无强制换行残留。\n- V5 visual audit 的 contact sheet、shot boundary、正文→canonical outro 边界全部人工查看通过。\n- 双封面 3:4 / 4:3 已分别完成原尺寸、50%、25% 审计。\n- 数据目标：2s 跳出 `<35%`；5s 播放率 `>30%`；平均播放 `>6s`。
 
 ## 发布前检查
 - [x] Cloudflare / Riot 官方资料完成事实核验
 - [x] 不把 speed-test throughput 与 bandwidth 完全等同
 - [x] 不把游戏卡顿全部归因于网络
 - [x] 不给跨游戏统一 ping 阈值
-- [ ] 最终 TTS timing 回填
-- [ ] 第一答案在 3s 前完成
-- [ ] 字幕与主视觉不冲突
-- [ ] Production Build 全绿
-- [ ] 视觉审计与 shot boundary 通过
-- [ ] canonical header / watermark / outro 完全复用
-- [ ] 品牌句与 canonical outro 同帧开始
-- [ ] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
+- [x] 最终 TTS timing 回填
+- [x] 第一答案在 3s 前完成
+- [x] 字幕与主视觉不冲突
+- [x] Production Build 全绿
+- [x] 视觉审计与 shot boundary 通过
+- [x] canonical header / watermark / outro 完全复用
+- [x] 品牌句与 canonical outro 同帧开始
+- [x] 3:4 + 4:3 双封面原尺寸 / 50% / 25%审计
 - [ ] 用户人工确认最终成片
 
 ## 发布后数据
