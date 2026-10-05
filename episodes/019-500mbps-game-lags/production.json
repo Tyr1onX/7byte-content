@@ -1,0 +1,22 @@
+{
+  "pipelineVersion": 2,
+  "contentRevision": 1,
+  "episode": "019-500mbps-game-lags",
+  "project": "./episodes/019-500mbps-game-lags/src/project.ts",
+  "script": "episodes/019-500mbps-game-lags/script-tts.txt",
+  "timingModule": "episodes/019-500mbps-game-lags/src/production-timing.ts",
+  "voice": "zh-CN-YunyangNeural",
+  "rate": "-5%",
+  "width": 1920,
+  "height": 1080,
+  "fps": 60,
+  "capturePaddingMs": 700,
+  "phaseMarkers": [
+    "因为五百兆",
+    "排查时别只盯",
+    "如果 Ping 还忽高忽低",
+    "这里是 7BYTE"
+  ],
+  "suppressSubtitleBeforePhase": 1,
+  "suppressSubtitleAtOrAfterPhase": 4
+}
