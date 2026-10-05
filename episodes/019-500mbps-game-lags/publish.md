@@ -2,8 +2,8 @@
 
 ## 状态
 - 平台：抖音
-- 状态：V3 Production / 制作中
-- 版本：V3
+- 状态：V4 Production / 制作中
+- 版本：V4
 - 发布日期：
 - 发布链接：
 
@@ -13,7 +13,8 @@
 - Voice：`zh-CN-YunyangNeural`
 - Voice rate：`-5%`
 - V1 Production Build：`37260303320`，全绿但第一答案 `3.408s`、body `27.920s`、final `32.533s`，主动淘汰
-- V2 Production Build：`37260616494`，全绿；第一答案 `2.816s`、body `22.065s`、final `26.683s`，但字幕语义切分失败，主动淘汰\n- V3 Production Build：待回填
+- V2 Production Build：`37260616494`，全绿；第一答案 `2.816s`、body `22.065s`、final `26.683s`，但字幕语义切分失败，主动淘汰\n- V3 Production Build：`37261080466`，全绿；第一答案 `2.816s`、body `23.236s`、final `27.850s`，但最后一条字幕仍发生未完成语义跨 cue，主动淘汰
+- V4 Production Build：待回填
 - Source：待回填
 - Timing：最终 TTS WordBoundary + `production.json.phaseMarkers`
 - 第一答案结束目标：`<3s`
@@ -44,7 +45,8 @@
 - EP018 发布后数据尚未回填，不以未知结果做选题推断。
 - 延续 EP016/EP017 已知结论：大众现象有分发潜力，但前 2–5 秒必须更快交付价值。
 - 唯一实验变量：第一稳定帧 + 第一口播在前 3 秒直接给出 `500 Mbps ≠ 低延迟`。
-- V2 时长与首答均达标，但最终 ASS 出现紧密短语跨 cue 拆分，因此不因 Build 全绿而放行。\n- 数据目标：2s 跳出 `<35%`；5s 播放率 `>30%`；平均播放 `>6s`。
+- V2 时长与首答均达标，但最终 ASS 出现紧密短语跨 cue 拆分，因此不因 Build 全绿而放行。
+- V3 主体视觉审计通过，但最后仍有 `都会影响 / 游戏体验` 的未完成语义拆分，继续拒绝。\n- 数据目标：2s 跳出 `<35%`；5s 播放率 `>30%`；平均播放 `>6s`。
 
 ## 发布前检查
 - [x] Cloudflare / Riot 官方资料完成事实核验
